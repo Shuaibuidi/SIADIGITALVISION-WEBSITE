@@ -1,0 +1,68 @@
+/* Shared Alibaba-inspired marketplace design for SIA Digital Vision */
+:root{--navy:#222f3e;--navy2:#34465a;--blue:#ff6a00;--cyan:#ff8a3d;--gold:#ffb000;--ink:#263238;--muted:#6b7280;--bg:#f5f6f7;--line:#e5e7eb;--green:#16845b}
+html{scroll-behavior:smooth}body{background:#f5f6f7;color:#263238;font-family:Arial,Helvetica,sans-serif}
+a{transition:color .15s ease}
+button,.btn{transition:background .15s ease,border-color .15s ease,transform .15s ease}
+.btn-blue,.btn:not(.secondary):not(.outline):not(.danger){background:#ff6a00;color:#fff}
+.btn-blue:hover,.btn:not(.secondary):not(.outline):not(.danger):hover{background:#e85f00}
+.btn-gold{background:#ffb000;color:#222}
+.btn-outline,.btn.secondary{background:#fff;color:#303b46;border:1px solid #cfd5dc}
+.btn-outline:hover,.btn.secondary:hover{border-color:#ff6a00;color:#e85f00}
+.btn-green{background:#16845b;color:#fff}
+.brand-mark{background:#ff6a00!important;box-shadow:none!important;border-radius:8px!important}
+.brand-name{color:#252f38!important}
+.brand-tag{letter-spacing:1.1px!important}
+.header{box-shadow:0 1px 5px #1111;border-bottom:1px solid #e7e9ec}
+.announcement{background:#f5f5f5!important;color:#4b5563!important;border-bottom:1px solid #e5e7eb}
+.announcement b{color:#ff6a00!important}
+.search{background:#fff!important;border:2px solid #ff6a00!important;border-radius:3px!important}
+.search input{padding:11px 8px!important}
+.navbar{border-top:1px solid #eceff1!important}
+.nav-in a:hover,.nav-in a.selected{color:#e85f00!important;background:#fff4ec!important}
+.hero{background:linear-gradient(110deg,#26394d,#344f68 62%,#243d55)!important}
+.hero h1 span{color:#ffb000!important}
+.hero .btn-gold{background:#ffb000!important;color:#222!important}
+.hero-panel,.category,.service-card,.product,.contact-card,.account-in{border-radius:7px!important;box-shadow:0 2px 8px #18212b0b!important}
+.category:hover{border-color:#ff9a55!important}
+.filter.active,.filter:hover{background:#ff6a00!important;border-color:#ff6a00!important}
+.service-foot a,.product-info a{color:#e85f00!important}
+.product-art{background:#fff4ec!important}
+.account-band{background:#f5f6f7!important}
+.account-in{background:#fff!important;border:1px solid #e5e7eb!important}
+.section h2{color:#25313c!important}
+.section .kicker{color:#e85f00!important}
+footer{background:#222f3e!important}
+
+/* Customer portal */
+.top{background:#fff;color:#374151;padding-top:16px!important;padding-bottom:16px!important;border-bottom:1px solid #e5e7eb}
+.top a{color:#e85f00!important}
+.shell{background:#fff!important;border:1px solid #e5e7eb;border-radius:9px!important;box-shadow:0 5px 24px #1111!important;overflow:hidden}
+.side{background:linear-gradient(150deg,#25384c,#344f68)!important}
+.side h1 span{color:#ffb000!important}
+.main{background:#fff}
+.tabs{background:#f4f5f6!important;border-radius:5px!important}
+.tabs button.active{color:#e85f00!important;border-radius:4px!important}
+.field input,.field textarea,.field select,input,textarea,select{border-color:#d7dce1!important;border-radius:4px!important}
+.field input:focus,.field textarea:focus,input:focus,textarea:focus,select:focus{border-color:#ff8a3d!important;box-shadow:0 0 0 2px #ff6a0017!important}
+.submit{background:#ff6a00!important;border-radius:4px!important}
+.submit:hover{background:#e85f00!important}
+.linkbtn{color:#e85f00!important}
+.dashboard,.order-panel,.coming{border-radius:6px!important;border-color:#e5e7eb!important}
+
+/* Admin workspaces */
+body:has(>header) header{background:#fff!important;color:#25313c!important;border-bottom:1px solid #e5e7eb;box-shadow:0 1px 4px #1111}
+body:has(>header) header small{color:#77818c!important}
+body:has(>header) header a{color:#e85f00!important}
+.wrap{width:min(1160px,calc(100% - 28px))!important;margin:25px auto!important}
+h1{color:#25313c!important}
+.panel{border:1px solid #e5e7eb!important;border-radius:7px!important;box-shadow:0 2px 9px #111108!important}
+.grid{gap:12px}
+.stat{background:#fff!important;border:1px solid #e5e7eb!important;border-radius:6px!important}
+.stat strong{color:#e85f00!important}
+.order,.card,.customer{border:1px solid #e5e7eb!important;border-radius:6px!important;box-shadow:0 1px 4px #111108}
+.order h3,.card h3,.customer h3{color:#263238!important}
+.pill{background:#fff1e7!important;color:#bd4a00!important;border-radius:3px!important}
+.btn{border-radius:4px!important}
+.btn.danger{background:#a83232!important;color:#fff!important}
+.notice{border-radius:4px!important}
+@media(max-width:650px){.wrap{margin:16px auto!important}.shell{grid-template-columns:1fr!important}.side{padding:25px!important}.side h1{font-size:29px!important}.main{padding:25px 20px!important}}
