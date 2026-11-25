@@ -46,7 +46,7 @@ label{display:block;font-size:11px;font-weight:800;margin:12px 0 6px}
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
 import {getAuth,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
-import {getFirestore,doc,getDoc,collection,getDocs,updateDoc,serverTimestamp} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+import {getFirestore,doc,getDoc,collection,getDocs,updateDoc,serverTimestamp,runTransaction} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 const firebaseConfig={apiKey:"AIzaSyAFP-RfZWPKPcHU9NqtTzX1b8HvVVzkb3Y",authDomain:"mobile-tech-room.firebaseapp.com",projectId:"mobile-tech-room",storageBucket:"mobile-tech-room.firebasestorage.app",messagingSenderId:"620229324084",appId:"1:620229324084:web:7e2ae7a2550228a4dfc961",measurementId:"G-GPJM1C83TT"};
 const app=initializeApp(firebaseConfig);const auth=getAuth(app);const db=getFirestore(app);const $=id=>document.getElementById(id);
 const allowedStatuses=["pending","approved","in progress","completed","rejected"];
@@ -75,7 +75,24 @@ async function loadOrders(){
    allowedStatuses.forEach(s=>{const op=document.createElement("option");op.value=s;op.textContent=s.replace(/\b\w/g,c=>c.toUpperCase());select.append(op)});
    select.value=allowedStatuses.includes((o.status||"pending").toLowerCase())?(o.status||"pending").toLowerCase():"pending";
    const save=document.createElement("button");save.className="btn";save.type="button";save.textContent="Save status";
-   save.addEventListener("click",async()=>{save.disabled=true;save.textContent="Saving…";try{await updateDoc(doc(db,"serviceOrders",o.id),{status:select.value,updatedAt:serverTimestamp()});pill.textContent=select.value;notice("Order "+o.id+" updated to "+select.value+".");await loadOrders()}catch(e){notice("Could not update order ("+(e.code||e.message||"error")+"). Check the Firestore admin update rule.", "error")}finally{save.disabled=false;save.textContent="Save status"}});
+   save.addEventListener("click",async()=>{save.disabled=true;save.textContent="Saving…";try{await runTransaction(db,async tx=>{
+ const orderRef=doc(db,"serviceOrders",o.id),orderSnap=await tx.get(orderRef);
+ if(!orderSnap.exists())throw new Error("This order no longer exists. Refresh the list.");
+ const current=orderSnap.data(),nextStatus=select.value;
+ if(nextStatus==="approved"&&current.orderType==="Product"&&current.catalogueItemId&&!current.stockDeducted){
+  const itemRef=doc(db,"catalogueItems",current.catalogueItemId),itemSnap=await tx.get(itemRef);
+  if(!itemSnap.exists())throw new Error("The ordered product is no longer in the catalogue.");
+  const item=itemSnap.data();
+  if(item.stockTracked===true){
+   const qty=Math.max(1,Math.floor(Number(current.quantity||1))),stock=Math.max(0,Math.floor(Number(item.stockQuantity||0)));
+   if(stock<qty)throw new Error("INSUFFICIENT_STOCK: Only "+stock+" unit(s) remain, but this order requests "+qty+". Update stock or contact the customer.");
+   const remaining=stock-qty,threshold=Math.max(0,Number(item.lowStockThreshold??3));
+   const availability=remaining===0?"Out of stock":remaining<=threshold?"Low stock":"In stock";
+   tx.update(itemRef,{stockQuantity:remaining,availability,updatedAt:serverTimestamp()});
+   tx.update(orderRef,{status:nextStatus,stockDeducted:true,stockDeductedQuantity:qty,stockDeductedAt:serverTimestamp(),updatedAt:serverTimestamp()});
+  }else tx.update(orderRef,{status:nextStatus,updatedAt:serverTimestamp()});
+ }else tx.update(orderRef,{status:nextStatus,updatedAt:serverTimestamp()});
+});pill.textContent=select.value;notice(select.value==="approved"&&o.orderType==="Product"&&o.catalogueItemId&&!o.stockDeducted?"Order approved and product stock deducted (once).":"Order "+o.id+" updated to "+select.value+".");await loadOrders()}catch(e){notice("Could not update order ("+(e.message||e.code||"error")+").","error")}finally{save.disabled=false;save.textContent="Save status"}});
    controls.append(select,save);card.append(top,details,controls);host.append(card);
   }
  }catch(e){host.innerHTML='<div class="empty">Could not load orders ('+esc(e.code||e.message||"error")+'). Check that this account has administrator access and the Firestore rules allow admins to list orders.</div>'}
