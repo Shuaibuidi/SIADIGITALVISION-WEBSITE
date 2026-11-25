@@ -44,7 +44,9 @@ textarea{min-height:75px;resize:vertical}.btn{border:0;border-radius:4px;backgro
 </div>
 <label for="description">Description *</label><textarea id="description" maxlength="500" required placeholder="Describe the product or service"></textarea>
 <div class="grid">
-<div><label for="availability">Availability</label><select id="availability"><option value="Available">Available</option><option value="On request">On request</option><option value="Out of stock">Out of stock</option></select></div>
+<div id="stockFields" class="hidden"><label for="stockQuantity">Stock quantity *</label><input id="stockQuantity" type="number" min="0" step="1" placeholder="How many units are available"></div>
+<div id="lowStockFields" class="hidden"><label for="lowStockThreshold">Low-stock alert level</label><input id="lowStockThreshold" type="number" min="0" step="1" value="3"></div>
+<div><label for="availability">Availability</label><select id="availability"><option value="Available">Available</option><option value="In stock">In stock</option><option value="Low stock">Low stock</option><option value="On request">On request</option><option value="Out of stock">Out of stock</option></select></div>
 <div><label for="icon">Display icon (emoji)</label><input id="icon" maxlength="8" placeholder="📱"></div>
 </div>
 <label class="checkline"><input id="active" type="checkbox" checked> Show this item to customers (active)</label>
@@ -63,7 +65,7 @@ const firebaseConfig={apiKey:"AIzaSyAFP-RfZWPKPcHU9NqtTzX1b8HvVVzkb3Y",authDomai
 const app=initializeApp(firebaseConfig);const auth=getAuth(app);const db=getFirestore(app);const $=id=>document.getElementById(id);
 function notice(msg,type="ok"){$("notice").textContent=msg;$("notice").className="notice "+type}
 function denied(msg){$("checking").classList.add("hidden");$("manager").classList.add("hidden");$("denied").classList.remove("hidden");$("deniedText").textContent=msg}
-function resetForm(){$("itemForm").reset();$("itemId").value="";$("active").checked=true;$("formHeading").textContent="Add a catalogue item";$("saveBtn").textContent="Save catalogue item";$("cancelBtn").classList.add("hidden")}
+function resetForm(){$("itemForm").reset();$("itemId").value="";$("active").checked=true;$("lowStockThreshold").value="3";$("formHeading").textContent="Add a catalogue item";$("saveBtn").textContent="Save catalogue item";$("cancelBtn").classList.add("hidden");toggleStockFields()} function toggleStockFields(){const isProduct=$("type").value==="product";$("stockFields").classList.toggle("hidden",!isProduct);$("lowStockFields").classList.toggle("hidden",!isProduct);$("stockQuantity").required=isProduct}
 function safeText(value){return String(value??"")}
 async function loadItems(){
  const host=$("items");host.textContent="Loading catalogue…";
@@ -78,7 +80,7 @@ async function loadItems(){
    const title=document.createElement("div");const h=document.createElement("h3");h.textContent=(item.icon?item.icon+" ":"")+safeText(item.name);const small=document.createElement("small");small.textContent=safeText(item.category)+" · "+safeText(item.type);title.append(h,small);
    const tag=document.createElement("span");tag.className="tag";tag.textContent=item.active===false?"Hidden":safeText(item.availability||"Available");top.append(title,tag);
    const p=document.createElement("p");p.textContent=safeText(item.description);
-   const meta=document.createElement("small");meta.textContent=item.price===null||item.price===undefined||item.price===""?"Price: By quotation":"Price: MK "+Number(item.price).toLocaleString("en-US");
+   const meta=document.createElement("small");meta.textContent=(item.price===null||item.price===undefined||item.price===""?"Price: By quotation":"Price: MK "+Number(item.price).toLocaleString("en-US"))+(item.type==="product"&&item.stockTracked===true?" · Stock: "+Number(item.stockQuantity||0)+" · Low-stock alert: "+Number(item.lowStockThreshold??3):"");
    const actions=document.createElement("div");actions.className="actions";
    const edit=document.createElement("button");edit.className="btn secondary";edit.type="button";edit.textContent="Edit";edit.addEventListener("click",()=>editItem(item));
    const toggle=document.createElement("button");toggle.className="btn secondary";toggle.type="button";toggle.textContent=item.active===false?"Show to customers":"Hide from customers";toggle.addEventListener("click",async()=>{toggle.disabled=true;try{await updateDoc(doc(db,"catalogueItems",item.id),{active:item.active===false,updatedAt:serverTimestamp()});notice("Catalogue visibility updated.");await loadItems()}catch(e){notice("Could not update item ("+(e.code||e.message)+").","error")}finally{toggle.disabled=false}});
@@ -87,17 +89,17 @@ async function loadItems(){
   }
  }catch(e){host.textContent="Could not load catalogue ("+(e.code||e.message||"Firestore error")+"). Check the catalogueItems administrator read permission."}
 }
-function editItem(item){$("itemId").value=item.id;$("name").value=safeText(item.name);$("type").value=item.type==="product"?"product":"service";$("category").value=item.category||"Printing & Media Services";$("price").value=item.price??"";$("description").value=safeText(item.description);$("availability").value=item.availability||"Available";$("icon").value=item.icon||"";$("active").checked=item.active!==false;$("formHeading").textContent="Edit catalogue item";$("saveBtn").textContent="Save changes";$("cancelBtn").classList.remove("hidden");window.scrollTo({top:0,behavior:"smooth"})}
+function editItem(item){$("itemId").value=item.id;$("name").value=safeText(item.name);$("type").value=item.type==="product"?"product":"service";$("category").value=item.category||"Printing & Media Services";$("price").value=item.price??"";$("description").value=safeText(item.description);$("availability").value=item.availability||"Available";$("icon").value=item.icon||"";$("active").checked=item.active!==false;$("stockQuantity").value=item.stockQuantity??"";$("lowStockThreshold").value=item.lowStockThreshold??3;toggleStockFields();$("formHeading").textContent="Edit catalogue item";$("saveBtn").textContent="Save changes";$("cancelBtn").classList.remove("hidden");window.scrollTo({top:0,behavior:"smooth"})}
 $("itemForm").addEventListener("submit",async e=>{
  e.preventDefault();const id=$("itemId").value;const price=$("price").value.trim();
- const data={name:$("name").value.trim(),type:$("type").value,category:$("category").value,description:$("description").value.trim(),price:price===""?null:Number(price),availability:$("availability").value,icon:$("icon").value.trim(),active:$("active").checked,updatedAt:serverTimestamp()};
+ const type=$("type").value;const stockValue=$("stockQuantity").value.trim();const thresholdValue=$("lowStockThreshold").value.trim();if(type==="product"&&(stockValue===""||!Number.isInteger(Number(stockValue))||Number(stockValue)<0)){notice("Enter a valid whole-number stock quantity for this product.","error");return}const stockQuantity=type==="product"?Number(stockValue):null;const lowStockThreshold=type==="product"?(thresholdValue===""?3:Math.max(0,Math.floor(Number(thresholdValue)))):null;const stockAvailability=type==="product"?(stockQuantity===0?"Out of stock":stockQuantity<=lowStockThreshold?"Low stock":"In stock"):$("availability").value;const data={name:$("name").value.trim(),type,category:$("category").value,description:$("description").value.trim(),price:price===""?null:Number(price),availability:stockAvailability,stockTracked:type==="product",stockQuantity,lowStockThreshold,icon:$("icon").value.trim(),active:$("active").checked,updatedAt:serverTimestamp()};
  if(!data.name||!data.description){notice("Please complete the required fields.","error");return}
  $("saveBtn").disabled=true;
  try{if(id){await updateDoc(doc(db,"catalogueItems",id),data);notice("Catalogue item updated successfully.")}else{data.createdAt=serverTimestamp();await addDoc(collection(db,"catalogueItems"),data);notice("Catalogue item added successfully.")}resetForm();await loadItems()}
  catch(err){notice("Could not save catalogue item ("+(err.code||err.message||"error")+"). Check your administrator catalogue write permission.","error")}
  finally{$("saveBtn").disabled=false}
 });
-$("resetBtn").addEventListener("click",resetForm);$("cancelBtn").addEventListener("click",resetForm);$("refreshBtn").addEventListener("click",loadItems);
+$("type").addEventListener("change",toggleStockFields);$("resetBtn").addEventListener("click",resetForm);$("cancelBtn").addEventListener("click",resetForm);$("refreshBtn").addEventListener("click",loadItems);toggleStockFields();
 $("signOutBtn").addEventListener("click",async()=>{await signOut(auth);location.href="account.html"});
 onAuthStateChanged(auth,async user=>{if(!user){denied("Please sign in with your approved administrator email first.");return}
  try{const snap=await getDoc(doc(db,"users",user.uid));const profile=snap.exists()?snap.data():{};if(profile.role!=="admin"||profile.status!=="approved"){denied("This account is not an approved administrator. Sign out and use your admin account.");return}
