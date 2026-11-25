@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#ffffff">
+<title>Admin Dashboard | SIA Digital Vision</title>
+<link rel="stylesheet" href="marketplace.css?v=admin-dashboard261126">
+<style>
+:root{--orange:#ff6a00;--ink:#263238;--muted:#718096;--line:#e5e7eb}
+*{box-sizing:border-box}body{margin:0;background:#f5f6f7;color:var(--ink);font-family:Arial,sans-serif}
+header{background:#fff;border-bottom:1px solid var(--line);padding:16px max(16px,calc((100% - 1160px)/2));display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+header b{font-size:15px}header small{display:block;color:#77818c;font-size:10px;margin-top:4px}
+nav{display:flex;gap:15px;flex-wrap:wrap}nav a{font-size:11px;font-weight:800;color:#e85f00;text-decoration:none}
+.wrap{width:min(1160px,calc(100% - 28px));margin:25px auto 45px}
+h1{font-size:26px;margin:0 0 6px;color:#263238}.muted{font-size:12px;color:var(--muted);line-height:1.6}
+.panel{background:#fff;border:1px solid var(--line);border-radius:7px;padding:18px;margin:16px 0;box-shadow:0 2px 9px #111108}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin:18px 0}
+.stat{background:#fff;border:1px solid var(--line);border-radius:7px;padding:17px;min-height:105px}
+.stat .label{font-size:11px;color:#687482;font-weight:700}.stat strong{display:block;font-size:25px;color:var(--orange);margin:10px 0 3px;overflow-wrap:anywhere}.stat small{font-size:10px;color:#84909b}
+.actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:16px 0}
+.action{display:block;text-decoration:none;color:inherit;background:#fff;border:1px solid var(--line);border-radius:7px;padding:17px;min-height:105px}
+.action b{font-size:14px;display:block;margin-bottom:7px}.action span{font-size:11px;color:#718096;line-height:1.5}.action:hover{border-color:#ffb27f}
+.btn{border:0;border-radius:4px;background:var(--orange);color:white;padding:10px 14px;font-weight:800;font-size:11px;cursor:pointer}.btn.secondary{background:#f5f6f7;color:#263238;border:1px solid var(--line)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.notice{display:none;padding:12px;margin:12px 0;border-radius:4px;font-size:12px}.notice.error{display:block;background:#fff0ef;color:#a52d28}
+.hidden{display:none!important}.recent{border-top:1px solid #edf0f2;padding:12px 0;font-size:12px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}.recent:first-child{border-top:0}
+.status{font-size:10px;font-weight:800;color:#bd4a00;background:#fff1e7;padding:5px 8px;border-radius:3px}
+@media(max-width:760px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.actions{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.grid{grid-template-columns:1fr 1fr;gap:8px}.stat{padding:12px;min-height:94px}.stat strong{font-size:20px}.actions{grid-template-columns:1fr}.wrap{margin:17px auto 30px}}
+</style>
+</head>
+<body>
+<header><div><b>S I A TECH PRINT MEDIA</b><small>ADMINISTRATION · BUSINESS OVERVIEW</small></div>
+<nav><a href="index.html">Marketplace</a><a href="admin.html">Orders</a><a href="invoices.html">Invoices & payments</a><a href="customers.html">Customers</a><a href="account.html">Customer portal</a></nav></header>
+<main class="wrap">
+<section id="checking" class="panel"><b>Checking administrator access…</b><p class="muted">Please wait while we verify your signed-in account.</p></section>
+<section id="denied" class="panel hidden"><h1>Admin access required</h1><p class="muted" id="deniedText">Sign in using an approved administrator account.</p><a class="btn" href="account.html">Open sign-in page</a></section>
+<section id="dashboard" class="hidden">
+<div class="row"><div><h1>Business Dashboard</h1><p class="muted">A live overview of your customers, orders, invoices and payments.</p></div><button class="btn secondary" id="refresh" type="button">Refresh figures</button></div>
+<div id="notice" class="notice"></div>
+<div class="grid">
+<div class="stat"><span class="label">REGISTERED CUSTOMERS</span><strong id="customers">—</strong><small>Customer accounts</small></div>
+<div class="stat"><span class="label">TOTAL ORDERS</span><strong id="orders">—</strong><small>All customer requests</small></div>
+<div class="stat"><span class="label">PENDING ORDERS</span><strong id="pending">—</strong><small>Waiting for review</small></div>
+<div class="stat"><span class="label">TOTAL INVOICES</span><strong id="invoices">—</strong><small>Invoices issued</small></div>
+<div class="stat"><span class="label">PAYMENTS RECEIVED</span><strong id="received">—</strong><small>Recorded payment entries · MWK</small></div>
+<div class="stat"><span class="label">OUTSTANDING BALANCE</span><strong id="outstanding">—</strong><small>Unpaid invoice balances · MWK</small></div>
+</div>
+<h2 style="font-size:17px;margin:25px 0 8px">Manage your business</h2>
+<div class="actions">
+<a class="action" href="admin.html"><b>Customer Orders ↗</b><span>Review new requests and update order progress.</span></a>
+<a class="action" href="invoices.html"><b>Invoices & Payments ↗</b><span>Create invoices, record payments and track balances.</span></a>
+<a class="action" href="customers.html"><b>Customer Management ↗</b><span>Find customer accounts and view their orders and invoices.</span></a>
+</div>
+<section class="panel"><div class="row"><div><b>Recent customer orders</b><p class="muted">The latest requests received by your platform.</p></div><a class="btn secondary" href="admin.html">View all orders</a></div><div id="recent"><p class="muted">Loading recent orders…</p></div></section>
+<button class="btn secondary" id="signOut" type="button">Sign out</button>
+</section>
+</main>
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+import {getAuth,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+import {getFirestore,doc,getDoc,collection,getDocs} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+const firebaseConfig={apiKey:"AIzaSyAFP-RfZWPKPcHU9NqtTzX1b8HvVVzkb3Y",authDomain:"mobile-tech-room.firebaseapp.com",projectId:"mobile-tech-room",storageBucket:"mobile-tech-room.firebasestorage.app",messagingSenderId:"620229324084",appId:"1:620229324084:web:7e2ae7a2550228a4dfc961",measurementId:"G-GPJM1C83TT"};
+const app=initializeApp(firebaseConfig);const auth=getAuth(app);const db=getFirestore(app);const $=id=>document.getElementById(id);
+function showDenied(message){$("checking").classList.add("hidden");$("dashboard").classList.add("hidden");$("denied").classList.remove("hidden");$("deniedText").textContent=message}
+function money(n){return "MK "+Number(n||0).toLocaleString("en-US",{maximumFractionDigits:0})}
+function dateText(ts){try{return ts?.toDate?ts.toDate().toLocaleString(): "Date unavailable"}catch{return "Date unavailable"}}
+function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function errorNotice(message){$("notice").textContent=message;$("notice").className="notice error"}
+async function loadDashboard(){
+ $("refresh").disabled=true;$("refresh").textContent="Refreshing…";$("notice").className="notice";
+ try{
+  const [cs,os,is,ps]=await Promise.all([getDocs(collection(db,"platformCustomers")),getDocs(collection(db,"serviceOrders")),getDocs(collection(db,"invoices")),getDocs(collection(db,"invoicePayments"))]);
+  const customers=cs.docs,orders=os.docs.map(d=>({id:d.id,...d.data()})),invoices=is.docs.map(d=>({id:d.id,...d.data()})),payments=ps.docs.map(d=>d.data());
+  const pending=orders.filter(o=>(o.status||"pending").toLowerCase()==="pending").length;
+  const received=payments.reduce((sum,p)=>sum+Number(p.amount||0),0);
+  const paidByInvoice={};payments.forEach(p=>{if(p.invoiceId)paidByInvoice[p.invoiceId]=(paidByInvoice[p.invoiceId]||0)+Number(p.amount||0)});
+  const outstanding=invoices.reduce((sum,inv)=>sum+Math.max(0,Number(inv.total||0)-(paidByInvoice[inv.id]||0)),0);
+  $("customers").textContent=customers.length.toLocaleString();
+  $("orders").textContent=orders.length.toLocaleString();
+  $("pending").textContent=pending.toLocaleString();
+  $("invoices").textContent=invoices.length.toLocaleString();
+  $("received").textContent=money(received);
+  $("outstanding").textContent=money(outstanding);
+  const recent=[...orders].sort((a,b)=>(b.createdAt?.toMillis?.()||0)-(a.createdAt?.toMillis?.()||0)).slice(0,5);
+  const host=$("recent");host.replaceChildren();
+  if(!recent.length){host.innerHTML='<p class="muted">No customer orders have been received yet.</p>'}
+  else recent.forEach(o=>{const row=document.createElement("div");row.className="recent";const left=document.createElement("span");left.textContent=(o.serviceName||"Customer order")+" · "+(o.customerName||"Customer");const right=document.createElement("span");right.className="status";right.textContent=o.status||"pending";const when=document.createElement("span");when.className="muted";when.textContent=dateText(o.createdAt);row.append(left,right,when);host.append(row)});
+ }catch(e){errorNotice("Dashboard figures could not be loaded ("+(e.code||e.message||"Firestore error")+"). Please check administrator read permissions.")}
+ finally{$("refresh").disabled=false;$("refresh").textContent="Refresh figures"}
+}
+$("refresh").addEventListener("click",loadDashboard);
+$("signOut").addEventListener("click",async()=>{await signOut(auth);location.href="account.html"});
+onAuthStateChanged(auth,async user=>{
+ if(!user){showDenied("Please sign in with your approved administrator email first.");return}
+ try{const profile=await getDoc(doc(db,"users",user.uid));const data=profile.exists()?profile.data():{};
+  if(data.role!=="admin"||data.status!=="approved"){showDenied("This account is not an approved administrator. Please sign out and use your admin account.");return}
+  $("checking").classList.add("hidden");$("dashboard").classList.remove("hidden");await loadDashboard();
+ }catch(e){showDenied("We could not verify administrator access ("+(e.code||"Firestore error")+"). Please try again.")}
+});
+</script>
+</body></html>
