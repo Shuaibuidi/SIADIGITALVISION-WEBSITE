@@ -60,10 +60,13 @@ Build a functional customer and business platform inspired by the workflow of a 
 - Stage 5 — Owner dashboard and reporting: customer/order/payment management, reports, audit log and notification controls.
 - Stage 6 — Production readiness: mobile testing, security rules tests, backup/recovery checks, domain/hosting setup and controlled release.
 
+## Decisions recorded
+- Customer balances are **outstanding invoice balances only**. There is no prepaid wallet, stored-value balance, customer deposit or withdrawal feature.
+- Invoice balances are calculated from the invoice total minus verified payments.
+
 ## Decisions still required before payment implementation
 - Payment provider(s) to support in Malawi (for example Airtel Money, TNM Mpamba, bank/card, or a supported payment aggregator).
-- Whether payments are per order only or whether a prepaid wallet/account balance is genuinely required.
-- Whether the platform will initially serve only S I A Tech Print Media customers or also external technicians/resellers.
+- Whether the first release will serve only S I A Tech Print Media customers or also external technicians/resellers.
 
 ## Non-negotiable safety rules
 - Never expose Firebase service-account credentials, payment secrets or private API keys in client-side code or GitHub.
