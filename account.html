@@ -22,7 +22,7 @@
 <div class="field"><label for="orderQuantity">Quantity</label><input id="orderQuantity" type="number" min="1" step="1" value="1" required></div>
 <div class="field"><label for="orderDetails">Additional details</label><textarea id="orderDetails" required maxlength="1200" placeholder="Describe the service you need, device model, product specifications or any other details."></textarea></div>
 <button class="submit" id="placeOrderBtn" type="submit">Submit order request</button><div id="orderNotice" class="message"></div></form>
-<div class="order-panel"><h3>My orders</h3><p class="muted">View your submitted service and product requests and their latest status.</p><button class="linkbtn" id="refreshOrdersBtn" type="button">Refresh my orders</button><div id="ordersList" class="order-list"><div class="empty-orders">Loading your orders…</div></div></div><div class="coming"><b>Payment information:</b> Orders are requests only until our team confirms them. We will issue an invoice with the amount due and record any payments against that invoice. There is no prepaid wallet.</div><button class="submit" id="signOutBtn" type="button">Sign out</button></div>
+<div class="order-panel"><h3>My orders</h3><p class="muted">View your submitted service and product requests and their latest status.</p><button class="linkbtn" id="refreshOrdersBtn" type="button">Refresh my orders</button><div id="ordersList" class="order-list"><div class="empty-orders">Loading your orders…</div></div></div><div class="order-panel"><h3>My invoices & payments</h3><p class="muted">View invoices issued for your orders, payments received and any remaining balance.</p><button class="linkbtn" id="refreshInvoicesBtn" type="button">Refresh my invoices</button><div id="customerInvoices" class="order-list"><div class="empty-orders">Loading invoices…</div></div></div><div class="coming"><b>Payment information:</b> Orders are requests only until our team confirms them. We will issue an invoice with the amount due and record any payments against that invoice. There is no prepaid wallet.</div><button class="submit" id="signOutBtn" type="button">Sign out</button></div>
 <p class="legal">Your password is handled by Firebase Authentication. Never share your password, payment PIN or verification codes with anyone.</p>
 </section></main>
 <script type="module">
@@ -66,6 +66,34 @@ async function loadCustomerOrders(){
   });
  }catch(err){list.innerHTML='<div class="empty-orders">Could not load orders ('+(err.code||'connection error')+'). Please try again.</div>'}
 }
+async function loadCustomerInvoices(){
+ const host=$('customerInvoices'),user=auth.currentUser;
+ if(!user){host.textContent='Please sign in to view invoices.';return}
+ host.innerHTML='<div class="empty-orders">Loading invoices…</div>';
+ try{
+  const [is,ps]=await Promise.all([
+   getDocs(query(collection(db,'invoices'),where('customerId','==',user.uid))),
+   getDocs(query(collection(db,'invoicePayments'),where('customerId','==',user.uid)))
+  ]);
+  const invoices=is.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt?.toMillis?.()||0)-(a.createdAt?.toMillis?.()||0));
+  const payments=ps.docs.map(d=>({id:d.id,...d.data()}));
+  host.replaceChildren();
+  if(!invoices.length){host.innerHTML='<div class="empty-orders">No invoices have been issued for your account yet.</div>';return}
+  invoices.forEach(inv=>{
+   const paid=payments.filter(p=>p.invoiceId===inv.id).reduce((sum,p)=>sum+Number(p.amount||0),0);
+   const total=Number(inv.total||0),balance=Math.max(0,total-paid),currency=inv.currency||'MWK';
+   const card=document.createElement('article');card.className='order-item';
+   const top=document.createElement('div');top.className='order-item-top';
+   const title=document.createElement('b');title.textContent=inv.invoiceNumber||'Invoice';
+   const status=document.createElement('span');status.className='order-status';status.textContent=balance===0?'Paid':paid>0?'Advance paid':'Unpaid';top.append(title,status);
+   const detail=document.createElement('p');detail.textContent=(inv.description||'Invoice')+'\nTotal: '+currency+' '+total.toLocaleString()+'\nPaid: '+currency+' '+paid.toLocaleString()+'\nBalance due: '+currency+' '+balance.toLocaleString()+(inv.dueDate?'\nDue date: '+inv.dueDate:'');
+   const rows=payments.filter(p=>p.invoiceId===inv.id);
+   if(rows.length)detail.textContent+='\n\nPayments received:\n'+rows.map(p=>currency+' '+Number(p.amount||0).toLocaleString()+' · '+(p.method||'')+(p.reference?' · '+p.reference:'')).join('\n');
+   card.append(top,detail);host.append(card);
+  });
+ }catch(err){host.innerHTML='<div class="empty-orders">Could not load invoices ('+(err.code||'connection error')+'). Please refresh or contact the shop.</div>'}
+}
+$('refreshInvoicesBtn').addEventListener('click',loadCustomerInvoices);
 $('orderForm').addEventListener('submit',async e=>{
  e.preventDefault();const btn=$('placeOrderBtn'),msg=$('orderNotice'),user=auth.currentUser;
  msg.className='message';msg.textContent='';
@@ -95,6 +123,6 @@ $('orderForm').addEventListener('submit',async e=>{
 });
 $('refreshOrdersBtn').addEventListener('click',loadCustomerOrders);
 $('signOutBtn').addEventListener('click',async()=>{try{await signOut(auth)}catch(e){showMessage(friendlyError(e))}});
-onAuthStateChanged(auth,user=>{if(user){$('authArea').classList.add('hidden');$('dashboard').classList.remove('hidden');$('dashName').textContent=user.displayName||'Customer';$('dashEmail').textContent=user.email||'—';$('dashUid').textContent=user.uid||'Unavailable';ensureCustomerProfile(user);loadCustomerOrders()}else{$('authArea').classList.remove('hidden');$('dashboard').classList.add('hidden')}});
+onAuthStateChanged(auth,user=>{if(user){$('authArea').classList.add('hidden');$('dashboard').classList.remove('hidden');$('dashName').textContent=user.displayName||'Customer';$('dashEmail').textContent=user.email||'—';$('dashUid').textContent=user.uid||'Unavailable';ensureCustomerProfile(user);loadCustomerOrders();loadCustomerInvoices()}else{$('authArea').classList.remove('hidden');$('dashboard').classList.add('hidden')}});
 if(location.hash==='#register')setTab('register');
 </script></body></html>
