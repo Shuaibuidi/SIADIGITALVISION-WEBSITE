@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#071b3b"><title>Customer Management | SIA Digital Vision</title>
+<style>
+:root{--navy:#071b3b;--blue:#0877e8;--ink:#172b49;--muted:#718096;--line:#e3eaf2}*{box-sizing:border-box}body{margin:0;background:#f3f6fa;color:var(--ink);font-family:Arial,sans-serif}header{background:var(--navy);color:#fff;padding:17px max(16px,calc((100% - 1100px)/2));display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}header b{font-size:15px}header small{display:block;color:#bfd2e8;font-size:10px;margin-top:4px}a{color:inherit;text-decoration:none}.wrap{width:min(1100px,calc(100% - 26px));margin:24px auto}h1{font-size:25px;color:var(--navy);margin:0 0 6px}.muted{font-size:12px;color:var(--muted);line-height:1.6}.panel{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px;margin:16px 0;box-shadow:0 5px 20px #071b3b08}.btn{border:0;border-radius:8px;background:var(--blue);color:#fff;font-weight:800;padding:11px 15px;cursor:pointer;font-size:12px}.btn.secondary{background:#eaf1fa;color:var(--navy)}.btn:disabled{opacity:.55}input,textarea{width:100%;padding:11px;border:1px solid #d7e1ed;border-radius:8px;font:13px Arial;background:#fff}label{display:block;font-size:11px;font-weight:800;margin:12px 0 6px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.stat{background:#f7f9fc;border:1px solid var(--line);border-radius:10px;padding:14px}.stat strong{font-size:22px;color:var(--navy);display:block}.stat span{font-size:11px;color:var(--muted)}.notice{display:none;padding:12px;border-radius:8px;font-size:12px;line-height:1.5;margin:12px 0}.notice.ok{display:block;background:#eaf8f1;color:#176a49}.notice.error{display:block;background:#fff0ef;color:#a52d28}.hidden{display:none!important}.customer{border:1px solid var(--line);border-radius:10px;padding:15px;margin:12px 0;background:#fff}.customer h3{font-size:14px;color:var(--navy);margin:0 0 5px}.meta{font-size:11px;color:var(--muted);line-height:1.7;white-space:pre-wrap;margin:8px 0}.row{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}.pill{font-size:10px;font-weight:900;border-radius:20px;padding:6px 9px;background:#eaf1fa;color:#174879}.details{border-top:1px solid var(--line);margin-top:12px;padding-top:12px}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}.empty{font-size:12px;color:var(--muted);padding:14px 0}
+@media(max-width:650px){.grid,.formgrid{grid-template-columns:1fr}.wrap{margin:18px auto}}
+</style></head><body>
+<header><div><b>S I A TECH PRINT MEDIA</b><small>ADMINISTRATION · CUSTOMER MANAGEMENT</small></div><nav style="display:flex;gap:15px;flex-wrap:wrap"><a href="admin.html" style="font-size:11px;font-weight:800">Orders</a><a href="invoices.html" style="font-size:11px;font-weight:800">Invoices & payments</a><a href="account.html" style="font-size:11px;font-weight:800">Customer portal</a></nav></header>
+<main class="wrap">
+<section id="checking" class="panel"><b>Checking administrator access…</b><p class="muted">Please wait.</p></section>
+<section id="denied" class="panel hidden"><h1>Admin access required</h1><p class="muted">Sign in using an approved administrator account.</p><a class="btn" href="account.html">Open sign-in page</a></section>
+<section id="admin" class="hidden"><h1>Customer Management</h1><p class="muted">View registered customer profiles, their orders and invoices. Profile edits do not change recorded orders or payment history.</p>
+<div class="grid"><div class="stat"><strong id="customerCount">0</strong><span>Registered customers</span></div><div class="stat"><strong id="orderCount">0</strong><span>Customer orders</span></div><div class="stat"><strong id="invoiceCount">0</strong><span>Invoices issued</span></div></div>
+<div class="panel"><div class="row"><div style="flex:1;min-width:210px"><label for="search">Search customers</label><input id="search" placeholder="Name, email, phone or account ID"></div><button class="btn secondary" id="refresh" type="button">Refresh</button><button class="btn secondary" id="signOut" type="button">Sign out</button></div><div id="notice" class="notice"></div><p id="countText" class="muted"></p><div id="customers"><div class="empty">Loading customers…</div></div></div>
+</section></main>
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+import {getAuth,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+import {getFirestore,doc,getDoc,collection,getDocs,updateDoc,serverTimestamp} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+const firebaseConfig={apiKey:"AIzaSyAFP-RfZWPKPcHU9NqtTzX1b8HvVVzkb3Y",authDomain:"mobile-tech-room.firebaseapp.com",projectId:"mobile-tech-room",storageBucket:"mobile-tech-room.firebasestorage.app",messagingSenderId:"620229324084",appId:"1:620229324084:web:7e2ae7a2550228a4dfc961",measurementId:"G-GPJM1C83TT"};
+const app=initializeApp(firebaseConfig);const auth=getAuth(app);const db=getFirestore(app);const $=id=>document.getElementById(id);let customers=[],orders=[],invoices=[];
+function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function notice(t,type="ok"){$("notice").textContent=t;$("notice").className="notice "+type}
+function dateText(v){try{return v?.toDate?v.toDate().toLocaleDateString():v?new Date(v).toLocaleDateString():"—"}catch(e){return "—"}}
+async function loadData(){
+ $("customers").innerHTML='<div class="empty">Loading customer records…</div>';
+ try{
+ const [cs,os,is]=await Promise.all([getDocs(collection(db,"platformCustomers")),getDocs(collection(db,"serviceOrders")),getDocs(collection(db,"invoices"))]);
+ customers=cs.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.fullName||"").localeCompare(b.fullName||""));
+ orders=os.docs.map(d=>({id:d.id,...d.data()}));invoices=is.docs.map(d=>({id:d.id,...d.data()}));
+ $("customerCount").textContent=customers.length;$("orderCount").textContent=orders.length;$("invoiceCount").textContent=invoices.length;render();
+ }catch(e){$("customers").innerHTML='<div class="empty">Could not load customer records ('+esc(e.code||e.message||"error")+'). Check administrator Firestore read permissions.</div>'}
+}
+function render(){
+ const term=$("search").value.trim().toLowerCase(),host=$("customers");host.replaceChildren();let shown=0;
+ customers.forEach(c=>{
+ const relatedOrders=orders.filter(o=>o.customerId===c.id||o.customerId===c.uid),relatedInvoices=invoices.filter(i=>i.customerId===c.id||i.customerId===c.uid);
+ const hay=[c.fullName,c.email,c.phone,c.address,c.uid,c.id].join(" ").toLowerCase();if(term&&!hay.includes(term))return;shown++;
+ const card=document.createElement("article");card.className="customer";
+ const top=document.createElement("div");top.className="row";const title=document.createElement("div");const h=document.createElement("h3");h.textContent=c.fullName||"Customer";const email=document.createElement("div");email.className="muted";email.textContent=c.email||"No email saved";title.append(h,email);const pill=document.createElement("span");pill.className="pill";pill.textContent=relatedOrders.length+" orders · "+relatedInvoices.length+" invoices";top.append(title,pill);
+ const meta=document.createElement("div");meta.className="meta";meta.textContent="Phone: "+(c.phone||"—")+"\nAddress: "+(c.address||"—")+"\nAccount ID: "+(c.uid||c.id)+"\nRegistered: "+dateText(c.createdAt);
+ const actions=document.createElement("div");actions.className="row";const detailBtn=document.createElement("button");detailBtn.className="btn secondary";detailBtn.type="button";detailBtn.textContent="View orders & invoices";
+ const editBtn=document.createElement("button");editBtn.className="btn";editBtn.type="button";editBtn.textContent="Edit customer profile";actions.append(detailBtn,editBtn);
+ const detail=document.createElement("div");detail.className="details hidden";
+ const orderHead=document.createElement("b");orderHead.textContent="Customer orders";detail.append(orderHead);
+ if(!relatedOrders.length){const p=document.createElement("p");p.className="muted";p.textContent="No orders found for this customer.";detail.append(p)}else relatedOrders.forEach(o=>{const p=document.createElement("p");p.className="meta";p.textContent=(o.serviceName||"Order")+" · "+(o.status||"pending")+" · "+dateText(o.createdAt)+"\n"+(o.description||"");detail.append(p)});
+ const invHead=document.createElement("b");invHead.textContent="Invoices";detail.append(invHead);
+ if(!relatedInvoices.length){const p=document.createElement("p");p.className="muted";p.textContent="No invoices found for this customer.";detail.append(p)}else relatedInvoices.forEach(i=>{const p=document.createElement("p");p.className="meta";p.textContent=(i.invoiceNumber||"Invoice")+" · "+(i.status||"Unpaid")+" · Total MWK "+Number(i.total||0).toLocaleString()+" · Balance MWK "+Number(i.balanceDue??i.total??0).toLocaleString();detail.append(p)});
+ detailBtn.addEventListener("click",()=>{detail.classList.toggle("hidden");detailBtn.textContent=detail.classList.contains("hidden")?"View orders & invoices":"Hide orders & invoices"});
+ editBtn.addEventListener("click",()=>showEdit(c,card));
+ card.append(top,meta,actions,detail);host.append(card);
+ });
+ $("countText").textContent="Showing "+shown+" of "+customers.length+" customers.";
+ if(!shown)host.innerHTML='<div class="empty">No matching customers found.</div>';
+}
+function showEdit(c,card){
+ const old=card.querySelector(".edit-form");if(old){old.remove();return}
+ const form=document.createElement("form");form.className="edit-form details";form.innerHTML='<b>Edit customer profile</b><div class="formgrid"><div><label>Full name</label><input name="fullName" required maxlength="120" value="'+esc(c.fullName||"")+'"></div><div><label>Phone number</label><input name="phone" maxlength="40" value="'+esc(c.phone||"")+'"></div><div><label>Email (read only)</label><input value="'+esc(c.email||"")+'" disabled></div><div><label>Address / Location</label><input name="address" maxlength="180" value="'+esc(c.address||"")+'"></div></div><div class="row" style="margin-top:12px"><button class="btn" type="submit">Save profile</button><button class="btn secondary cancel" type="button">Cancel</button></div>';
+ form.querySelector(".cancel").addEventListener("click",()=>form.remove());
+ form.addEventListener("submit",async e=>{e.preventDefault();const b=form.querySelector('button[type="submit"]'),fd=new FormData(form);b.disabled=true;b.textContent="Saving…";try{await updateDoc(doc(db,"platformCustomers",c.id),{fullName:String(fd.get("fullName")||"").trim(),phone:String(fd.get("phone")||"").trim(),address:String(fd.get("address")||"").trim(),updatedAt:serverTimestamp()});notice("Customer profile updated successfully.");await loadData()}catch(err){notice("Could not update customer ("+(err.code||err.message||"error")+"). Check admin profile permissions.","error");b.disabled=false;b.textContent="Save profile"}});
+ card.append(form);form.scrollIntoView({behavior:"smooth",block:"center"});
+}
+$("search").addEventListener("input",render);$("refresh").addEventListener("click",loadData);$("signOut").addEventListener("click",async()=>{await signOut(auth);location.href="account.html"});
+onAuthStateChanged(auth,async user=>{if(!user){$("checking").classList.add("hidden");$("denied").classList.remove("hidden");return}try{const p=await getDoc(doc(db,"users",user.uid));const d=p.exists()?p.data():{};if(d.role!=="admin"||d.status!=="approved"){$("checking").classList.add("hidden");$("denied").classList.remove("hidden");return}$("checking").classList.add("hidden");$("admin").classList.remove("hidden");await loadData()}catch(e){$("checking").classList.add("hidden");$("denied").classList.remove("hidden")}});
+</script></body></html>
