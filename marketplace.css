@@ -3,8 +3,8 @@
 html{scroll-behavior:smooth}body{background:#f5f6f7;color:#263238;font-family:Arial,Helvetica,sans-serif}
 a{transition:color .15s ease}
 button,.btn{transition:background .15s ease,border-color .15s ease,transform .15s ease}
-.btn-blue,.btn:not(.secondary):not(.outline):not(.danger){background:#ff6a00;color:#fff}
-.btn-blue:hover,.btn:not(.secondary):not(.outline):not(.danger):hover{background:#e85f00}
+.btn-blue,.btn:not(.btn-outline):not(.btn-dark):not(.btn-gold):not(.btn-green):not(.secondary):not(.danger){background:#ff6a00;color:#fff}
+.btn-blue:hover,.btn:not(.btn-outline):not(.btn-dark):not(.btn-gold):not(.btn-green):not(.secondary):not(.danger):hover{background:#e85f00}
 .btn-gold{background:#ffb000;color:#222}
 .btn-outline,.btn.secondary{background:#fff;color:#303b46;border:1px solid #cfd5dc}
 .btn-outline:hover,.btn.secondary:hover{border-color:#ff6a00;color:#e85f00}
