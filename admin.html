@@ -90,8 +90,8 @@ async function loadOrders(){
    const availability=remaining===0?"Out of stock":remaining<=threshold?"Low stock":"In stock";
    tx.update(itemRef,{stockQuantity:remaining,availability,updatedAt:serverTimestamp()});
    tx.update(orderRef,{status:nextStatus,statusUpdatedAt:serverTimestamp(),statusHistory:arrayUnion({status:nextStatus,updatedAt:new Date().toISOString()}),stockDeducted:true,stockDeductedQuantity:qty,stockDeductedAt:serverTimestamp(),updatedAt:serverTimestamp()});
-  }else tx.update(orderRef,{status:nextStatus,updatedAt:serverTimestamp()});
- }else tx.update(orderRef,{status:nextStatus,updatedAt:serverTimestamp()});
+  }else tx.update(orderRef,{status:nextStatus,statusUpdatedAt:serverTimestamp(),statusHistory:arrayUnion({status:nextStatus,updatedAt:new Date().toISOString()}),updatedAt:serverTimestamp()});
+ }else tx.update(orderRef,{status:nextStatus,statusUpdatedAt:serverTimestamp(),statusHistory:arrayUnion({status:nextStatus,updatedAt:new Date().toISOString()}),updatedAt:serverTimestamp()});
 });pill.textContent=select.value;notice(select.value==="approved"&&o.orderType==="Product"&&o.catalogueItemId&&!o.stockDeducted?"Order approved and product stock deducted (once).":"Order "+o.id+" updated to "+select.value+".");await loadOrders()}catch(e){notice("Could not update order ("+(e.message||e.code||"error")+").","error")}finally{save.disabled=false;save.textContent="Save status"}});
    controls.append(select,save);card.append(top,details,controls);host.append(card);
   }
