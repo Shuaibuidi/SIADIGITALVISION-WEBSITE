@@ -68,7 +68,7 @@ async function loadOrders(){
    const top=document.createElement("div");top.className="order-head";
    const title=document.createElement("div");const h=document.createElement("h3");h.textContent=o.serviceName||"Customer order";const id=document.createElement("div");id.className="muted";id.textContent="Order ID: "+o.id;title.append(h,id);
    const pill=document.createElement("span");pill.className="pill";pill.textContent=o.status||"pending";top.append(title,pill);
-   const details=document.createElement("div");details.className="meta";details.textContent="Customer: "+(o.customerName||"Not provided")+"\nEmail: "+(o.customerEmail||"Not provided")+"\nPhone: "+(o.customerPhone||"Not provided")+"\n"+(o.description||"No extra details") +"\nSubmitted: "+dateText(o.createdAt);
+   const details=document.createElement("div");details.className="meta";details.textContent="Customer: "+(o.customerName||"Not provided")+"\nEmail: "+(o.customerEmail||"Not provided")+"\nPhone: "+(o.customerPhone||"Not provided")+"\nCustomer account ID: "+(o.customerId||"MISSING") +"\n"+(o.description||"No extra details") +"\nSubmitted: "+dateText(o.createdAt);
    const controls=document.createElement("div");controls.className="actions";
    const select=document.createElement("select");select.setAttribute("aria-label","Order status");
    allowedStatuses.forEach(s=>{const op=document.createElement("option");op.value=s;op.textContent=s.replace(/\b\w/g,c=>c.toUpperCase());select.append(op)});
