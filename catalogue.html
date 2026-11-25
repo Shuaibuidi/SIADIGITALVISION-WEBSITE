@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#fff">
+<title>Catalogue Management | SIA Digital Vision</title>
+<link rel="stylesheet" href="marketplace.css?v=catalogue261126">
+<style>
+:root{--orange:#ff6a00;--ink:#263238;--muted:#718096;--line:#e5e7eb}
+*{box-sizing:border-box}body{margin:0;background:#f5f6f7;color:var(--ink);font-family:Arial,sans-serif}
+header{background:#fff;border-bottom:1px solid var(--line);padding:15px max(16px,calc((100% - 1100px)/2));display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+header b{font-size:14px}header small{display:block;color:var(--muted);font-size:10px;margin-top:4px}
+nav{display:flex;gap:13px;flex-wrap:wrap}nav a{font-size:11px;font-weight:800;color:#e85f00;text-decoration:none}
+.wrap{width:min(1100px,calc(100% - 26px));margin:22px auto 40px}h1{font-size:25px;margin:0 0 6px}.muted{font-size:12px;color:var(--muted);line-height:1.6}
+.panel{background:#fff;border:1px solid var(--line);border-radius:8px;padding:17px;margin:15px 0}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+label{display:block;font-size:11px;font-weight:800;margin:11px 0 5px}
+input,select,textarea{width:100%;padding:11px;border:1px solid #d8dee5;border-radius:5px;background:#fff;font:13px Arial;color:var(--ink)}
+textarea{min-height:75px;resize:vertical}.btn{border:0;border-radius:4px;background:var(--orange);color:#fff;padding:11px 15px;font-size:11px;font-weight:800;cursor:pointer}.btn.secondary{background:#f2f3f4;color:#34404a;border:1px solid var(--line)}.btn.danger{background:#a83232}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.notice{display:none;padding:11px;border-radius:5px;font-size:12px;margin:12px 0}.notice.ok{display:block;background:#eaf8f1;color:#176a49}.notice.error{display:block;background:#fff0ef;color:#a52d28}
+.item{border:1px solid var(--line);border-radius:7px;padding:14px;margin:10px 0;background:#fff}.item-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}.item h3{font-size:14px;margin:0 0 5px}.tag{font-size:10px;font-weight:800;background:#fff1e7;color:#bd4a00;padding:5px 8px;border-radius:3px}.item p{font-size:12px;line-height:1.5;color:var(--muted);margin:9px 0}.item small{font-size:10px;color:var(--muted)}
+.hidden{display:none!important}.checkline{display:flex;align-items:center;gap:8px;font-size:12px;margin-top:13px}.checkline input{width:auto}
+@media(max-width:600px){.grid{grid-template-columns:1fr}.wrap{margin:16px auto}.panel{padding:13px}}
+</style>
+</head>
+<body>
+<header><div><b>S I A TECH PRINT MEDIA</b><small>ADMINISTRATION · CATALOGUE MANAGEMENT</small></div><nav><a href="dashboard.html">Dashboard</a><a href="admin.html">Orders</a><a href="invoices.html">Invoices</a><a href="customers.html">Customers</a></nav></header>
+<main class="wrap">
+<section id="checking" class="panel"><b>Checking administrator access…</b><p class="muted">Please wait while we verify your signed-in account.</p></section>
+<section id="denied" class="panel hidden"><h1>Admin access required</h1><p class="muted" id="deniedText">Sign in using an approved administrator account.</p><a class="btn" href="account.html">Open sign-in page</a></section>
+<section id="manager" class="hidden">
+<div><h1>Products & Services Catalogue</h1><p class="muted">Add and maintain the items offered by S I A TECH PRINT MEDIA. You can set an optional price or leave it blank for quotation-based services.</p></div>
+<div id="notice" class="notice"></div>
+<section class="panel">
+<div class="item-top"><div><b id="formHeading">Add a catalogue item</b><p class="muted">Items are saved in the platform catalogue.</p></div><button class="btn secondary" id="resetBtn" type="button">Clear form</button></div>
+<form id="itemForm">
+<input id="itemId" type="hidden">
+<div class="grid">
+<div><label for="name">Item name *</label><input id="name" maxlength="100" required placeholder="e.g. Phone screen replacement"></div>
+<div><label for="type">Item type *</label><select id="type" required><option value="service">Service</option><option value="product">Product</option></select></div>
+<div><label for="category">Department *</label><select id="category" required>
+<option>Printing & Media Services</option><option>Phone Repair & Maintenance</option><option>Unlocking & Security Solutions</option><option>Digital & Account Solutions</option><option>GSM Tools & Technical Services</option><option>Accessories & Sales</option>
+</select></div>
+<div><label for="price">Price (MWK) — optional</label><input id="price" type="number" min="0" step="1" placeholder="Leave blank for quotation"></div>
+</div>
+<label for="description">Description *</label><textarea id="description" maxlength="500" required placeholder="Describe the product or service"></textarea>
+<div class="grid">
+<div><label for="availability">Availability</label><select id="availability"><option value="Available">Available</option><option value="On request">On request</option><option value="Out of stock">Out of stock</option></select></div>
+<div><label for="icon">Display icon (emoji)</label><input id="icon" maxlength="8" placeholder="📱"></div>
+</div>
+<label class="checkline"><input id="active" type="checkbox" checked> Show this item to customers (active)</label>
+<div class="actions"><button class="btn" id="saveBtn" type="submit">Save catalogue item</button><button class="btn secondary hidden" id="cancelBtn" type="button">Cancel editing</button></div>
+</form>
+</section>
+<section class="panel"><div class="item-top"><div><b>Saved catalogue items</b><p class="muted">Edit an item to change its details, or deactivate it to hide it from customers.</p></div><button class="btn secondary" id="refreshBtn" type="button">Refresh list</button></div><div id="items"><p class="muted">Loading catalogue…</p></div></section>
+<button class="btn secondary" id="signOutBtn" type="button">Sign out</button>
+</section>
+</main>
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+import {getAuth,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+import {getFirestore,doc,getDoc,collection,getDocs,addDoc,updateDoc,deleteDoc,serverTimestamp} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+const firebaseConfig={apiKey:"AIzaSyAFP-RfZWPKPcHU9NqtTzX1b8HvVVzkb3Y",authDomain:"mobile-tech-room.firebaseapp.com",projectId:"mobile-tech-room",storageBucket:"mobile-tech-room.firebasestorage.app",messagingSenderId:"620229324084",appId:"1:620229324084:web:7e2ae7a2550228a4dfc961",measurementId:"G-GPJM1C83TT"};
+const app=initializeApp(firebaseConfig);const auth=getAuth(app);const db=getFirestore(app);const $=id=>document.getElementById(id);
+function notice(msg,type="ok"){$("notice").textContent=msg;$("notice").className="notice "+type}
+function denied(msg){$("checking").classList.add("hidden");$("manager").classList.add("hidden");$("denied").classList.remove("hidden");$("deniedText").textContent=msg}
+function resetForm(){$("itemForm").reset();$("itemId").value="";$("active").checked=true;$("formHeading").textContent="Add a catalogue item";$("saveBtn").textContent="Save catalogue item";$("cancelBtn").classList.add("hidden")}
+function safeText(value){return String(value??"")}
+async function loadItems(){
+ const host=$("items");host.textContent="Loading catalogue…";
+ try{
+  const snap=await getDocs(collection(db,"catalogueItems"));
+  const list=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>safeText(a.name).localeCompare(safeText(b.name)));
+  host.replaceChildren();
+  if(!list.length){const p=document.createElement("p");p.className="muted";p.textContent="No catalogue items have been added yet.";host.append(p);return}
+  for(const item of list){
+   const card=document.createElement("article");card.className="item";
+   const top=document.createElement("div");top.className="item-top";
+   const title=document.createElement("div");const h=document.createElement("h3");h.textContent=(item.icon?item.icon+" ":"")+safeText(item.name);const small=document.createElement("small");small.textContent=safeText(item.category)+" · "+safeText(item.type);title.append(h,small);
+   const tag=document.createElement("span");tag.className="tag";tag.textContent=item.active===false?"Hidden":safeText(item.availability||"Available");top.append(title,tag);
+   const p=document.createElement("p");p.textContent=safeText(item.description);
+   const meta=document.createElement("small");meta.textContent=item.price===null||item.price===undefined||item.price===""?"Price: By quotation":"Price: MK "+Number(item.price).toLocaleString("en-US");
+   const actions=document.createElement("div");actions.className="actions";
+   const edit=document.createElement("button");edit.className="btn secondary";edit.type="button";edit.textContent="Edit";edit.addEventListener("click",()=>editItem(item));
+   const toggle=document.createElement("button");toggle.className="btn secondary";toggle.type="button";toggle.textContent=item.active===false?"Show to customers":"Hide from customers";toggle.addEventListener("click",async()=>{toggle.disabled=true;try{await updateDoc(doc(db,"catalogueItems",item.id),{active:item.active===false,updatedAt:serverTimestamp()});notice("Catalogue visibility updated.");await loadItems()}catch(e){notice("Could not update item ("+(e.code||e.message)+").","error")}finally{toggle.disabled=false}});
+   const del=document.createElement("button");del.className="btn danger";del.type="button";del.textContent="Delete";del.addEventListener("click",async()=>{if(!confirm("Delete "+safeText(item.name)+" from the catalogue?"))return;del.disabled=true;try{await deleteDoc(doc(db,"catalogueItems",item.id));notice("Catalogue item deleted.");await loadItems()}catch(e){notice("Could not delete item ("+(e.code||e.message)+").","error")}finally{del.disabled=false}});
+   actions.append(edit,toggle,del);card.append(top,p,meta,actions);host.append(card);
+  }
+ }catch(e){host.textContent="Could not load catalogue ("+(e.code||e.message||"Firestore error")+"). Check the catalogueItems administrator read permission."}
+}
+function editItem(item){$("itemId").value=item.id;$("name").value=safeText(item.name);$("type").value=item.type==="product"?"product":"service";$("category").value=item.category||"Printing & Media Services";$("price").value=item.price??"";$("description").value=safeText(item.description);$("availability").value=item.availability||"Available";$("icon").value=item.icon||"";$("active").checked=item.active!==false;$("formHeading").textContent="Edit catalogue item";$("saveBtn").textContent="Save changes";$("cancelBtn").classList.remove("hidden");window.scrollTo({top:0,behavior:"smooth"})}
+$("itemForm").addEventListener("submit",async e=>{
+ e.preventDefault();const id=$("itemId").value;const price=$("price").value.trim();
+ const data={name:$("name").value.trim(),type:$("type").value,category:$("category").value,description:$("description").value.trim(),price:price===""?null:Number(price),availability:$("availability").value,icon:$("icon").value.trim(),active:$("active").checked,updatedAt:serverTimestamp()};
+ if(!data.name||!data.description){notice("Please complete the required fields.","error");return}
+ $("saveBtn").disabled=true;
+ try{if(id){await updateDoc(doc(db,"catalogueItems",id),data);notice("Catalogue item updated successfully.")}else{data.createdAt=serverTimestamp();await addDoc(collection(db,"catalogueItems"),data);notice("Catalogue item added successfully.")}resetForm();await loadItems()}
+ catch(err){notice("Could not save catalogue item ("+(err.code||err.message||"error")+"). Check your administrator catalogue write permission.","error")}
+ finally{$("saveBtn").disabled=false}
+});
+$("resetBtn").addEventListener("click",resetForm);$("cancelBtn").addEventListener("click",resetForm);$("refreshBtn").addEventListener("click",loadItems);
+$("signOutBtn").addEventListener("click",async()=>{await signOut(auth);location.href="account.html"});
+onAuthStateChanged(auth,async user=>{if(!user){denied("Please sign in with your approved administrator email first.");return}
+ try{const snap=await getDoc(doc(db,"users",user.uid));const profile=snap.exists()?snap.data():{};if(profile.role!=="admin"||profile.status!=="approved"){denied("This account is not an approved administrator. Sign out and use your admin account.");return}
+ $("checking").classList.add("hidden");$("manager").classList.remove("hidden");await loadItems()
+ }catch(e){denied("We could not verify administrator access ("+(e.code||"Firestore error")+"). Please try again.")}
+});
+</script>
+</body></html>
