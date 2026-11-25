@@ -1,0 +1,13 @@
+{
+  "hosting": {
+    "site": "sia-digital-vision",
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      ".firebaserc",
+      "**/.*",
+      "**/node_modules/**",
+      "**/*.md"
+    ]
+  }
+}
