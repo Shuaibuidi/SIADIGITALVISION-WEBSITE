@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#071b3b">
+<title>Admin Orders | SIA Digital Vision</title>
+<style>
+:root{--navy:#071b3b;--blue:#0877e8;--gold:#ffca28;--ink:#172b49;--muted:#718096;--line:#e3eaf2}
+*{box-sizing:border-box}body{margin:0;background:#f3f6fa;color:var(--ink);font-family:Arial,sans-serif}
+header{background:var(--navy);color:#fff;padding:17px max(16px,calc((100% - 1100px)/2));display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+header b{font-size:15px}header small{display:block;color:#bfd2e8;font-size:10px;margin-top:4px}
+a{color:inherit;text-decoration:none}.wrap{width:min(1100px,calc(100% - 26px));margin:24px auto}
+h1{font-size:25px;color:var(--navy);margin:0 0 6px}.muted{font-size:12px;color:var(--muted);line-height:1.6}
+.panel{background:#fff;border:1px solid var(--line);border-radius:13px;padding:18px;margin:16px 0;box-shadow:0 5px 20px #071b3b08}
+.btn{border:0;border-radius:8px;background:var(--blue);color:#fff;font-weight:800;padding:11px 15px;cursor:pointer;font-size:12px}.btn:disabled{opacity:.55}
+.btn.secondary{background:#eaf1fa;color:var(--navy)}.btn.danger{background:#a83232}
+input,select,textarea{width:100%;padding:11px;border:1px solid #d7e1ed;border-radius:8px;font:13px Arial;background:#fff}
+label{display:block;font-size:11px;font-weight:800;margin:12px 0 6px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.stat{background:#f7f9fc;border:1px solid var(--line);border-radius:10px;padding:14px}.stat strong{font-size:22px;color:var(--navy);display:block}.stat span{font-size:11px;color:var(--muted)}
+.notice{display:none;padding:12px;border-radius:8px;font-size:12px;line-height:1.5;margin:12px 0}.notice.ok{display:block;background:#eaf8f1;color:#176a49}.notice.error{display:block;background:#fff0ef;color:#a52d28}
+.order{border:1px solid var(--line);border-radius:10px;padding:15px;margin:12px 0;background:#fff}
+.order-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}.order h3{font-size:14px;color:var(--navy);margin:0 0 5px}
+.pill{font-size:10px;font-weight:900;border-radius:20px;padding:6px 9px;background:#fff3cf;color:#805c08;text-transform:capitalize}
+.meta{font-size:11px;color:var(--muted);line-height:1.7;white-space:pre-wrap;margin:10px 0}
+.actions{display:grid;grid-template-columns:minmax(0,220px) auto;gap:8px;align-items:end;margin-top:10px}
+.hidden{display:none!important}.empty{font-size:12px;color:var(--muted);padding:15px 0}
+@media(max-width:650px){.grid{grid-template-columns:1fr 1fr}.actions{grid-template-columns:1fr}.wrap{margin:18px auto}}
+</style>
+</head>
+<body>
+<header><div><b>S I A TECH PRINT MEDIA</b><small>ADMINISTRATION · ORDER MANAGEMENT</small></div><a href="account.html" style="font-size:11px;font-weight:800">Customer portal ↗</a></header>
+<main class="wrap">
+<section id="checking" class="panel"><b>Checking administrator access…</b><p class="muted">Please wait while we verify your signed-in account.</p></section>
+<section id="denied" class="panel hidden"><h1>Admin access required</h1><p class="muted" id="deniedText">Sign in using an approved administrator account.</p><a class="btn" href="account.html">Open sign-in page</a></section>
+<section id="admin" class="hidden">
+<h1>Customer Orders</h1><p class="muted">Review customer requests and update their progress. Changes are saved to the order record.</p>
+<div class="grid">
+<div class="stat"><strong id="totalCount">0</strong><span>Total orders</span></div>
+<div class="stat"><strong id="pendingCount">0</strong><span>Pending orders</span></div>
+<div class="stat"><strong id="activeCount">0</strong><span>Approved / in progress</span></div>
+</div>
+<div class="panel"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><b>All customer requests</b><button class="btn secondary" id="refreshBtn" type="button">Refresh orders</button></div><div id="notice" class="notice"></div><div id="orders"><div class="empty">Loading orders…</div></div></div>
+<button class="btn danger" id="signOutBtn" type="button">Sign out</button>
+</section>
+</main>
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+import {getAuth,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+import {getFirestore,doc,getDoc,collection,getDocs,updateDoc,serverTimestamp} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+const firebaseConfig={apiKey:"AIzaSyAFP-RfZWPKPcHU9NqtTzX1b8HvVVzkb3Y",authDomain:"mobile-tech-room.firebaseapp.com",projectId:"mobile-tech-room",storageBucket:"mobile-tech-room.firebasestorage.app",messagingSenderId:"620229324084",appId:"1:620229324084:web:7e2ae7a2550228a4dfc961",measurementId:"G-GPJM1C83TT"};
+const app=initializeApp(firebaseConfig);const auth=getAuth(app);const db=getFirestore(app);const $=id=>document.getElementById(id);
+const allowedStatuses=["pending","approved","in progress","completed","rejected"];
+function notice(message,type="ok"){const n=$("notice");n.textContent=message;n.className="notice "+type}
+function showDenied(message){$("checking").classList.add("hidden");$("admin").classList.add("hidden");$("denied").classList.remove("hidden");$("deniedText").textContent=message}
+function esc(value){return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function dateText(ts){try{return ts?.toDate?ts.toDate().toLocaleString():"Date unavailable"}catch{return "Date unavailable"}}
+async function loadOrders(){
+ const host=$("orders");host.innerHTML='<div class="empty">Loading orders…</div>';
+ try{
+  const snap=await getDocs(collection(db,"serviceOrders"));
+  const orders=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt?.toMillis?.()||0)-(a.createdAt?.toMillis?.()||0));
+  $("totalCount").textContent=orders.length;
+  $("pendingCount").textContent=orders.filter(o=>(o.status||"pending")==="pending").length;
+  $("activeCount").textContent=orders.filter(o=>["approved","in progress"].includes((o.status||"").toLowerCase())).length;
+  host.replaceChildren();
+  if(!orders.length){host.innerHTML='<div class="empty">There are no customer orders yet.</div>';return}
+  for(const o of orders){
+   const card=document.createElement("article");card.className="order";
+   const top=document.createElement("div");top.className="order-head";
+   const title=document.createElement("div");const h=document.createElement("h3");h.textContent=o.serviceName||"Customer order";const id=document.createElement("div");id.className="muted";id.textContent="Order ID: "+o.id;title.append(h,id);
+   const pill=document.createElement("span");pill.className="pill";pill.textContent=o.status||"pending";top.append(title,pill);
+   const details=document.createElement("div");details.className="meta";details.textContent="Customer: "+(o.customerName||"Not provided")+"\nEmail: "+(o.customerEmail||"Not provided")+"\nPhone: "+(o.customerPhone||"Not provided")+"\n"+(o.description||"No extra details") +"\nSubmitted: "+dateText(o.createdAt);
+   const controls=document.createElement("div");controls.className="actions";
+   const select=document.createElement("select");select.setAttribute("aria-label","Order status");
+   allowedStatuses.forEach(s=>{const op=document.createElement("option");op.value=s;op.textContent=s.replace(/\b\w/g,c=>c.toUpperCase());select.append(op)});
+   select.value=allowedStatuses.includes((o.status||"pending").toLowerCase())?(o.status||"pending").toLowerCase():"pending";
+   const save=document.createElement("button");save.className="btn";save.type="button";save.textContent="Save status";
+   save.addEventListener("click",async()=>{save.disabled=true;save.textContent="Saving…";try{await updateDoc(doc(db,"serviceOrders",o.id),{status:select.value,updatedAt:serverTimestamp()});pill.textContent=select.value;notice("Order "+o.id+" updated to "+select.value+".");await loadOrders()}catch(e){notice("Could not update order ("+(e.code||e.message||"error")+"). Check the Firestore admin update rule.", "error")}finally{save.disabled=false;save.textContent="Save status"}});
+   controls.append(select,save);card.append(top,details,controls);host.append(card);
+  }
+ }catch(e){host.innerHTML='<div class="empty">Could not load orders ('+esc(e.code||e.message||"error")+'). Check that this account has administrator access and the Firestore rules allow admins to list orders.</div>'}
+}
+$("refreshBtn").addEventListener("click",loadOrders);
+$("signOutBtn").addEventListener("click",async()=>{await signOut(auth);location.href="account.html"});
+onAuthStateChanged(auth,async user=>{
+ if(!user){showDenied("Please sign in with your approved administrator email first.");return}
+ try{
+  const profile=await getDoc(doc(db,"users",user.uid));const data=profile.exists()?profile.data():{};
+  if(data.role!=="admin"||data.status!=="approved"){showDenied("This signed-in account is not an approved administrator. Please sign out and use your admin account.");return}
+  $("checking").classList.add("hidden");$("admin").classList.remove("hidden");await loadOrders();
+ }catch(e){showDenied("We could not verify your administrator role ("+(e.code||"Firestore error")+"). Please try again or contact the platform administrator.")}
+});
+</script>
+</body></html>
