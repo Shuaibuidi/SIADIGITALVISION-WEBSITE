@@ -1,0 +1,37 @@
+name: Deploy SIA Digital Vision to Firebase Hosting
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    name: Deploy website
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud using Workload Identity Federation
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.WIF_PROVIDER }}
+          service_account: ${{ vars.WIF_SERVICE_ACCOUNT }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Firebase CLI
+        run: npm install --global firebase-tools
+
+      - name: Create the separate SIA Hosting site if needed
+        run: |
+          firebase hosting:sites:create sia-digital-vision --project mobile-tech-room || echo "Site may already exist; deployment will verify it."
+
+      - name: Deploy SIA website
+        run: firebase deploy --only hosting --project mobile-tech-room --non-interactive
