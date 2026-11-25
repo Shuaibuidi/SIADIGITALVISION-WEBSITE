@@ -66,3 +66,36 @@ h1{color:#25313c!important}
 .btn.danger{background:#a83232!important;color:#fff!important}
 .notice{border-radius:4px!important}
 @media(max-width:650px){.wrap{margin:16px auto!important}.shell{grid-template-columns:1fr!important}.side{padding:25px!important}.side h1{font-size:29px!important}.main{padding:25px 20px!important}}
+
+
+/* Refined marketplace-style customer portal */
+body:has(.shell){background:#f5f6f7!important;color:#263238}
+body:has(.shell) .top{background:#fff!important;border-bottom:1px solid #e5e7eb;padding-left:max(18px,calc((100% - 1180px)/2))!important;padding-right:max(18px,calc((100% - 1180px)/2))!important}
+body:has(.shell) .shell{width:min(1180px,calc(100% - 28px));grid-template-columns:300px minmax(0,1fr);min-height:680px;margin:24px auto 45px;border:1px solid #e5e7eb;border-radius:8px!important;box-shadow:0 3px 14px #1f29370c!important}
+body:has(.shell) .side{background:#fff!important;color:#263238!important;border-right:1px solid #e5e7eb;padding:30px 25px}
+body:has(.shell) .side .brand{color:#263238!important;font-size:17px}
+body:has(.shell) .side .brand small{color:#e85f00!important}
+body:has(.shell) .side h1{font-size:30px;color:#263238!important;line-height:1.15}
+body:has(.shell) .side h1 span{color:#ff6a00!important}
+body:has(.shell) .side p,body:has(.shell) .side .benefits li,body:has(.shell) .side .side-foot{color:#687482!important}
+body:has(.shell) .side .benefits li{border-bottom:1px solid #edf0f2}
+body:has(.shell) .side .benefits li:before{color:#ff6a00}
+body:has(.shell) .main{padding:34px 38px;background:#fff}
+body:has(.shell) .main-head{padding-bottom:15px;border-bottom:1px solid #edf0f2}
+body:has(.shell) .main-head strong{font-size:20px;color:#263238}
+body:has(.shell) .form-title{font-size:25px;color:#263238}
+body:has(.shell) .tabs{border:1px solid #e5e7eb;background:#f7f8f9}
+body:has(.shell) .tabs button.active{background:#fff;color:#e85f00!important;box-shadow:0 1px 4px #1111}
+body:has(.shell) .submit{background:#ff6a00!important;color:#fff;border-radius:4px}
+body:has(.shell) .submit:hover{background:#e85f00!important}
+body:has(.shell) .dashboard,body:has(.shell) .order-panel{background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:18px}
+body:has(.shell) .order-item{border-radius:5px;border-color:#e5e7eb}
+body:has(.shell) .order-status{background:#fff1e7;color:#bd4a00;border-radius:3px}
+body:has(.shell) .pdf-btn{background:#ff6a00;border-radius:4px}
+body:has(.shell) .coming{background:#fff8ef;border-color:#ffdfc5;color:#80502b}
+@media(max-width:720px){
+ body:has(.shell) .shell{grid-template-columns:1fr;margin:12px auto 28px}
+ body:has(.shell) .side{border-right:0;border-bottom:1px solid #e5e7eb;padding:22px}
+ body:has(.shell) .side h1{font-size:26px;margin:15px 0 8px}
+ body:has(.shell) .main{padding:23px 18px}
+}
