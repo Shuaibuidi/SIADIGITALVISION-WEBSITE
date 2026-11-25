@@ -18,7 +18,7 @@
 <div class="dash-row"><span>Account ID (for support)</span><b id="dashUid" style="font-size:10px;overflow-wrap:anywhere">—</b></div></div><div id="profileNotice" class="message"></div><form id="profileForm" class="dashboard"><h3 style="margin:0 0 5px;color:var(--navy);font-size:17px">Your profile details</h3><p class="muted">Keep your contact information up to date so we can reach you about your services and orders.</p><div class="field"><label for="profileFullName">Full name</label><input id="profileFullName" type="text" autocomplete="name" required minlength="2" placeholder="Your full name"></div><div class="field"><label for="profilePhone">Phone number</label><input id="profilePhone" type="tel" autocomplete="tel" placeholder="e.g. 0999 123 456"></div><div class="field"><label for="profileAddress">Address / Location</label><textarea id="profileAddress" autocomplete="street-address" placeholder="Your area, town or delivery address"></textarea></div><button class="submit" id="saveProfileBtn" type="submit">Save profile details</button><div id="profileSaveNotice" class="message"></div></form>
 <form id="orderForm" class="order-panel"><h3>Place a service or product order</h3><p class="muted">Choose what you need and send your request to our team. We will confirm availability, price and collection or delivery arrangements.</p>
 <div class="field"><label for="orderType">Order type</label><select id="orderType" required><option value="Service">Service request</option><option value="Product">Product / accessory order</option></select></div>
-<div class="field"><label for="orderName">Service or product name</label><input id="orderName" type="text" required maxlength="120" placeholder="e.g. Phone screen repair or Fast charger"></div>
+<div class="field"><label for="orderName">Choose from our catalogue</label><select id="orderName" required><option value="">Loading catalogue items…</option></select></div>
 <div class="field"><label for="orderQuantity">Quantity</label><input id="orderQuantity" type="number" min="1" step="1" value="1" required></div>
 <div class="field"><label for="orderDetails">Additional details</label><textarea id="orderDetails" required maxlength="1200" placeholder="Describe the service you need, device model, product specifications or any other details."></textarea></div>
 <button class="submit" id="placeOrderBtn" type="submit">Submit order request</button><div id="orderNotice" class="message"></div></form>
@@ -108,18 +108,33 @@ async function loadCustomerInvoices(){
  }catch(err){host.innerHTML='<div class="empty-orders">Could not load invoices ('+(err.code||'connection error')+'). Please refresh or contact the shop.</div>'}
 }
 $('refreshInvoicesBtn').addEventListener('click',loadCustomerInvoices);
+async function loadOrderCatalogue(){
+ const type=$('orderType').value,select=$('orderName');select.innerHTML='<option value="">Loading catalogue items…</option>';
+ try{
+  const snap=await getDocs(collection(db,'catalogueItems'));
+  const items=snap.docs.map(d=>({id:d.id,...d.data()})).filter(x=>x.active!==false&&x.type===(type==='Product'?'product':'service')).sort((a,b)=>String(a.name||'').localeCompare(String(b.name||'')));
+  select.replaceChildren();const first=document.createElement('option');first.value='';first.textContent=items.length?'Choose an item':'No '+(type==='Product'?'products':'services')+' currently available';select.append(first);
+  items.forEach(item=>{const option=document.createElement('option');option.value=item.id;option.textContent=item.name+(item.price==null?' · Quote': ' · MK '+Number(item.price).toLocaleString('en-US'));option.dataset.stock=String(item.stockQuantity??'');option.dataset.tracked=String(item.stockTracked===true);option.dataset.availability=String(item.availability||'Available');if(item.type==='product'&&item.stockTracked===true&&Number(item.stockQuantity||0)<=0)option.disabled=true;select.append(option)});
+ }catch(err){select.innerHTML='<option value="">Catalogue could not be loaded</option>';$('orderNotice').textContent='Could not load catalogue ('+(err.code||'connection error')+'). Please refresh.';$('orderNotice').className='message error'}
+}
+$('orderType').addEventListener('change',loadOrderCatalogue);
 $('orderForm').addEventListener('submit',async e=>{
  e.preventDefault();const btn=$('placeOrderBtn'),msg=$('orderNotice'),user=auth.currentUser;
  msg.className='message';msg.textContent='';
  if(!user){msg.textContent='Please sign in again before placing an order.';msg.className='message error';return}
- const type=$('orderType').value,name=$('orderName').value.trim(),quantity=Number($('orderQuantity').value),details=$('orderDetails').value.trim();
- if(!name||!details||!Number.isFinite(quantity)||quantity<=0){msg.textContent='Please complete all order details and enter a valid quantity.';msg.className='message error';return}
+ const type=$('orderType').value,itemId=$('orderName').value,selected=$('orderName').selectedOptions[0],name=selected?.textContent?.split(' · ')[0]||'',quantity=Number($('orderQuantity').value),details=$('orderDetails').value.trim();
+ if(!itemId||!name||!details||!Number.isInteger(quantity)||quantity<=0){msg.textContent='Choose an item, enter a whole-number quantity and complete the order details.';msg.className='message error';return}if(type==='Product'&&selected?.dataset.tracked==='true'&&quantity>Number(selected.dataset.stock||0)){msg.textContent='The requested quantity is greater than the available stock. Please reduce the quantity.';msg.className='message error';return}
  btn.disabled=true;btn.textContent='Submitting…';
  try{
   const profileSnap=await getDoc(doc(db,'platformCustomers',user.uid));
   const profile=profileSnap.exists()?profileSnap.data():{};
+  const itemSnap=await getDoc(doc(db,'catalogueItems',itemId));if(!itemSnap.exists()||itemSnap.data().active===false){throw new Error('This catalogue item is no longer available. Please refresh and choose another item.')}const itemData=itemSnap.data();if(type==='Product'&&itemData.stockTracked===true&&quantity>Number(itemData.stockQuantity||0)){throw new Error('There is not enough stock for that quantity. Please refresh the catalogue.')}
   await addDoc(collection(db,'serviceOrders'),{
    customerId:user.uid,
+   catalogueItemId:itemId,
+   catalogueItemName:itemData.name||name,
+   orderType:type,
+   unitPrice:itemData.price??null,
    serviceName:(type==='Product'?'Product order — ':'Service request — ')+name,
    description:'Order type: '+type+'\nQuantity: '+quantity+'\nDetails: '+details,
    status:'pending',
@@ -130,13 +145,13 @@ $('orderForm').addEventListener('submit',async e=>{
    quantity:quantity
   });
   $('orderForm').reset();$('orderQuantity').value='1';
-  msg.textContent='Your order request has been submitted successfully. Our team will contact you to confirm the details and price.';
+  msg.textContent='Your order request has been submitted successfully. Our team will confirm availability, price and collection or delivery arrangements.';
   msg.className='message ok';await loadCustomerOrders();
  }catch(err){msg.textContent='Could not submit your order ('+(err.code||err.message||'error')+'). Please try again or contact the shop.';msg.className='message error'}
  finally{btn.disabled=false;btn.textContent='Submit order request'}
 });
 $('refreshOrdersBtn').addEventListener('click',loadCustomerOrders);
 $('signOutBtn').addEventListener('click',async()=>{try{await signOut(auth)}catch(e){showMessage(friendlyError(e))}});
-onAuthStateChanged(auth,user=>{if(user){$('authArea').classList.add('hidden');$('dashboard').classList.remove('hidden');$('dashName').textContent=user.displayName||'Customer';$('dashEmail').textContent=user.email||'—';$('dashUid').textContent=user.uid||'Unavailable';ensureCustomerProfile(user);loadCustomerOrders();loadCustomerInvoices()}else{$('authArea').classList.remove('hidden');$('dashboard').classList.add('hidden')}});
+onAuthStateChanged(auth,user=>{if(user){$('authArea').classList.add('hidden');$('dashboard').classList.remove('hidden');$('dashName').textContent=user.displayName||'Customer';$('dashEmail').textContent=user.email||'—';$('dashUid').textContent=user.uid||'Unavailable';ensureCustomerProfile(user);loadCustomerOrders();loadCustomerInvoices();loadOrderCatalogue()}else{$('authArea').classList.remove('hidden');$('dashboard').classList.add('hidden')}});
 if(location.hash==='#register')setTab('register');
 </script></body></html>
