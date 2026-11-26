@@ -81,6 +81,16 @@ footer{background:#04152f;color:#d5e2f1;padding:34px 0 16px}.footer-grid{display
 .item-detail-layout{display:grid;grid-template-columns:1fr 1fr;gap:22px;padding:25px}
 .item-detail-photo{min-height:280px;background:#fff4ec;border-radius:10px;display:grid;place-items:center;overflow:hidden;font-size:70px}
 .item-detail-photo img{width:100%;height:100%;max-height:390px;object-fit:contain;padding:12px}
+.item-detail-gallery{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.item-detail-thumb{width:58px;height:52px;border:1px solid #dce2e8;border-radius:6px;background:#fff;padding:3px;cursor:pointer}
+.item-detail-thumb.active{border:2px solid #ff6a00}
+.item-detail-thumb img{width:100%;height:100%;object-fit:contain}
+.item-detail-quantity{display:flex;align-items:center;gap:10px;margin-top:18px;font-size:12px;font-weight:800;color:#354253}
+.item-detail-quantity input{width:76px;padding:9px;border:1px solid #d5dce5;border-radius:6px;font-weight:700}
+.item-detail-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:8px}
+.item-detail-whatsapp{display:inline-block;background:#159b61;color:#fff!important;padding:13px 16px;border-radius:5px;font-size:12px;font-weight:800;margin-top:20px}
+.item-detail-order{margin-top:20px}
+
 .item-detail-copy{padding:18px 8px 12px 0}
 .item-detail-copy .category{font-size:11px;color:#e85f00;font-weight:800}
 .item-detail-copy h2{font-size:25px;color:#25313c;margin:10px 0}
@@ -142,14 +152,14 @@ footer{background:#04152f;color:#d5e2f1;padding:34px 0 16px}.footer-grid{display
  <section class="item-detail-dialog" role="dialog" aria-modal="true" aria-labelledby="itemDetailName">
   <button type="button" class="item-detail-close" id="itemDetailClose" aria-label="Close details">×</button>
   <div class="item-detail-layout">
-   <div class="item-detail-photo" id="itemDetailPhoto"></div>
+   <div><div class="item-detail-photo" id="itemDetailPhoto"></div><div class="item-detail-gallery" id="itemDetailGallery"></div></div>
    <div class="item-detail-copy">
     <span class="category" id="itemDetailCategory"></span>
     <h2 id="itemDetailName"></h2>
     <p id="itemDetailDescription"></p>
     <strong class="item-detail-price" id="itemDetailPrice"></strong>
     <span class="item-detail-status" id="itemDetailStatus"></span>
-    <a class="item-detail-order" id="itemDetailOrder" href="account.html">Order / Enquire</a>
+    <div class="item-detail-quantity" id="itemDetailQuantityWrap"><label for="itemDetailQuantity">Quantity</label><input id="itemDetailQuantity" type="number" min="1" step="1" value="1"></div><div class="item-detail-actions"><a class="item-detail-order" id="itemDetailOrder" href="account.html">Order Now</a><a class="item-detail-whatsapp" id="itemDetailWhatsApp" href="https://wa.me/265999290495" target="_blank" rel="noopener">Enquire on WhatsApp</a></div>
    </div>
   </div>
  </section>
@@ -167,18 +177,43 @@ const search=$("siteSearch"),grid=$("liveCatalogueGrid"),count=$("catalogueCount
 function esc(value){return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function itemPrice(item){const method=item.pricingMethod||(item.pricePerPage!==null&&item.pricePerPage!==undefined&&item.pricePerPage!==""?"per page":"");const value=method==="per page"&&item.pricePerPage!==null&&item.pricePerPage!==undefined&&item.pricePerPage!==""?item.pricePerPage:item.price;if(value===null||value===undefined||value===""||method==="quotation")return "Price on request";const amount="MK "+Number(value).toLocaleString("en-US");return method?amount+" "+method:amount}
 function itemStatus(item){if(item.type==="product"&&item.stockTracked){const n=Number(item.stockQuantity||0);const limit=Number(item.lowStockThreshold??3);return n<=0?"Out of stock":n<=limit?"Low stock":"In stock"}return item.availability||"Available"}
+let activeDetailItem=null;
+function detailImages(item){const list=Array.isArray(item.imageGallery)?item.imageGallery.filter(Boolean):[];if(!list.length&&item.imageData)list.push(item.imageData);if(item.imageData&&!list.includes(item.imageData))list.unshift(item.imageData);return list.slice(0,4)}
+function showDetailPhoto(src,item,index){
+ const host=$("itemDetailPhoto");host.replaceChildren();
+ if(src){const img=document.createElement("img");img.src=src;img.alt=(item.name||"Catalogue item")+" photo "+(index+1);host.append(img)}
+ else host.textContent=item.icon||(item.type==="service"?"🛠️":"📦");
+ [...$("itemDetailGallery").children].forEach((node,i)=>node.classList.toggle("active",i===index));
+}
+function updateDetailActions(){
+ if(!activeDetailItem)return;
+ const item=activeDetailItem,qty=Math.max(1,Math.floor(Number($("itemDetailQuantity").value)||1));
+ const type=item.type==="product"?"Product":"Service";
+ $("itemDetailOrder").href="account.html?type="+encodeURIComponent(type)+"&item="+encodeURIComponent(item.id)+"&quantity="+qty+"#place-order";
+ const message="Hello S I A TECH PRINT MEDIA, I would like to enquire about: "+(item.name||"Catalogue item")+"\nQuantity: "+qty+"\nPrice: "+itemPrice(item)+"\nPlease confirm availability and details.";
+ $("itemDetailWhatsApp").href="https://wa.me/265999290495?text="+encodeURIComponent(message);
+}
 function openItemDetails(item){
- const photo=$("itemDetailPhoto");photo.replaceChildren();
- if(item.imageData){const img=document.createElement("img");img.src=item.imageData;img.alt=item.name||"Catalogue picture";photo.append(img)}else{photo.textContent=item.icon||(item.type==="service"?"🛠️":"📦")}
+ activeDetailItem=item;
+ const images=detailImages(item),gallery=$("itemDetailGallery");gallery.replaceChildren();
+ images.forEach((src,index)=>{const button=document.createElement("button");button.type="button";button.className="item-detail-thumb";button.setAttribute("aria-label","View photo "+(index+1));const img=document.createElement("img");img.src=src;img.alt="";button.append(img);button.addEventListener("click",()=>showDetailPhoto(src,item,index));gallery.append(button)});
+ showDetailPhoto(images[0]||"",item,0);
  $("itemDetailCategory").textContent=(item.category||"S I A TECH PRINT MEDIA")+" · "+(item.type==="product"?"Product":"Service");
  $("itemDetailName").textContent=item.name||"Catalogue item";
  $("itemDetailDescription").textContent=item.description||"No additional description provided.";
  $("itemDetailPrice").textContent=itemPrice(item);
- $("itemDetailStatus").textContent=itemStatus(item);
- const type=item.type==="product"?"Product":"Service";
- $("itemDetailOrder").href="account.html?type="+encodeURIComponent(type)+"&item="+encodeURIComponent(item.id)+"#place-order";
+ const status=itemStatus(item),stockTracked=item.type==="product"&&item.stockTracked===true,stock=Number(item.stockQuantity||0);
+ $("itemDetailStatus").textContent=status+(stockTracked?" · "+stock+" available":"");
+ $("itemDetailQuantityWrap").hidden=item.type!=="product";
+ const qty=$("itemDetailQuantity");qty.value="1";qty.max=stockTracked?String(Math.max(1,stock)):"";
+ qty.disabled=stockTracked&&stock<=0;
+ $("itemDetailOrder").textContent=stockTracked&&stock<=0?"Out of stock":"Order Now";
+ $("itemDetailOrder").style.pointerEvents=stockTracked&&stock<=0?"none":"auto";
+ $("itemDetailOrder").style.opacity=stockTracked&&stock<=0?".5":"1";
+ updateDetailActions();
  $("itemDetailBackdrop").hidden=false;document.body.style.overflow="hidden";
 }
+$("itemDetailQuantity").addEventListener("input",updateDetailActions);
 function closeItemDetails(){$("itemDetailBackdrop").hidden=true;document.body.style.overflow=""}
 $("itemDetailClose").addEventListener("click",closeItemDetails);
 $("itemDetailBackdrop").addEventListener("click",e=>{if(e.target===$("itemDetailBackdrop"))closeItemDetails()});
