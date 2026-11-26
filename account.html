@@ -5,6 +5,8 @@
 @media(max-width:720px){.shell{grid-template-columns:1fr;margin-top:0}.side{padding:25px 24px}.side h1{font-size:28px;margin:20px 0 8px}.benefits{display:grid;grid-template-columns:1fr 1fr;gap:0 12px;margin:12px 0}.side-foot{display:none}.main{padding:27px 23px}}
 .customer-progress{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}.progress-step{display:flex;align-items:center;gap:5px;font-size:10px;color:#9aa3ad;background:#f4f5f6;border-radius:4px;padding:7px 8px}.progress-dot{width:7px;height:7px;border-radius:50%;background:#cbd1d8;display:inline-block;flex:none}.progress-step.done{background:#fff1e7;color:#a94300;font-weight:800}.progress-step.done .progress-dot{background:#ff6a00}.progress-updated{font-size:10px;color:#7b8794;margin-top:9px}.progress-rejected{font-size:11px;color:#a83232;background:#fff0ef;padding:10px;border-radius:5px}.updates-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.updates-heading h3{display:flex;align-items:center;gap:8px}.unread-badge{display:inline-flex;align-items:center;justify-content:center;background:#e94335;color:#fff;border-radius:20px;padding:4px 8px;font-size:10px;font-weight:900;white-space:nowrap}.mark-read-btn{border:1px solid #e2e6eb;background:#fff;color:#526170;border-radius:6px;padding:7px 10px;font-size:10px;font-weight:800;cursor:pointer}.update-unread{border-color:#ffb36e;background:#fffaf5}.new-update-tag{display:inline-block;background:#fff0e3;color:#b34b00;border-radius:12px;padding:3px 7px;font-size:9px;font-weight:900;margin-left:7px}.updates-caught-up{font-size:11px;color:#18804b;font-weight:700;margin-top:8px}@media(max-width:520px){.customer-progress{display:grid;grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.customer-order-tools{grid-template-columns:1fr 1fr!important}.customer-order-tools input{grid-column:1/-1}}
+
+.customer-admin-note{margin-top:12px;padding:12px;border-left:3px solid #0877e8;border-radius:7px;background:#edf5ff;color:#183b63;font-size:12px;line-height:1.6;white-space:pre-wrap}.customer-admin-note b{display:block;margin-bottom:5px;color:#071b3b}.customer-admin-note small{display:block;color:#718096;margin-top:7px;font-size:10px}
 </style><link rel="stylesheet" href="marketplace.css?v=1"></head><body>
 <div class="top"><a href="index.html">← Back to S I A TECH PRINT MEDIA</a></div>
 <main class="shell">
@@ -107,7 +109,9 @@ async function loadCustomerOrders(){
    const updated=document.createElement('div');updated.className='progress-updated';
    const updatedAt=o.statusUpdatedAt?.toDate?o.statusUpdatedAt.toDate():null;
    updated.textContent=updatedAt?'Last updated: '+updatedAt.toLocaleString():(o.createdAt?.toDate?'Last updated: '+o.createdAt.toDate().toLocaleString():'Status updates will appear here.');
-   card.append(top,detail,progress,updated);list.append(card);
+   card.append(top,detail,progress,updated);
+   if(String(o.adminNote||"").trim()){const note=document.createElement("div");note.className="customer-admin-note";const noteTitle=document.createElement("b");noteTitle.textContent="Message from S I A TECH PRINT MEDIA";const noteText=document.createElement("div");noteText.textContent=o.adminNote;note.append(noteTitle,noteText);if(o.adminNoteUpdatedAt?.toDate){const stamp=document.createElement("small");stamp.textContent="Sent: "+o.adminNoteUpdatedAt.toDate().toLocaleString();note.append(stamp)}card.append(note)}
+   list.append(card);
   });
   sortCustomerOrders();
  }catch(err){list.innerHTML='<div class="empty-orders">Could not load orders ('+(err.code||'connection error')+'). Please try again.</div>'}
