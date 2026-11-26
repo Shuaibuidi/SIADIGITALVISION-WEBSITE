@@ -6,3 +6,4 @@ compatibility_date = "2026-11-26"
 WEBSITE_PROJECT_ID = "mobile-tech-room"
 BUSINESS_PROJECT_ID = "smart-business-manager-f319f"
 BUSINESS_ID = "7RqIYO3IDSVCYex1LsDo6rDw5V33"
+WEBSITE_FIREBASE_API_KEY = "AIzaSyAFP-RfZWPKPcHU9NqtTzX1b8HvVVzkb3Y"\n
