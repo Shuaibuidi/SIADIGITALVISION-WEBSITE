@@ -1,0 +1,8 @@
+name = "sia-business-sso"
+main = "src/index.js"
+compatibility_date = "2026-11-26"
+
+[vars]
+WEBSITE_PROJECT_ID = "mobile-tech-room"
+BUSINESS_PROJECT_ID = "smart-business-manager-f319f"
+BUSINESS_ID = "7RqIYO3IDSVCYex1LsDo6rDw5V33"
