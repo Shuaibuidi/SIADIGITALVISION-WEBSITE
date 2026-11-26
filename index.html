@@ -64,6 +64,12 @@ footer{background:#04152f;color:#d5e2f1;padding:34px 0 16px}.footer-grid{display
  .sia-search-tools{gap:8px;margin-top:10px;flex-wrap:wrap}.sia-search-tools button{font-size:10px}.sia-search-tools .sia-search-submit{min-width:92px;padding:11px 14px;font-size:12px}
  .sia-main-nav{overflow-x:auto}.sia-main-nav .nav-in{width:max-content;min-height:38px}.sia-main-nav .nav-in a{font-size:9px;padding:11px 8px}
 }
+
+.all-categories-trigger{border:0;background:transparent;color:inherit;font:inherit;padding:12px 0;cursor:pointer;white-space:nowrap}.all-categories-trigger:hover{color:#ed6a13}
+.all-categories-backdrop{position:fixed;inset:0;background:#10182835;z-index:80}.all-categories-panel{position:absolute;z-index:81;top:100%;left:0;right:0;margin:auto;width:min(1180px,calc(100% - 28px));min-height:360px;background:#fff;border:1px solid #ececec;border-radius:0 0 12px 12px;box-shadow:0 18px 45px #15223825;display:grid;grid-template-columns:260px 1fr;overflow:hidden}.all-categories-panel[hidden],.all-categories-backdrop[hidden]{display:none}
+.all-categories-sidebar{background:#fafafa;border-right:1px solid #eee;padding:22px 14px}.all-categories-sidebar h3{font-size:15px;margin:0 10px 14px}.all-categories-sidebar a{display:flex;align-items:center;gap:11px;padding:12px 10px;border-radius:6px;color:#30343b;text-decoration:none;font-size:13px}.all-categories-sidebar a:hover{background:#fff0e5;color:#d95700}
+.all-categories-content{padding:24px 28px}.all-categories-heading{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px}.all-categories-heading small{color:#e56a16;font-size:10px;font-weight:800;letter-spacing:1px}.all-categories-heading h2{font-size:22px;margin:5px 0}.all-categories-heading button{border:0;background:#f5f5f5;border-radius:50%;width:34px;height:34px;font-size:24px;cursor:pointer}.all-categories-feature-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.all-categories-feature-grid a{min-height:112px;border:1px solid #eee;border-radius:9px;padding:15px;display:flex;flex-direction:column;gap:7px;text-decoration:none;color:#252a31;font-size:24px}.all-categories-feature-grid a:hover{border-color:#f18a42;box-shadow:0 5px 16px #e86b1714}.all-categories-feature-grid b{font-size:13px}.all-categories-feature-grid small{font-size:11px;color:#77808b;line-height:1.45}.all-categories-browse{display:inline-block;margin-top:20px;color:#df650e;font-size:13px;font-weight:700;text-decoration:none}
+@media(max-width:700px){.all-categories-panel{position:fixed;top:105px;bottom:0;left:0;right:0;width:100%;max-height:calc(100dvh - 105px);overflow:auto;border-radius:12px 12px 0 0;grid-template-columns:1fr;grid-template-rows:auto 1fr}.all-categories-sidebar{padding:13px 12px;border-right:0;border-bottom:1px solid #eee}.all-categories-sidebar h3{margin:0 7px 8px}.all-categories-sidebar a{display:inline-flex;padding:8px 9px;margin:2px 3px;background:#fff;border:1px solid #eee;font-size:11px}.all-categories-content{padding:18px 14px}.all-categories-feature-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.all-categories-feature-grid a{min-height:105px;padding:11px}.all-categories-heading h2{font-size:19px}}
 </style><link rel="stylesheet" href="marketplace.css?v=1">
 </head>
 <body>
@@ -79,7 +85,7 @@ footer{background:#04152f;color:#d5e2f1;padding:34px 0 16px}.footer-grid{display
  </div>
  <div class="sia-secondary">
   <nav class="container sia-secondary-in">
-   <a href="#departments">☰ &nbsp;All categories</a><a href="#services">Verified services</a><a href="#products">Accessories &amp; sales</a>
+   <button type="button" class="all-categories-trigger" id="allCategoriesTrigger" aria-expanded="false" aria-controls="allCategoriesPanel">☰ &nbsp;All categories</button><a href="#services">Verified services</a><a href="#products">Accessories &amp; sales</a>
    <span class="sia-nav-spacer"></span><a href="#about">About SIA</a><a href="#contact">Help Center</a><a href="account.html">Customer portal</a><a href="https://wa.me/265999290495">Contact SIA</a>
   </nav>
  </div>
@@ -97,6 +103,30 @@ footer{background:#04152f;color:#d5e2f1;padding:34px 0 16px}.footer-grid{display
   </div>
  </div>
  <div class="sia-main-nav"><nav class="container nav-in"><a class="selected" href="#home">Home</a><a href="#departments">Departments</a><a href="#services">Services</a><a href="#products">Products</a><a href="#how">How it works</a><a href="#contact">Contact</a><span class="nav-spacer"></span><a class="account-link" href="account.html">♙ Customer Portal →</a></nav></div>
+<div class="all-categories-backdrop" id="allCategoriesBackdrop"></div>
+<section class="all-categories-panel" id="allCategoriesPanel" aria-label="All categories" hidden>
+ <div class="all-categories-sidebar">
+  <h3>Shop by department</h3>
+  <a href="#services" data-menu-filter="Printing">🖨️ <span>Printing &amp; Media Services</span></a>
+  <a href="#services" data-menu-filter="Phone">📱 <span>Phone Repair &amp; Maintenance</span></a>
+  <a href="#services" data-menu-filter="Unlocking">🔐 <span>Unlocking &amp; Security Solutions</span></a>
+  <a href="#services" data-menu-filter="Digital">💻 <span>Digital &amp; Account Solutions</span></a>
+  <a href="#services" data-menu-filter="GSM">🧰 <span>GSM Tools &amp; Technical Services</span></a>
+  <a href="#products">🎧 <span>Accessories &amp; Sales</span></a>
+ </div>
+ <div class="all-categories-content">
+  <div class="all-categories-heading"><div><small>EXPLORE SIA MARKETPLACE</small><h2>Categories for you</h2></div><button type="button" id="allCategoriesClose" aria-label="Close categories">×</button></div>
+  <div class="all-categories-feature-grid">
+   <a href="#products">📱<b>Phones &amp; Accessories</b><small>Chargers, cables, earphones and phone accessories</small></a>
+   <a href="#products">💻<b>Computers &amp; ICT</b><small>Computer accessories and digital solutions</small></a>
+   <a href="#services" data-menu-filter="Printing">🖨️<b>Printing &amp; Stationery</b><small>Printing, photocopying, binding and laminating</small></a>
+   <a href="#services" data-menu-filter="Phone">🔧<b>Phone Repair</b><small>Screen, battery and charging repairs</small></a>
+   <a href="#services" data-menu-filter="Unlocking">🔓<b>Software &amp; Unlocking</b><small>Flashing, unlocking and troubleshooting</small></a>
+   <a href="#services" data-menu-filter="GSM">🧰<b>GSM Tools</b><small>Tools and technical equipment</small></a>
+  </div>
+  <a class="all-categories-browse" href="#departments">Browse all SIA departments →</a>
+ </div>
+</section>
 </header>
 <main>
 <section class="hero" id="home"><div class="container hero-in">
@@ -155,5 +185,16 @@ document.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click'
 document.querySelectorAll('[data-filter-link]').forEach(a=>a.addEventListener('click',()=>{active=a.dataset.filterLink;document.querySelectorAll('[data-filter]').forEach(x=>x.classList.toggle('active',x.dataset.filter===active));applyFilters()}));
 document.getElementById('marketSearchForm').addEventListener('submit',e=>{e.preventDefault();active='All';document.querySelectorAll('[data-filter]').forEach(x=>x.classList.toggle('active',x.dataset.filter==='All'));applyFilters()});
 search.addEventListener('input',()=>{active='All';document.querySelectorAll('[data-filter]').forEach(x=>x.classList.toggle('active',x.dataset.filter==='All'));applyFilters()});
+
+const allCategoriesTrigger=document.getElementById('allCategoriesTrigger');
+const allCategoriesPanel=document.getElementById('allCategoriesPanel');
+const allCategoriesBackdrop=document.getElementById('allCategoriesBackdrop');
+function setAllCategoriesOpen(open){allCategoriesPanel.hidden=!open;allCategoriesBackdrop.hidden=!open;allCategoriesTrigger.setAttribute('aria-expanded',String(open));document.body.classList.toggle('categories-menu-open',open)}
+allCategoriesTrigger.addEventListener('click',()=>setAllCategoriesOpen(allCategoriesPanel.hidden));
+allCategoriesBackdrop.addEventListener('click',()=>setAllCategoriesOpen(false));
+document.getElementById('allCategoriesClose').addEventListener('click',()=>setAllCategoriesOpen(false));
+document.addEventListener('keydown',e=>{if(e.key==='Escape')setAllCategoriesOpen(false)});
+document.querySelectorAll('[data-menu-filter]').forEach(link=>link.addEventListener('click',()=>{active=link.dataset.menuFilter;document.querySelectorAll('[data-filter]').forEach(x=>x.classList.toggle('active',x.dataset.filter===active));applyFilters();setAllCategoriesOpen(false)}));
+document.querySelectorAll('.all-categories-panel a[href="#products"],.all-categories-panel a[href="#departments"]').forEach(link=>link.addEventListener('click',()=>setAllCategoriesOpen(false)));
 </script>
 </body></html>
