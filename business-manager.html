@@ -38,7 +38,7 @@ import {getFirestore,doc,getDoc} from "https://www.gstatic.com/firebasejs/11.6.0
 const firebaseConfig={apiKey:"AIzaSyAFP-RfZWPKPcHU9NqtTzX1b8HvVVzkb3Y",authDomain:"mobile-tech-room.firebaseapp.com",projectId:"mobile-tech-room",storageBucket:"mobile-tech-room.firebasestorage.app",messagingSenderId:"620229324084",appId:"1:620229324084:web:7e2ae7a2550228a4dfc961",measurementId:"G-GPJM1C83TT"};
 const app=initializeApp(firebaseConfig);const auth=getAuth(app);const db=getFirestore(app);const $=id=>document.getElementById(id);
 // Replace this URL after the secure Worker is deployed. Never put service-account secrets here.
-const SSO_ENDPOINT="https://sia-business-sso.YOUR-CLOUDFLARE-SUBDOMAIN.workers.dev/sso/business-token";
+const SSO_ENDPOINT="https://sia-business-sso.siabusiness-mw.workers.dev/sso/business-token";
 let approvedUser=null;
 function deny(message){$("checking").classList.add("hidden");$("access").classList.add("hidden");$("denied").classList.remove("hidden");$("deniedText").textContent=message}
 onAuthStateChanged(auth,async user=>{
