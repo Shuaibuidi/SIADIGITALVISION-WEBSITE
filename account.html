@@ -26,7 +26,7 @@
 <div class="field"><label for="orderQuantity">Quantity</label><input id="orderQuantity" type="number" min="1" step="1" value="1" required></div>
 <div class="field"><label for="orderDetails">Additional details</label><textarea id="orderDetails" required maxlength="1200" placeholder="Describe the service you need, device model, product specifications or any other details."></textarea></div>
 <button class="submit" id="placeOrderBtn" type="submit">Submit order request</button><div id="orderNotice" class="message"></div></form>
-<div class="order-panel"><div class="updates-heading"><h3>Order Updates <span id="orderUnreadBadge" class="unread-badge" hidden></span></h3><button class="mark-read-btn" id="markUpdatesReadBtn" type="button" hidden>Mark all as read</button></div><p class="muted">See the latest progress changes made by our team.</p><div id="orderUpdatesList" class="order-list"><div class="empty-orders">Loading order updates…</div></div></div><div class="order-panel"><h3>My orders</h3><p class="muted">View your submitted service and product requests and their latest status.</p><div class="customer-order-tools" style="display:grid;grid-template-columns:minmax(0,1fr) minmax(130px,180px) minmax(125px,155px);gap:8px;margin:12px 0"><input id="customerOrderSearch" type="search" placeholder="Search my orders" aria-label="Search my orders" style="min-width:0;padding:10px;border:1px solid #d7e1ed;border-radius:8px"><select id="customerOrderStatus" aria-label="Filter my orders" style="padding:10px;border:1px solid #d7e1ed;border-radius:8px"><option value="all">All statuses</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="in progress">In progress</option><option value="ready for collection">Ready for collection</option><option value="completed">Completed</option><option value="rejected">Rejected</option></select><select id="customerOrderSort" aria-label="Sort my orders" style="padding:10px;border:1px solid #d7e1ed;border-radius:8px"><option value="newest">Newest first</option><option value="oldest">Oldest first</option></select></div><div id="customerOrderCount" class="muted" aria-live="polite">Your orders</div><button class="linkbtn" id="refreshOrdersBtn" type="button">Refresh my orders</button><div id="ordersList" class="order-list"><div class="empty-orders">Loading your orders…</div></div></div><div class="order-panel"><h3>My invoices & payments</h3><p class="muted">View invoices issued for your orders, payments received and any remaining balance.</p><button class="linkbtn" id="refreshInvoicesBtn" type="button">Refresh my invoices</button><div id="customerInvoices" class="order-list"><div class="empty-orders">Loading invoices…</div></div></div><div class="coming"><b>Payment information:</b> Orders are requests only until our team confirms them. We will issue an invoice with the amount due and record any payments against that invoice. There is no prepaid wallet.</div><button class="submit" id="signOutBtn" type="button">Sign out</button></div>
+<div class="order-panel"><div class="updates-heading"><h3>Notifications <span id="orderUnreadBadge" class="unread-badge" hidden></span></h3><button class="mark-read-btn" id="markUpdatesReadBtn" type="button" hidden>Mark all as read</button></div><p class="muted">See order status changes and messages from our team in one place.</p><div id="orderUpdatesList" class="order-list"><div class="empty-orders">Loading order updates…</div></div></div><div class="order-panel"><h3>My orders</h3><p class="muted">View your submitted service and product requests and their latest status.</p><div class="customer-order-tools" style="display:grid;grid-template-columns:minmax(0,1fr) minmax(130px,180px) minmax(125px,155px);gap:8px;margin:12px 0"><input id="customerOrderSearch" type="search" placeholder="Search my orders" aria-label="Search my orders" style="min-width:0;padding:10px;border:1px solid #d7e1ed;border-radius:8px"><select id="customerOrderStatus" aria-label="Filter my orders" style="padding:10px;border:1px solid #d7e1ed;border-radius:8px"><option value="all">All statuses</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="in progress">In progress</option><option value="ready for collection">Ready for collection</option><option value="completed">Completed</option><option value="rejected">Rejected</option></select><select id="customerOrderSort" aria-label="Sort my orders" style="padding:10px;border:1px solid #d7e1ed;border-radius:8px"><option value="newest">Newest first</option><option value="oldest">Oldest first</option></select></div><div id="customerOrderCount" class="muted" aria-live="polite">Your orders</div><button class="linkbtn" id="refreshOrdersBtn" type="button">Refresh my orders</button><div id="ordersList" class="order-list"><div class="empty-orders">Loading your orders…</div></div></div><div class="order-panel"><h3>My invoices & payments</h3><p class="muted">View invoices issued for your orders, payments received and any remaining balance.</p><button class="linkbtn" id="refreshInvoicesBtn" type="button">Refresh my invoices</button><div id="customerInvoices" class="order-list"><div class="empty-orders">Loading invoices…</div></div></div><div class="coming"><b>Payment information:</b> Orders are requests only until our team confirms them. We will issue an invoice with the amount due and record any payments against that invoice. There is no prepaid wallet.</div><button class="submit" id="signOutBtn" type="button">Sign out</button></div>
 <p class="legal">Your password is handled by Firebase Authentication. Never share your password, payment PIN or verification codes with anyone.</p>
 </section></main>
 <script type="module">
@@ -74,14 +74,44 @@ async function loadCustomerOrders(){
   const snap=await getDocs(q);
   const orders=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt?.toMillis?.()||0)-(a.createdAt?.toMillis?.()||0));
   const updatesHost=$('orderUpdatesList');updatesHost.replaceChildren();
-  const updates=orders.filter(o=>o.statusUpdatedAt?.toDate).sort((a,b)=>(b.statusUpdatedAt?.toMillis?.()||0)-(a.statusUpdatedAt?.toMillis?.()||0)).slice(0,5);
-  const readKey='sia_order_updates_seen_'+user.uid;let seenAt=0;try{seenAt=Number(localStorage.getItem(readKey)||0)}catch(e){}
-  const unread=updates.filter(o=>(o.statusUpdatedAt?.toMillis?.()||0)>seenAt);const badge=$('orderUnreadBadge'),markBtn=$('markUpdatesReadBtn');
+  const statusKey='sia_order_updates_seen_'+user.uid,noteKey='sia_order_messages_seen_'+user.uid;
+  let statusSeen=0,noteSeen=0;try{statusSeen=Number(localStorage.getItem(statusKey)||0);noteSeen=Number(localStorage.getItem(noteKey)||0)}catch(e){}
+  const events=[];
+  orders.forEach(o=>{
+   const statusTime=o.statusUpdatedAt?.toMillis?.()||0;
+   if(statusTime)events.push({kind:'status',order:o,time:statusTime,unread:statusTime>statusSeen});
+   const noteTime=o.adminNoteUpdatedAt?.toMillis?.()||0;
+   if(noteTime&&String(o.adminNote||'').trim())events.push({kind:'message',order:o,time:noteTime,unread:noteTime>noteSeen});
+  });
+  events.sort((a,b)=>b.time-a.time);
+  const unread=events.filter(e=>e.unread),badge=$('orderUnreadBadge'),markBtn=$('markUpdatesReadBtn');
   if(unread.length){badge.hidden=false;badge.textContent=unread.length+' new';markBtn.hidden=false}else{badge.hidden=true;markBtn.hidden=true}
-  if(!updates.length){updatesHost.innerHTML='<div class="empty-orders">There are no order updates yet. Updates from our team will appear here.</div>'}
-  else updates.forEach(o=>{const isUnread=(o.statusUpdatedAt?.toMillis?.()||0)>seenAt;const item=document.createElement('article');item.className='order-item'+(isUnread?' update-unread':'');const heading=document.createElement('div');heading.className='order-item-top';const name=document.createElement('b');name.textContent=o.serviceName||'Your order';if(isUnread){const tag=document.createElement('span');tag.className='new-update-tag';tag.textContent='NEW';name.append(tag)}const status=document.createElement('span');status.className='order-status';status.textContent=orderStatusLabel(o.status);heading.append(name,status);const when=document.createElement('p');when.textContent='Our team updated this order on '+o.statusUpdatedAt.toDate().toLocaleString()+'.';item.append(heading,when);updatesHost.append(item)});
-  if(updates.length&&!unread.length){const caught=document.createElement('div');caught.className='updates-caught-up';caught.textContent='You are all caught up.';updatesHost.append(caught)}
-  markBtn.onclick=()=>{try{localStorage.setItem(readKey,String(Math.max(...updates.map(o=>o.statusUpdatedAt?.toMillis?.()||0))))}catch(e){}loadCustomerOrders()};
+  const recentEvents=events.slice(0,12);
+  if(!recentEvents.length){updatesHost.innerHTML='<div class="empty-orders">No notifications yet. Order updates and messages from our team will appear here.</div>'}
+  else recentEvents.forEach(event=>{
+   const o=event.order,item=document.createElement('article');
+   item.className='order-item'+(event.unread?' update-unread':'');
+   const heading=document.createElement('div');heading.className='order-item-top';
+   const name=document.createElement('b');name.textContent=o.serviceName||'Your order';
+   if(event.unread){const tag=document.createElement('span');tag.className='new-update-tag';tag.textContent='NEW';name.append(tag)}
+   const kind=document.createElement('span');kind.className='order-status';kind.textContent=event.kind==='message'?'Message from shop':orderStatusLabel(o.status);
+   heading.append(name,kind);
+   const body=document.createElement('p');
+   if(event.kind==='message'){body.textContent=o.adminNote||''}
+   else body.textContent='Our team updated this order to: '+orderStatusLabel(o.status)+'.';
+   const when=document.createElement('p');when.textContent=(event.kind==='message'?'Message received: ':'Status updated: ')+new Date(event.time).toLocaleString();
+   item.append(heading,body,when);updatesHost.append(item);
+  });
+  if(events.length&&!unread.length){const caught=document.createElement('div');caught.className='updates-caught-up';caught.textContent='You are all caught up.';updatesHost.append(caught)}
+  markBtn.onclick=()=>{
+   try{
+    const maxStatus=Math.max(0,...events.filter(e=>e.kind==='status').map(e=>e.time));
+    const maxNote=Math.max(0,...events.filter(e=>e.kind==='message').map(e=>e.time));
+    localStorage.setItem(statusKey,String(Math.max(statusSeen,maxStatus)));
+    localStorage.setItem(noteKey,String(Math.max(noteSeen,maxNote)));
+   }catch(e){}
+   loadCustomerOrders();
+  };
   list.replaceChildren();
   if(!orders.length){list.innerHTML='<div class="empty-orders">You have not placed any orders yet.</div>';return}
   orders.forEach(o=>{
