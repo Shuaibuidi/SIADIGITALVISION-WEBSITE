@@ -44,6 +44,11 @@ h1{font-size:26px;margin:0 0 6px;color:#263238}.muted{font-size:12px;color:var(-
 <div class="stat"><span class="label">TOTAL INVOICES</span><strong id="invoices">—</strong><small>Invoices issued</small></div>
 <div class="stat"><span class="label">PAYMENTS RECEIVED</span><strong id="received">—</strong><small>Recorded payment entries · MWK</small></div>
 <div class="stat"><span class="label">OUTSTANDING BALANCE</span><strong id="outstanding">—</strong><small>Unpaid invoice balances · MWK</small></div>
+<div class="stat"><span class="label">IN PROGRESS</span><strong id="inProgress">—</strong><small>Orders being handled</small></div>
+<div class="stat"><span class="label">READY FOR COLLECTION</span><strong id="readyOrders">—</strong><small>Awaiting customer collection</small></div>
+<div class="stat"><span class="label">COMPLETED ORDERS</span><strong id="completedOrders">—</strong><small>Successfully completed</small></div>
+<div class="stat"><span class="label">UNPAID INVOICES</span><strong id="unpaidInvoices">—</strong><small>Invoices with a remaining balance</small></div>
+<div class="stat"><span class="label">LOW / OUT OF STOCK</span><strong id="lowStock">—</strong><small>Published products needing attention</small></div>
 </div>
 <h2 style="font-size:17px;margin:25px 0 8px">Manage your business</h2>
 <div class="actions">
@@ -70,9 +75,15 @@ function errorNotice(message){$("notice").textContent=message;$("notice").classN
 async function loadDashboard(){
  $("refresh").disabled=true;$("refresh").textContent="Refreshing…";$("notice").className="notice";
  try{
-  const [cs,os,is,ps]=await Promise.all([getDocs(collection(db,"platformCustomers")),getDocs(collection(db,"serviceOrders")),getDocs(collection(db,"invoices")),getDocs(collection(db,"invoicePayments"))]);
-  const customers=cs.docs,orders=os.docs.map(d=>({id:d.id,...d.data()})),invoices=is.docs.map(d=>({id:d.id,...d.data()})),payments=ps.docs.map(d=>d.data());
-  const pending=orders.filter(o=>(o.status||"pending").toLowerCase()==="pending").length;
+  const [cs,os,is,ps,cat]=await Promise.all([getDocs(collection(db,"platformCustomers")),getDocs(collection(db,"serviceOrders")),getDocs(collection(db,"invoices")),getDocs(collection(db,"invoicePayments")),getDocs(collection(db,"catalogueItems"))]);
+  const customers=cs.docs,orders=os.docs.map(d=>({id:d.id,...d.data()})),invoices=is.docs.map(d=>({id:d.id,...d.data()})),payments=ps.docs.map(d=>d.data()),catalogue=cat.docs.map(d=>d.data());
+  const statusOf=o=>String(o.status||"pending").toLowerCase();
+  const pending=orders.filter(o=>statusOf(o)==="pending").length;
+  const inProgress=orders.filter(o=>statusOf(o)==="in progress").length;
+  const readyOrders=orders.filter(o=>statusOf(o)==="ready for collection").length;
+  const completedOrders=orders.filter(o=>statusOf(o)==="completed").length;
+  const unpaidInvoices=invoices.filter(inv=>Number(inv.balanceDue??Math.max(0,Number(inv.total||0)-Number(inv.amountPaid||0)))>0).length;
+  const lowStock=catalogue.filter(item=>item.active!==false&&item.type==="product"&&item.stockTracked===true&&Number(item.stockQuantity||0)<=Number(item.lowStockThreshold??3)).length;
   const received=payments.reduce((sum,p)=>sum+Number(p.amount||0),0);
   const paidByInvoice={};payments.forEach(p=>{if(p.invoiceId)paidByInvoice[p.invoiceId]=(paidByInvoice[p.invoiceId]||0)+Number(p.amount||0)});
   const outstanding=invoices.reduce((sum,inv)=>sum+Math.max(0,Number(inv.total||0)-(paidByInvoice[inv.id]||0)),0);
@@ -82,6 +93,11 @@ async function loadDashboard(){
   $("invoices").textContent=invoices.length.toLocaleString();
   $("received").textContent=money(received);
   $("outstanding").textContent=money(outstanding);
+  $("inProgress").textContent=inProgress.toLocaleString();
+  $("readyOrders").textContent=readyOrders.toLocaleString();
+  $("completedOrders").textContent=completedOrders.toLocaleString();
+  $("unpaidInvoices").textContent=unpaidInvoices.toLocaleString();
+  $("lowStock").textContent=lowStock.toLocaleString();
   const recent=[...orders].sort((a,b)=>(b.createdAt?.toMillis?.()||0)-(a.createdAt?.toMillis?.()||0)).slice(0,5);
   const host=$("recent");host.replaceChildren();
   if(!recent.length){host.innerHTML='<p class="muted">No customer orders have been received yet.</p>'}
