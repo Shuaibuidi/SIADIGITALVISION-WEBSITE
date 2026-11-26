@@ -140,12 +140,12 @@ function renderCatalogue(){
  if(!shown.length){const p=document.createElement("div");p.className="catalogue-message";p.textContent=term?"No published items match your search.":"No products or services have been published yet.";grid.append(p);return}
  shown.forEach(item=>{
   const card=document.createElement("article");card.className="live-item-card";
-  const art=document.createElement("div");art.className="live-item-art";art.textContent=item.icon|| (item.type==="service"?"🛠️":"📦");
+  const art=document.createElement("div");art.className="live-item-art";if(item.imageData){const photo=document.createElement("img");photo.src=item.imageData;photo.alt=item.name||"Product photo";photo.loading="lazy";photo.style.cssText="width:100%;height:100%;object-fit:contain;padding:8px";art.append(photo)}else{art.textContent=item.icon|| (item.type==="service"?"🛠️":"📦")}
   const body=document.createElement("div");body.className="live-item-body";
   const tag=document.createElement("small");tag.className="live-item-category";tag.textContent=item.category||"S I A TECH PRINT MEDIA";
   const title=document.createElement("h3");title.textContent=item.name||"Catalogue item";
   const desc=document.createElement("p");desc.textContent=item.description||"";
-  const price=document.createElement("strong");price.className="live-item-price";price.textContent=itemPrice(item);
+  const price=document.createElement("strong");price.className="live-item-price";price.textContent=item.pricePerPage!==null&&item.pricePerPage!==undefined&&item.pricePerPage!==""?"MK "+Number(item.pricePerPage).toLocaleString("en-US")+" per page":itemPrice(item);
   const status=document.createElement("span");status.className="live-item-status";status.textContent=itemStatus(item);
   const action=document.createElement("a");action.className="live-item-action";action.href="account.html";action.textContent="Order / Enquire";
   body.append(tag,title,desc,price,status,action);card.append(art,body);grid.append(card);
