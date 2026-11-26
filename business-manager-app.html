@@ -1,0 +1,2258 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#211e17">
+<title>Smart Business Manager · SIA Digital Vision</title>
+<style>
+:root{font-family:Arial,sans-serif;color:#edf6ff;background:#071a2c}
+*{box-sizing:border-box}body{margin:0;padding:12px}button,input,select,textarea{font:inherit}
+.wrap{max-width:1100px;margin:auto}.card{background:#102b43;border:1px solid #294c66;border-radius:14px;padding:15px;margin:12px 0}
+h1,h2,h3{margin:4px 0 12px}.muted{color:#a9bfd1;font-size:13px;line-height:1.5}
+label{display:block;margin:9px 0 5px;color:#b9cee0;font-size:13px}
+input,select,textarea{width:100%;padding:11px;border-radius:8px;border:1px solid #3a5d77;background:#071a2c;color:white;font-size:16px}
+textarea{min-height:75px}button{border:0;border-radius:8px;padding:11px 14px;background:#1686d9;color:white;font-weight:bold;margin:4px 3px 4px 0}
+button.secondary{background:#31516b}button.danger{background:#a93636}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:9px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.hidden{display:none!important}
+.tabs{display:flex;gap:6px;overflow:auto;padding:6px 0}.tabs button{white-space:nowrap}.tabs button.active{background:#e39a28;color:#071a2c}
+.item{padding:13px;margin:9px 0;border:1px solid #31516b;border-radius:12px;background:linear-gradient(135deg,#102b43,#0b2237);line-height:1.6;box-shadow:0 3px 10px #0002}
+.item strong,.item b{color:#fff}.item .muted{display:block;margin-top:3px}
+.stat{font-size:22px;font-weight:bold}.small{font-size:12px;color:#a9bfd1}#msg,#status{white-space:pre-wrap;color:#ffd18b}
+table{width:100%;border-collapse:collapse;font-size:13px}td,th{text-align:left;padding:8px;border-bottom:1px solid #31516b;vertical-align:top}
+.actions{display:flex;gap:4px;flex-wrap:wrap}.actions button{padding:7px 10px;font-size:12px}
+.service-catalog{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px;margin:10px 0}
+.service-chip{background:#0a2033;border:1px solid #365a75;border-radius:10px;padding:10px;color:#dceeff;font-size:13px}
+@media print{body{background:white;color:black}.no-print,#appHeader,#nav{display:none!important}.card{background:white;color:black;border:0}input,select,textarea{border:0;color:black}}
+.invoice-overlay{position:fixed;inset:0;z-index:9999;background:#071a2c;overflow:auto;padding:14px;display:none}
+.invoice-paper{max-width:760px;margin:10px auto;background:#fff;color:#111;padding:24px;border-radius:10px}
+.invoice-paper h1{text-align:center;color:#111}
+.invoice-paper table{color:#111}
+.invoice-controls{max-width:760px;margin:0 auto 12px;display:flex;gap:8px;flex-wrap:wrap}
+@media print{
+ body{padding:0!important;background:#fff!important}
+ body>*{visibility:hidden!important}
+ #invoicePreview,#invoicePreview *{visibility:visible!important}
+ #invoicePreview{display:block!important;position:absolute;inset:0;background:#fff;padding:0;margin:0;overflow:visible}
+ .invoice-controls{display:none!important}
+ .invoice-paper{max-width:none;margin:0;padding:12mm;border-radius:0}
+}
+
+/* Gmail-inspired dark interface refresh */
+:root{font-family:Roboto,Arial,sans-serif;color:#e8e2d6;background:#211e17;color-scheme:dark}
+html{background:#211e17}
+body{margin:0;padding:12px;background:#211e17;color:#e8e2d6}
+.wrap{max-width:1120px;margin:auto}
+#appHeader{position:sticky;top:0;z-index:50;padding:12px 16px;margin:-12px -12px 18px;background:#211e17;border-bottom:1px solid #393329;min-height:76px}
+.app-brand{display:flex;align-items:center;gap:0;min-width:0}
+.brand-menu{display:none!important}
+#appHeader h1{font-size:21px;letter-spacing:-.35px;margin:0;color:#f0e9dc;font-weight:650}
+.brand-subtitle{font-size:12px;color:#b9ad98;margin-top:3px;letter-spacing:.2px}
+.brand-avatar{width:42px;height:42px;flex:0 0 42px;border-radius:50%;display:grid;place-items:center;background:#0b84d6;color:white;font-size:21px}
+.card{background:#17140e;border:1px solid #302a20;border-radius:18px;padding:17px;margin:12px 0;box-shadow:0 2px 8px #0002}
+h1,h2,h3,h4{color:#f0e9dc;letter-spacing:-.25px}
+h2{font-size:21px}h3{font-size:17px}
+.muted,.small{color:#b8b1a5}
+label{color:#cfc4b1}
+input,select,textarea{background:#302b22;color:#f1eadf;border:1px solid #4a4032;border-radius:13px;padding:13px}
+input::placeholder,textarea::placeholder{color:#aaa08f}
+button{background:#f2c66d;color:#2a2110;border-radius:22px;padding:11px 17px;font-weight:700;box-shadow:none}
+button.secondary{background:#403a2e;color:#eee4d1}
+button.danger{background:#9d3e35;color:#fff}
+button:active{transform:scale(.98)}
+.tabs{display:flex;gap:8px;overflow-x:auto;overflow-y:hidden;padding:9px 2px 13px;scrollbar-width:thin;scrollbar-color:#5a4d38 transparent}
+.tabs button{white-space:nowrap;border-radius:22px;background:#302b22;color:#e2d8c7;border:1px solid #40382c;padding:10px 16px;margin:0}
+.tabs button.active{background:#f4ce7b;color:#2a2110;border-color:#f4ce7b}
+.item{padding:15px;margin:9px 0;border:1px solid #342d22;border-radius:16px;background:#211d15;line-height:1.65;box-shadow:none}
+.item strong,.item b{color:#f2eadb}
+.stat{font-size:24px;font-weight:750;color:#f5d18a;letter-spacing:-.4px}
+.grid{gap:11px}
+table{color:#e9e1d3}
+td,th{border-bottom:1px solid #3a3328;padding:10px}
+th{color:#d7c9b2}
+.service-chip{background:#29241b;border:1px solid #49402f;border-radius:14px;color:#eee2cc}
+#msg,#status{color:#f3c779}
+.invoice-overlay{background:#211e17}
+@media(max-width:600px){
+ body{padding:9px}
+ #appHeader{margin:-9px -9px 14px;padding:11px 13px;min-height:68px}
+ #appHeader h1{font-size:18px}
+ .brand-menu{display:none!important}
+ .brand-avatar{width:38px;height:38px;flex-basis:38px}
+ .card{padding:14px;border-radius:17px}
+ .tabs{margin:0 -2px}
+ .tabs button{padding:9px 14px;font-size:13px}
+ .stat{font-size:22px}
+}
+
+body{padding-top:22px}#appHeader{margin:0 -12px 18px;padding:18px 16px 14px;min-height:88px;top:0}.header-icon{border:0;cursor:pointer;display:grid;place-items:center;margin:0;box-shadow:none}.brand-menu{display:none!important}.brand-avatar{width:44px;height:44px;flex:0 0 44px;border-radius:50%;background:#0b84d6;color:#fff;font-size:22px;font-weight:500;padding:0}.brand-avatar:hover{background:#0875bd}.drawer-backdrop{position:fixed;inset:0;z-index:200;background:#0009}.app-drawer{position:absolute;inset:0 auto 0 0;width:min(82vw,320px);overflow:auto;background:#29251d;border-radius:0 20px 20px 0;padding:24px 12px;box-shadow:8px 0 30px #0007}.drawer-heading{font-size:19px;font-weight:700;padding:8px 14px 3px;color:#f0e9dc}.drawer-caption{font-size:12px;color:#b9ad98;padding:0 14px 18px;border-bottom:1px solid #494032}.drawer-nav{display:grid;gap:4px;padding-top:12px}.drawer-nav button{width:100%;text-align:left;margin:0;padding:13px 16px;border-radius:0 24px 24px 0;background:transparent;color:#e8e0d2;font-weight:500}.drawer-nav button.active{background:#594b30;color:#ffdf9a}.drawer-nav button:active{transform:none}.account-menu{position:fixed;z-index:210;right:12px;top:82px;width:min(310px,calc(100vw - 24px));padding:18px;background:#302b22;border:1px solid #554a38;border-radius:22px;box-shadow:0 12px 36px #0009}.account-menu-name{font-size:18px;font-weight:700;color:#f4ecde}.account-menu-email,.account-menu-role{font-size:13px;color:#c4b9a6;margin-top:5px;overflow-wrap:anywhere}.account-menu-action{display:block;width:100%;text-align:left;margin:12px 0 0;padding:12px 14px;background:#453c2c;color:#f3e7d2;border-radius:14px}.account-menu-action:last-child{background:#5a352b;color:#ffe5d8}@media(max-width:600px){body{padding:18px 9px 9px}#appHeader{margin:0 -9px 14px;padding:17px 13px 13px;min-height:86px}.brand-menu{display:none!important}.brand-avatar{width:40px;height:40px;flex-basis:40px}.account-menu{top:80px;right:9px}}
+
+/* Slightly larger, more comfortable app typography */
+body{font-size:17px}
+#appHeader h1{font-size:22px}
+.brand-subtitle{font-size:13px}
+h2{font-size:22px}
+h3{font-size:18px}
+.muted{font-size:14px}
+label{font-size:14px}
+.small{font-size:13px}
+table{font-size:14px}
+.actions button{font-size:13px}
+@media(max-width:600px){
+ body{font-size:16.5px}
+ #appHeader h1{font-size:20px}
+ h2{font-size:21px}
+ .muted{font-size:14px}
+ .small{font-size:13px}
+}
+
+/* Approved black dashboard appearance — styling only */
+:root{font-family:Roboto,Arial,sans-serif;color:#f4f5f7;background:#080b0e;color-scheme:dark}
+html,body{background:#080b0e;color:#f4f5f7}
+body{padding:18px 12px 110px;font-size:16px}
+.wrap{max-width:1120px}
+#appHeader{position:relative;top:auto;margin:0 -12px 22px;padding:8px 16px 16px;min-height:0;background:#080b0e;border:0}
+#appHeader h1{font-size:clamp(25px,5vw,38px);font-weight:750;letter-spacing:-.8px;color:#fff}
+.brand-subtitle{font-size:clamp(14px,2.5vw,19px);color:#aeb4bd;margin-top:5px;letter-spacing:0}
+.welcome-panel{display:none!important}
+#nav{position:fixed;z-index:500;left:0;right:0;bottom:0;display:flex;flex-wrap:nowrap;align-items:stretch;gap:8px;margin:0;padding:8px 10px max(10px,env(safe-area-inset-bottom));background:rgba(8,11,14,.98);border:1px solid #252a30;border-bottom:0;border-radius:20px 20px 0 0;box-shadow:0 -8px 28px #0007;overflow-x:auto;overflow-y:hidden;white-space:nowrap;scrollbar-width:thin;scrollbar-color:#555 #111}
+#nav button{display:flex;flex:0 0 94px;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-width:94px;min-height:66px;margin:0;padding:6px 4px;background:transparent;color:#f5f6f8;border-radius:12px;box-shadow:none;font-size:11px;line-height:1.15;font-weight:600;white-space:normal;text-align:center}
+#nav button .nav-icon{font-size:25px;line-height:1.05}
+#nav button.active{color:#fff;position:relative;background:#20262c}
+#nav button.active:after{content:'';position:absolute;bottom:1px;left:25%;right:25%;height:3px;border-radius:4px;background:#ffd33d}
+#screen{padding-bottom:18px}
+.card{background:#111519;border:1px solid #262c32;border-radius:22px;box-shadow:none}
+.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.grid>.card{display:flex;flex-direction:column;justify-content:center;min-height:104px;padding:17px}
+.grid>.card .muted{font-size:15px;color:#d7dce2}
+.stat{font-size:clamp(20px,3.5vw,28px);font-weight:800;color:#fff;letter-spacing:-.5px;overflow-wrap:anywhere}
+#screen>.card{padding:18px;margin:16px 0}
+#screen h3{font-size:21px;color:#fff}
+.item{background:#151b20;border-color:#29323a}
+h1,h2,h3,h4{color:#f5f6f8}
+.muted,.small{color:#aeb8c2}
+label{color:#d0d6dd}
+input,select,textarea{background:#171d23;border-color:#343e48;color:#fff}
+button{background:#ffd33d;color:#17130a}
+button.secondary{background:#29323a;color:#f5f6f8}
+.service-chip{background:#171d23;border-color:#343e48;color:#f5f6f8}
+#msg,#status{color:#ffd36b}
+.invoice-overlay{background:#080b0e}
+@media(max-width:520px){body{padding:15px 9px 108px}#appHeader{margin:0 -9px 20px;padding:7px 13px 15px}.grid{gap:9px}.grid>.card{min-height:94px;padding:13px 11px;border-radius:19px}.grid>.card .muted{font-size:13px}.stat{font-size:clamp(17px,4.2vw,22px)}#screen>.card{padding:15px;border-radius:21px}#screen h3{font-size:19px}#nav{display:flex;flex-wrap:nowrap;gap:7px;padding:7px 8px max(9px,env(safe-area-inset-bottom));}#nav button{flex:0 0 88px;min-width:88px;min-height:62px;font-size:10px}#nav button .nav-icon{font-size:23px}}
+@media print{#nav{display:none!important}body{padding:0!important}}
+/* Dashboard cards and sections matching the approved reference */
+.dashboard-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:8px 0 18px}
+.metric-card{display:flex;align-items:center;gap:13px;min-width:0;min-height:108px;padding:15px 13px;background:#111519;border:1px solid #262c32;border-radius:22px}
+.metric-icon{width:60px;height:60px;flex:0 0 60px;display:grid;place-items:center;border-radius:50%;font-size:34px;font-weight:800;color:#fff}
+.metric-blue{background:#087ee8}.metric-green{background:#08c66b}.metric-orange{background:#ff9200}.metric-purple{background:#7838ed}
+.metric-label{font-size:15px;color:#d7dce2;line-height:1.25;margin-bottom:5px}
+.metric-value{font-size:clamp(18px,3vw,25px);font-weight:800;color:#fff;letter-spacing:-.4px;overflow-wrap:anywhere}
+.dashboard-panel{padding:18px;margin:16px 0;background:#111519;border:1px solid #262c32;border-radius:23px}
+.panel-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px}
+.panel-heading h3{font-size:21px!important;margin:0;color:#fff}
+.text-action{background:transparent!important;color:#299cff!important;padding:4px!important;margin:0!important;border-radius:0!important;box-shadow:none!important;font-size:14px;white-space:nowrap}
+.today-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.today-stat{display:flex;align-items:center;gap:10px;min-width:0;padding:8px 2px}
+.today-stat+.today-stat{border-left:1px solid #41464c;padding-left:14px}
+.today-icon{width:43px;height:43px;flex:0 0 43px;display:grid;place-items:center;font-size:29px;font-weight:800}
+.today-icon.blue,.profit-icon.blue{color:#168df4}.today-icon.green,.profit-icon.green{color:#12d477}.profit-icon.purple{color:#a46aff}.profit-icon.orange{color:#ffb21a}
+.profit-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0}
+.profit-grid>div{display:flex;flex-direction:column;align-items:center;text-align:center;gap:7px;padding:4px 7px;min-width:0}
+.profit-grid>div+div{border-left:1px solid #41464c}
+.profit-icon{font-size:32px;font-weight:800;line-height:1.2}
+.profit-grid b{font-size:13px;color:#f4f5f7;line-height:1.25}.profit-grid strong{font-size:16px;color:#fff;overflow-wrap:anywhere}
+.tools-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.tool-link{display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;margin:0;padding:12px 14px;background:#191f25!important;border:1px solid #2a323a;color:#f5f6f8!important;border-radius:15px;box-shadow:none!important}
+.tool-link b{font-size:14px}.tool-link span{font-size:12px;color:#aeb8c2;font-weight:400}
+.dashboard-note{margin:13px 2px 0}
+@media(max-width:520px){.dashboard-metrics{gap:9px}.metric-card{gap:9px;padding:12px 9px;min-height:94px;border-radius:19px}.metric-icon{width:49px;height:49px;flex-basis:49px;font-size:27px}.metric-label{font-size:13px}.metric-value{font-size:clamp(16px,4vw,20px)}.dashboard-panel{padding:15px;border-radius:21px}.panel-heading h3{font-size:19px!important}.text-action{font-size:12px}.today-stat{gap:6px}.today-stat+.today-stat{padding-left:8px}.today-icon{width:34px;height:34px;flex-basis:34px;font-size:24px}.profit-grid{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:12px}.profit-grid>div:nth-child(3){border-left:0}.profit-grid>div:nth-child(3),.profit-grid>div:nth-child(4){border-top:1px solid #41464c;padding-top:12px}.profit-grid b{font-size:12px}.profit-grid strong{font-size:14px}}
+
+/* Fixed branding header: slightly lower and larger on screen */
+#appHeader{
+  position:fixed!important;
+  top:12px!important;
+  left:0!important;
+  right:0!important;
+  width:100%!important;
+  margin:0!important;
+  padding:18px 20px 17px!important;
+  min-height:0!important;
+  z-index:1000!important;
+  background:#080b0e!important;
+  border:0!important;
+  box-sizing:border-box!important;
+}
+#appHeader h1{
+  font-size:clamp(30px,5.5vw,42px)!important;
+  line-height:1.16!important;
+}
+#appHeader .brand-subtitle{
+  font-size:clamp(16px,2.7vw,21px)!important;
+  margin-top:7px!important;
+}
+.wrap{padding-top:118px!important}
+@media(max-width:520px){
+  #appHeader{top:10px!important;padding:17px 13px 15px!important}
+  #appHeader h1{font-size:clamp(27px,6vw,34px)!important}
+  #appHeader .brand-subtitle{font-size:16px!important}
+  .wrap{padding-top:108px!important}
+}
+@media print{
+  #appHeader{display:none!important}
+  .wrap{padding-top:0!important}
+}
+
+/* Restore the signed-in welcome panel */
+.welcome-panel{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:12px!important;
+  flex-wrap:wrap!important;
+  margin-top:12px!important;
+}
+.welcome-panel #welcome{
+  display:block!important;
+  margin:0 0 5px!important;
+  font-size:21px!important;
+}
+
+/* Larger, slightly lower fixed header only */
+#appHeader{
+ position:fixed!important;top:18px!important;left:0!important;right:0!important;
+ width:100%!important;box-sizing:border-box!important;z-index:1000!important;
+ display:flex!important;flex-direction:column!important;align-items:stretch!important;
+ gap:10px!important;margin:0!important;padding:17px 18px 15px!important;
+ background:#080b0e!important;border:0!important;
+}
+#appHeader .app-brand{min-width:0!important}
+#appHeader h1{font-size:clamp(27px,5.4vw,36px)!important;line-height:1.15!important;letter-spacing:-.5px!important;white-space:normal!important}
+#appHeader .brand-subtitle{font-size:clamp(15px,3vw,18px)!important;margin-top:5px!important}
+#appHeader .welcome-panel{
+ display:flex!important;align-items:center!important;justify-content:flex-start!important;
+ flex-wrap:wrap!important;gap:7px 14px!important;margin:0!important;padding:10px 13px!important;
+ background:#111519!important;border:1px solid #262c32!important;border-radius:13px!important;
+}
+#appHeader .welcome-panel.hidden{display:none!important}
+#appHeader #welcome{display:inline!important;margin:0!important;font-size:18px!important;line-height:1.2!important}
+#appHeader #roleTag{font-size:15px!important;color:#b9c0c8!important}
+.wrap{padding-top:175px!important}
+@media(max-width:520px){
+ #appHeader{top:14px!important;padding:15px 13px 13px!important;gap:9px!important}
+ #appHeader h1{font-size:clamp(24px,6vw,31px)!important}
+ #appHeader .brand-subtitle{font-size:15px!important}
+ #appHeader .welcome-panel{padding:9px 11px!important}
+ #appHeader #welcome{font-size:17px!important}
+ #appHeader #roleTag{font-size:14px!important}
+ .wrap{padding-top:160px!important}
+}
+@media print{#appHeader{display:none!important}.wrap{padding-top:0!important}}
+
+/* Keep dashboard metric pairs arranged horizontally on phones */
+.dashboard-metrics{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+.today-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+.today-stat{flex-direction:row!important;align-items:center!important}
+@media(max-width:520px){
+ .dashboard-metrics{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+ .metric-card{gap:7px!important;padding:10px 8px!important;min-height:82px!important}
+ .metric-icon{width:34px!important;height:34px!important;flex-basis:34px!important;font-size:20px!important}
+ .metric-label{font-size:12px!important;line-height:1.2!important}
+ .metric-value{font-size:16px!important;overflow-wrap:anywhere}
+ .today-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+ .today-stat{flex-direction:row!important;gap:6px!important;padding:8px 4px!important;min-width:0!important}
+ .today-stat+.today-stat{border-left:1px solid #41464c!important;padding-left:8px!important}
+ .today-icon{width:28px!important;height:28px!important;flex:0 0 28px!important;font-size:20px!important}
+ .today-stat .metric-label{font-size:11px!important}
+ .today-stat .metric-value{font-size:15px!important}
+}
+
+/* Keep the fixed header above all scrolling page content */
+#appHeader{
+  position:fixed!important;
+  z-index:10000!important;
+  isolation:isolate!important;
+  background:#080b0e!important;
+  opacity:1!important;
+  box-shadow:0 10px 22px rgba(0,0,0,.38)!important;
+}
+#app,#screen,.wrap>section,.wrap>main{
+  position:relative;
+  z-index:0;
+}
+#screen>*{
+  position:relative;
+  z-index:0;
+}
+
+/* Screen-fit layout: the header, scroll area and bottom navigation each own
+   their space. Only the page content scrolls; it cannot pass over the header. */
+html,body{
+  width:100%!important;
+  height:100%!important;
+  min-height:100%!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:hidden!important;
+  background:#080b0e!important;
+}
+body{
+  height:100vh!important;
+  height:100dvh!important;
+  overscroll-behavior:none;
+}
+.wrap{
+  width:100%!important;
+  max-width:none!important;
+  height:100vh!important;
+  height:100dvh!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:0!important;
+  display:flex!important;
+  flex-direction:column!important;
+  overflow:hidden!important;
+}
+#appHeader{
+  position:relative!important;
+  inset:auto!important;
+  z-index:20!important;
+  isolation:isolate!important;
+  flex:0 0 auto!important;
+  width:100%!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:calc(env(safe-area-inset-top) + 13px) 13px 12px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  gap:9px!important;
+  background:#080b0e!important;
+  opacity:1!important;
+  box-shadow:0 5px 16px rgba(0,0,0,.35)!important;
+}
+#appHeader .app-brand{min-width:0!important}
+#appHeader h1{
+  font-size:clamp(24px,6vw,32px)!important;
+  line-height:1.12!important;
+  white-space:normal!important;
+  overflow-wrap:anywhere!important;
+}
+#appHeader .brand-subtitle{
+  font-size:15px!important;
+  line-height:1.3!important;
+}
+#appHeader .welcome-panel{
+  display:flex!important;
+  flex:0 0 auto!important;
+  min-width:0!important;
+  margin:0!important;
+  padding:10px 13px!important;
+  background:#111519!important;
+  border:1px solid #262c32!important;
+  border-radius:15px!important;
+}
+#appHeader .welcome-panel.hidden{display:none!important}
+#appHeader #welcome{
+  margin:0!important;
+  font-size:18px!important;
+  line-height:1.25!important;
+}
+#app{
+  display:none;
+}
+#app:not(.hidden){
+  display:flex!important;
+  flex:1 1 auto!important;
+  flex-direction:column!important;
+  min-height:0!important;
+  width:100%!important;
+  overflow:hidden!important;
+  position:relative!important;
+  z-index:1!important;
+}
+#screen{
+  order:1!important;
+  position:relative!important;
+  z-index:1!important;
+  flex:1 1 auto!important;
+  min-height:0!important;
+  width:100%!important;
+  margin:0!important;
+  padding:8px 9px 24px!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  -webkit-overflow-scrolling:touch!important;
+  overscroll-behavior-y:contain!important;
+  scrollbar-gutter:stable;
+}
+#nav{
+  order:2!important;
+  position:relative!important;
+  inset:auto!important;
+  z-index:10!important;
+  flex:0 0 auto!important;
+  width:100%!important;
+  max-width:100%!important;
+  min-height:68px!important;
+  margin:0!important;
+  padding:7px 8px calc(7px + env(safe-area-inset-bottom))!important;
+  display:flex!important;
+  flex-wrap:nowrap!important;
+  align-items:stretch!important;
+  gap:7px!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  background:#080b0e!important;
+  border:1px solid #252a30!important;
+  border-bottom:0!important;
+  border-radius:17px 17px 0 0!important;
+  box-shadow:0 -5px 18px rgba(0,0,0,.35)!important;
+}
+#nav button{
+  flex:0 0 88px!important;
+  min-width:88px!important;
+  min-height:58px!important;
+}
+#status{
+  order:3!important;
+  flex:0 0 auto!important;
+  max-height:42px!important;
+  overflow:auto!important;
+  padding:2px 10px calc(3px + env(safe-area-inset-bottom))!important;
+  background:#080b0e!important;
+}
+#login{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  margin:12px 9px!important;
+  overflow-y:auto!important;
+}
+@media(max-width:380px){
+  #appHeader{padding-left:11px!important;padding-right:11px!important}
+  #appHeader h1{font-size:24px!important}
+  #appHeader .brand-subtitle{font-size:14px!important}
+  #appHeader #welcome{font-size:16px!important}
+  #nav button{flex-basis:82px!important;min-width:82px!important}
+}
+@media print{
+  html,body,.wrap{height:auto!important;min-height:0!important;overflow:visible!important;display:block!important}
+  #appHeader,#nav,#status{display:none!important}
+  #app,#screen{display:block!important;overflow:visible!important;height:auto!important}
+}
+
+
+/* Business Performance tab */
+.performance-period{margin:10px 0 16px}
+.performance-period button{flex:1 1 0;min-width:0;text-align:center}
+.performance-period button.active{background:#ffd33d;color:#17130a}
+.performance-overview{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.performance-overview>div{display:flex;flex-direction:column;gap:6px;min-width:0;padding:13px;background:#171d23;border:1px solid #29323a;border-radius:15px}
+.performance-overview strong{font-size:clamp(17px,4vw,23px);overflow-wrap:anywhere;color:#fff}
+.performance-list{display:grid;grid-template-columns:1fr;gap:11px}
+.performance-card{padding:14px;background:#151b20;border:1px solid #29323a;border-radius:17px}
+.performance-card-head{display:flex;align-items:center;gap:9px;font-size:15px}
+.performance-icon{font-size:22px}
+.performance-percent{font-size:27px;font-weight:800;margin:9px 0 7px;color:#fff}
+.performance-track{height:9px;border-radius:20px;background:#303840;overflow:hidden;margin-bottom:12px}
+.performance-track span{display:block;height:100%;border-radius:20px;background:#18bd83}
+.performance-detail{display:flex;justify-content:space-between;gap:12px;padding:5px 0;font-size:13px;border-top:1px solid #29323a}
+.performance-detail span{color:#aeb8c2}
+.performance-detail b{color:#f5f6f8;text-align:right}
+.performance-up{color:#32d28b!important}
+.performance-down{color:#ff9b87!important}
+.performance-explain{margin:13px 1px 0;line-height:1.5}
+.performance-empty{display:flex;flex-direction:column;gap:8px;padding:18px;text-align:center;color:#fff}
+.performance-empty span{font-size:13px;color:#aeb8c2;line-height:1.5}
+@media(min-width:650px){.performance-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+
+/* Keep the login form tappable and visibly responsive on mobile */
+#login{position:relative!important;z-index:30!important;pointer-events:auto!important}
+#login button{position:relative!important;z-index:31!important;pointer-events:auto!important;touch-action:manipulation!important}
+#signInButton:disabled{opacity:.72;cursor:wait}
+#msg{display:block;min-height:1.4em;overflow-wrap:anywhere}
+\n/* Inventory price calculation tables */\n.inventory-table-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}\n.inventory-table-wrap table{min-width:560px;font-variant-numeric:tabular-nums}\n.inventory-table-wrap th,.inventory-table-wrap td{white-space:nowrap}\n.inventory-table-wrap th:first-child,.inventory-table-wrap td:first-child{white-space:normal;min-width:135px}\n
+
+
+/* Professional expandable navigation; dashboard content remains unchanged */
+#nav{z-index:500;gap:10px;justify-content:center;padding-left:12px;padding-right:12px}
+#nav button{flex:1 1 50%;min-width:0;max-width:220px;min-height:62px;font-size:12px}
+#nav button .nav-icon{font-size:22px}
+.drawer-backdrop{position:fixed!important;inset:0!important;z-index:12000!important;background:rgba(0,0,0,.72)!important;display:flex;align-items:stretch}
+.drawer-backdrop.hidden{display:none!important}
+.app-drawer{position:absolute!important;inset:0 auto 0 0!important;width:min(86vw,360px)!important;max-height:100dvh;overflow-y:auto!important;padding:24px 14px calc(24px + env(safe-area-inset-bottom))!important;background:#10151a!important;border-right:1px solid #303942;border-radius:0 22px 22px 0!important;box-shadow:12px 0 38px #0009!important}
+.drawer-heading{font-size:21px!important;font-weight:750!important;padding:8px 12px 4px!important;color:#fff!important}
+.drawer-caption{font-size:12px!important;padding:0 12px 18px!important;color:#aeb8c2!important;border-bottom:1px solid #303942!important}
+.drawer-nav{display:grid;gap:8px;padding-top:14px!important}
+.drawer-dashboard,.drawer-group summary{width:100%;display:flex;align-items:center;gap:12px;min-height:48px;padding:12px 14px!important;border:1px solid #303942!important;border-radius:13px!important;background:#1a2229!important;color:#f5f6f8!important;font-size:15px;font-weight:700;text-align:left;cursor:pointer;list-style:none}
+.drawer-dashboard.active{background:#28333c!important;border-color:#ffd33d!important;color:#fff!important}
+.drawer-group{border:1px solid #303942;border-radius:14px;background:#151c22;overflow:hidden}
+.drawer-group summary::-webkit-details-marker{display:none}
+.drawer-group summary{border:0!important;border-radius:0!important;background:transparent!important;font-size:14px!important}
+.drawer-group[open] summary{border-bottom:1px solid #303942!important;color:#ffdf78!important}
+.drawer-group-icon{width:24px;text-align:center;font-size:18px}
+.drawer-chevron{margin-left:auto;font-size:23px;line-height:1;transition:transform .15s ease}
+.drawer-group[open] .drawer-chevron{transform:rotate(90deg)}
+.drawer-group-items{display:grid;gap:3px;padding:7px 8px 9px}
+.drawer-group-items button{width:100%;min-height:42px;margin:0!important;padding:10px 14px 10px 48px!important;border-radius:10px!important;background:transparent!important;color:#dbe2e8!important;text-align:left;font-size:14px;font-weight:500;box-shadow:none!important}
+.drawer-group-items button.active{background:#28333c!important;color:#ffdf78!important;border-left:3px solid #ffd33d}
+@media(max-width:520px){#nav button{min-height:58px;font-size:12px}.app-drawer{width:min(88vw,340px)!important}}
+@media print{#nav,#appDrawerBackdrop{display:none!important}}
+
+
+/* Premium black-and-gold header based on the approved handshake concept */
+#appHeader.premium-header{
+  position:relative!important;top:auto!important;left:auto!important;right:auto!important;
+  width:calc(100% + 24px)!important;margin:8px -12px 22px!important;
+  padding:calc(18px + env(safe-area-inset-top, 0px)) 20px 17px!important;display:flex!important;flex-direction:column!important;
+  gap:0!important;background:
+    radial-gradient(ellipse at 2% 0%,rgba(225,169,32,.17),transparent 28%),
+    linear-gradient(125deg,#080808 0%,#111 55%,#050505 100%)!important;
+  border:0!important;border-bottom:1px solid #6c4b12!important;
+  box-shadow:0 8px 25px rgba(0,0,0,.38)!important;z-index:100!important;
+  overflow:hidden!important;
+}
+#appHeader.premium-header:before{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:.8;
+  background:linear-gradient(132deg,transparent 0 79%,rgba(225,170,35,.16) 79.2%,transparent 80.2%),
+             radial-gradient(circle at 96% 16%,rgba(244,184,43,.18) 1px,transparent 2px);
+  background-size:auto,13px 13px;
+}
+#appHeader .premium-brand{position:relative;display:flex;align-items:center;gap:15px;min-width:0}
+#appHeader .brand-mark{width:88px;height:88px;flex:0 0 88px;border:4px solid #dca92d;border-radius:50%;padding:5px;box-shadow:0 0 0 5px rgba(225,173,43,.12),0 0 20px rgba(224,167,37,.2)}
+#appHeader .brand-mark svg{width:100%;height:100%;display:block}
+#appHeader .brand-divider{height:70px;width:4px;flex:0 0 4px;background:#eab52e;border-radius:4px}
+#appHeader .brand-copy{min-width:0}
+#appHeader .brand-copy h1{margin:0!important;font-size:clamp(23px,4.8vw,38px)!important;line-height:1.12!important;letter-spacing:-.7px!important;font-weight:800!important;color:#f8f8f8!important}
+#appHeader .brand-copy h1 span{color:#efb923}
+#appHeader .brand-subtitle{font-size:clamp(13px,2.5vw,20px)!important;font-style:italic;color:#e1e1e1!important;letter-spacing:.1px;margin-top:7px!important}
+#appHeader .welcome-panel{
+  position:relative;display:flex!important;align-items:center!important;justify-content:flex-start!important;
+  flex-wrap:nowrap!important;gap:16px!important;width:100%;min-width:0;
+  margin:0!important;padding:13px 17px!important;border:2px solid #dba728!important;
+  border-radius:34px!important;background:linear-gradient(110deg,#090909 0%,#17130b 52%,#090909 100%)!important;
+  box-shadow:inset 0 0 18px rgba(218,166,35,.12),0 4px 16px rgba(0,0,0,.35)!important;
+}
+#appHeader .welcome-panel:after{
+  content:"";position:absolute;right:0;bottom:0;width:36%;height:7px;
+  background:linear-gradient(90deg,transparent,#e7ae28);border-radius:100% 0 30px 0;opacity:.9;pointer-events:none
+}
+#appHeader .handshake-emblem{
+  width:82px;height:82px;flex:0 0 82px;border:3px solid #e2ae2e;border-radius:50%;
+  display:grid;place-items:center;background:radial-gradient(circle,#2a2110,#080808 72%);
+  box-shadow:0 0 14px rgba(227,174,43,.18);overflow:hidden
+}
+#appHeader .handshake-emblem span{
+  display:block;font-size:48px;line-height:1;filter:grayscale(1) sepia(1) saturate(5) hue-rotate(3deg) brightness(1.15);
+  transform-origin:50% 65%;animation:handshakeMotion 1.15s ease-in-out infinite
+}
+@keyframes handshakeMotion{
+  0%,100%{transform:rotate(-5deg) translateY(0) scale(1)}
+  25%{transform:rotate(5deg) translateY(-2px) scale(1.03)}
+  50%{transform:rotate(-4deg) translateY(1px) scale(1)}
+  75%{transform:rotate(4deg) translateY(-1px) scale(1.02)}
+}
+#appHeader .welcome-divider{width:4px;height:68px;flex:0 0 4px;background:#eab52e;border-radius:4px}
+#appHeader .welcome-copy{min-width:0}
+#appHeader #welcome{margin:0!important;font-size:clamp(21px,4.5vw,38px)!important;line-height:1.12!important;font-weight:750!important;color:#f7f7f7!important}
+#appHeader #welcomeName{color:#efb923}
+#appHeader .welcome-subtitle{margin-top:6px;font-size:clamp(14px,2.8vw,24px);font-style:italic;color:#e2e2e2;line-height:1.2}
+.wrap{padding-top:0!important}
+@media(max-width:520px){
+  #appHeader.premium-header{width:calc(100% + 18px)!important;margin:8px -9px 18px!important;padding:calc(18px + env(safe-area-inset-top, 0px)) 12px 14px!important;gap:12px!important}
+  #appHeader .premium-brand{gap:10px}
+  #appHeader .brand-mark{width:61px;height:61px;flex-basis:61px;border-width:3px;padding:4px}
+  #appHeader .brand-divider{height:53px;width:3px;flex-basis:3px}
+  #appHeader .brand-copy h1{font-size:clamp(19px,5.4vw,27px)!important;letter-spacing:-.5px!important}
+  #appHeader .brand-subtitle{font-size:clamp(11px,3vw,15px)!important;margin-top:5px!important}
+  #appHeader .welcome-panel{gap:10px!important;padding:10px 11px!important;border-radius:25px!important}
+  #appHeader .handshake-emblem{width:54px;height:54px;flex-basis:54px;border-width:2px}
+  #appHeader .handshake-emblem span{font-size:32px}
+  #appHeader .welcome-divider{height:48px;width:3px;flex-basis:3px}
+  #appHeader #welcome{font-size:clamp(18px,5vw,25px)!important}
+  #appHeader .welcome-subtitle{font-size:clamp(12px,3.4vw,16px);margin-top:4px}
+}
+@media(prefers-reduced-motion:reduce){
+  #appHeader .handshake-emblem span{animation:none!important}
+}
+@media print{#appHeader.premium-header{display:none!important}}
+
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="printer.js"></script>
+<script src="social-login.js"></script>
+</head>
+<body><div class="wrap">
+<header id="appHeader" class="premium-header">
+  <div class="premium-brand">
+    <div class="brand-mark" aria-hidden="true">
+      <svg viewBox="0 0 100 100" role="img">
+        <circle cx="50" cy="50" r="43" fill="none" stroke="#eab52e" stroke-width="4"/>
+        <path d="M22 69 L22 55 L34 55 L34 69 M40 69 L40 43 L52 43 L52 69 M58 69 L58 30 L70 30 L70 69" fill="#f4f5f7"/>
+        <path d="M20 49 C37 45 53 35 72 17 M58 18 L73 16 L70 31" fill="none" stroke="#f0b92d" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M19 75 Q50 88 80 72" fill="none" stroke="#eab52e" stroke-width="2"/>
+      </svg>
+    </div>
+    <div class="brand-divider"></div>
+    <div class="brand-copy">
+      <h1>Smart Business <span>Manager</span></h1>
+      <div class="brand-subtitle">Manage. Record. Calculate. Grow.</div>
+    </div>
+  </div>
+</header>
+<section id="login" class="card"><h2>Sign in</h2><label>Email</label><input id="email" type="email" autocomplete="username"><label>Password</label><input id="password" type="password" autocomplete="current-password"><button id="signInButton" type="button" onclick="window.handleSignIn()">Sign in</button><button class="secondary" onclick="register()">Create member account</button><div id="msg"></div><p class="muted">New accounts must be activated by the Admin in Firestore before they can use the app.</p></section>
+<section id="app" class="hidden"><nav id="nav" class="tabs no-print" aria-label="Main navigation"></nav><div id="appDrawerBackdrop" class="drawer-backdrop hidden" onclick="closeAppDrawer()" aria-hidden="true"><aside class="app-drawer" role="dialog" aria-modal="true" aria-label="Business navigation" onclick="event.stopPropagation()"><div class="drawer-heading">Business Menu</div><div class="drawer-caption">All Business Records & Tools</div><div id="drawerNav" class="drawer-nav"></div></aside></div><main id="screen"></main><div id="status" class="muted"></div></section>
+</div>
+<section id="invoicePreview" class="invoice-overlay" aria-label="Invoice preview">
+ <div class="invoice-controls no-print">
+  <button type="button" onclick="printCurrentInvoice()">Print Invoice</button>
+  <button type="button" class="secondary" onclick="closeInvoicePreview()">Back To App</button>
+ </div>
+ <div id="invoicePaper" class="invoice-paper"></div>
+</section>
+<script>
+const firebaseConfig={apiKey:"AIzaSyAf8Sg2eDDQtKTXPT913E32IUUdLvIde-I",authDomain:"smart-business-manager-f319f.firebaseapp.com",projectId:"smart-business-manager-f319f",storageBucket:"smart-business-manager-f319f.firebasestorage.app",messagingSenderId:"716400037263",appId:"1:716400037263:web:42a1e961b1597d0d280ffa"};
+firebase.initializeApp(firebaseConfig);
+const auth=firebase.auth(),db=firebase.firestore(),BUSINESS_ID="7RqIYO3IDSVCYex1LsDo6rDw5V33";
+// Secure SSO hand-off from the approved SIA Digital Vision admin page.
+// The short-lived token is accepted only from this same-origin parent window.
+window.addEventListener("message",async event=>{
+  if(event.source!==window.parent||event.origin!==window.location.origin)return;
+  const data=event.data||{};
+  if(data.type!=="SIA_BUSINESS_SSO_TOKEN"||typeof data.customToken!=="string"||data.customToken.length<100)return;
+  try{
+    await authPersistenceReady;
+    await auth.signInWithCustomToken(data.customToken);
+    if($("msg"))$("msg").textContent="Secure website sign-in accepted. Opening your business records…";
+  }catch(error){
+    if($("msg"))$("msg").textContent="Single sign-in could not be completed: "+(error.message||"Please try again.");
+  }
+});
+
+// Keep Firebase Authentication signed in across app closes and phone restarts.
+// The user is signed out only by the explicit Sign Out action or account security checks.
+const authPersistenceReady=auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+const COLLECTIONS=["stock","spareParts","transactions","spareSales","jobs","services","customers","suppliers","purchases","expenses","cashbook","invoices","private"];
+let user=null,member=null,role=null,current="dashboard",cache={},unsubs=[];
+const $=id=>document.getElementById(id),path=c=>`businesses/${BUSINESS_ID}/${c}`,isAdmin=()=>role==="admin",money=n=>"MK "+Number(n||0).toLocaleString("en-MW",{maximumFractionDigits:2}),esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])),stamp=()=>firebase.firestore.FieldValue.serverTimestamp(),val=id=>$(id)?.value?.trim()||"",num=id=>Number($(id)?.value||0),records=c=>cache[c]||[];
+function invoiceRecorder(){return isAdmin()?"Business Owner":"Shop Manager"}
+function invoiceRecordedLabel(x){if(x?.recordedByUid===BUSINESS_ID||x?.recordedBy==="Managing Director")return "Business Owner";if(x?.recordedByUid)return "Shop Manager";return x?.recordedBy||invoiceRecorder()}
+function say(t){$("status").textContent=t||""}function safeId(s){return s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/(^-|-$)/g,"")||("item-"+Date.now())}
+function dateText(v){try{return v?.toDate?v.toDate().toLocaleString():v?new Date(v).toLocaleString():""}catch(e){return ""}}
+function navItems(){
+ let a=[["dashboard","Dashboard"],["stock","Stock"],["spares","Spare Parts"],["sales","Sales"],["jobs","Repairs"],["services","Printing Services"],["customers","Customers"],["invoices","Invoices"]];
+ if(isAdmin())a.push(["purchases","Purchases"],["suppliers","Suppliers"],["expenses","Expenses"],["cashbook","Cashbook"],["banking","Bank Records"],["credentials","Credentials"],["assets","Business Assets"],["workers","Members / Staff"],["attendance","Staff Attendance"],["payroll","Salaries & Payroll"],["reports","Reports"]);
+ a.push(["settings","Account Information"]);
+ return a;
+}
+function renderNav(){
+ const icons={dashboard:'⌂',performance:'📈',stock:'⬡',spares:'🔩',sales:'🛒',jobs:'🔧',services:'🖨️',customers:'👥',invoices:'🧾',workers:'👤',purchases:'📦',suppliers:'🏭',expenses:'💸',cashbook:'📒',banking:'🏦',credentials:'🔐',reports:'📊',settings:'⚙️'};
+ const p=navItems();
+ $('nav').innerHTML=p.map(function(x){return '<button type="button" class="'+(current===x[0]?'active':'')+'" onclick="go(\''+x[0]+'\')"><span class="nav-icon">'+(icons[x[0]]||'•')+'</span><span>'+x[1]+'</span></button>';}).join('');
+}
+function go(id){current=id;renderNav();renderDrawerNav();renderScreen();say("")}
+
+function renderDrawerNav(){
+ const el=$("drawerNav");if(!el)return;
+ el.innerHTML=navItems().map(function(item){return '<button type="button" class="'+(current===item[0]?'active':'')+'" onclick="goFromDrawer(\''+item[0]+'\')">'+item[1]+'</button>';}).join("");
+}
+function toggleAppDrawer(){
+ const back=$("appDrawerBackdrop");if(!back)return;
+ $("accountMenu")?.classList.add("hidden");renderDrawerNav();back.classList.toggle("hidden");
+ const b=document.querySelector(".brand-menu");if(b)b.setAttribute("aria-expanded",String(!back.classList.contains("hidden")));
+}
+function closeAppDrawer(){
+ $("appDrawerBackdrop")?.classList.add("hidden");
+ const b=document.querySelector(".brand-menu");if(b)b.setAttribute("aria-expanded","false");
+}
+function goFromDrawer(id){closeAppDrawer();go(id);}
+function toggleAccountMenu(){
+ const menu=$("accountMenu");if(!menu)return;closeAppDrawer();
+ const opening=menu.classList.contains("hidden");menu.classList.toggle("hidden");
+ const b=document.querySelector(".brand-avatar");if(b)b.setAttribute("aria-expanded",String(opening));
+ if(opening){
+  $("accountMenuName").textContent=member?.name||(role==="admin"?"Shuaibu Idi":"Account");
+  $("accountMenuEmail").textContent=user?.email||"";
+  $("accountMenuRole").textContent=role==="admin"?"Business Owner":role==="worker"?"Shop Manager":(role||"");
+ }
+}
+function openAccountInformation(){$("accountMenu")?.classList.add("hidden");go("settings");}
+
+function formField(id,label,type="text",placeholder="",step=""){return `<div><label>${label}</label><input id="${id}" type="${type}" placeholder="${placeholder}" ${step?`step="${step}"`:""}></div>`}
+function selectField(id,label,opts){return `<div><label>${label}</label><select id="${id}">${opts}</select></div>`}
+async function addDoc(c,data){return db.collection(path(c)).add({...data,createdAt:stamp(),createdBy:user.uid})}
+async function updateDoc(c,id,data){return db.doc(`${path(c)}/${id}`).update({...data,updatedAt:stamp(),updatedBy:user.uid})}
+async function removeDoc(c,id){
+ if(!isAdmin())return alert("Admin permission required.");
+ const labels={stock:"stock item",spareParts:"spare part",transactions:"sales transaction",spareSales:"spare-part sale",jobs:"repair job",services:"printing/service record",customers:"customer",suppliers:"supplier",purchases:"purchase record",expenses:"expense",cashbook:"cashbook entry",invoices:"invoice"};
+ const label=labels[c]||"record";
+ if(!confirm("Permanently delete this "+label+"? This cannot be undone."))return;
+ try{
+  await db.doc(`${path(c)}/${id}`).delete();
+  say("Record deleted.");
+  if(typeof renderScreen==="function")renderScreen();
+ }catch(e){alert("Delete failed: "+e.message)}
+}
+function listHtml(c,render){return records(c).map(x=>`<div class="item">${render(x)}</div>`).join("")||`<p class="muted">No ${c} records yet.</p>`}
+function adminDelete(c,x){return isAdmin()?`<div class="actions"><button class="danger" onclick="removeDoc('${c}','${x.id}')">Delete</button></div>`:""}
+function renderScreen(){let s=$("screen");if(!s)return;let f={dashboard,performance:performanceScreen,stock:stockScreen,spares:spareScreen,sales:salesScreen,jobs:jobsScreen,services:servicesScreen,customers:customersScreen,invoices:invoicesScreen,workers:workersScreen,purchases:purchasesScreen,suppliers:suppliersScreen,expenses:expensesScreen,cashbook:cashbookScreen,banking:bankRecordsScreen,credentials:credentialsScreen,assets:businessAssetsScreen,attendance:staffAttendanceScreen,payroll:payrollScreen,reports:reportsScreen,settings:settingsScreen};(f[current]||dashboard)(s)}
+
+function dashboard(s){
+ const tx=[...records("transactions"),...records("spareSales")];
+ const jobs=records("jobs");
+ const services=records("services");
+ const salesTotal=tx.reduce((n,x)=>n+Number(x.total||0),0);
+ const salesProfit=tx.reduce((n,x)=>n+Number(x.profit||0),0);
+ const totalExpenses=records("expenses").filter(x=>!x.purchase).reduce((n,x)=>n+Number(x.amount||0),0);
+ const serviceTotal=jobs.reduce((n,x)=>n+Number(x.fee||0),0)+services.reduce((n,x)=>n+Number(x.amount||0),0);
+ const serviceProfit=jobs.reduce((n,x)=>n+Number(x.fee||0)-Number(x.partsCost||0),0)+services.reduce((n,x)=>n+Number(x.amount||0)-Number(x.cost||0),0);
+ const bankRecordedTotal=privateRecords("banking").reduce((n,x)=>n+Number(x.amount||0),0);
+ const today=new Date().toDateString();
+ const todayRecord=x=>{const d=x?.createdAt?.toDate?x.createdAt.toDate():x?.createdAt?new Date(x.createdAt):null;return !!d&&!Number.isNaN(d.getTime())&&d.toDateString()===today};
+ const todayTx=tx.filter(todayRecord),todayJobs=jobs.filter(todayRecord),todayServices=services.filter(todayRecord);
+ const todaySales=todayTx.reduce((n,x)=>n+Number(x.total||0),0);
+ const todaySalesProfit=todayTx.reduce((n,x)=>n+Number(x.profit||0),0);
+ const todayServicesTotal=todayJobs.reduce((n,x)=>n+Number(x.fee||0),0)+todayServices.reduce((n,x)=>n+Number(x.amount||0),0);
+ const todayServicesProfit=todayJobs.reduce((n,x)=>n+Number(x.fee||0)-Number(x.partsCost||0),0)+todayServices.reduce((n,x)=>n+Number(x.amount||0)-Number(x.cost||0),0);
+ const low=[...records("stock"),...records("spareParts")].filter(x=>Number(x.quantity||0)<=Number(x.lowStockAt??5));
+ const tools=[["spares","Spare Parts"],["services","Printing Services"],["invoices","Invoices"],["customers","Customers"]];
+ if(isAdmin())tools.push(["purchases","Purchases"],["suppliers","Suppliers"],["expenses","Expenses"],["cashbook","Cashbook"],["reports","Reports"],["workers","Members"]);
+ tools.push(["settings","Account Information"]);
+ const toolHtml=tools.map(function(x){return '<button type="button" class="tool-link" onclick="go(&quot;'+x[0]+'&quot;)"><b>'+x[1]+'</b><span>Open section</span></button>';}).join("");
+ s.innerHTML='<section class="dashboard-panel"><div class="panel-heading"><h3>Full Records</h3></div><div class="dashboard-metrics">'+
+ '<div class="metric-card"><span class="metric-icon metric-blue">▥</span><div><div class="metric-label">Total Sales</div><div class="metric-value">'+money(salesTotal)+'</div></div></div>'+
+ (isAdmin()?'<div class="metric-card"><span class="metric-icon metric-green">↗</span><div><div class="metric-label">Sales Profits</div><div class="metric-value">'+money(salesProfit)+'</div></div></div>':'')+
+ (isAdmin()?'<div class="metric-card"><span class="metric-icon metric-orange">−</span><div><div class="metric-label">Total Expenses</div><div class="metric-value">'+money(totalExpenses)+'</div></div></div>':'')+
+ '<div class="metric-card"><span class="metric-icon metric-purple">▤</span><div><div class="metric-label">Total Services</div><div class="metric-value">'+money(serviceTotal)+'</div></div></div>'+
+ (isAdmin()?'<div class="metric-card"><span class="metric-icon metric-orange">◆</span><div><div class="metric-label">Service Profits</div><div class="metric-value">'+money(serviceProfit)+'</div></div></div>':'')+
+ (isAdmin()?'<div class="metric-card" role="button" tabindex="0" onclick="go(\'banking\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \')go(\'banking\')"><span class="metric-icon metric-green">🏦</span><div><div class="metric-label">Bank Records</div><div class="metric-value">'+money(bankRecordedTotal)+'</div></div></div>':'')+'</div></section>'+
+ '<section class="dashboard-panel"><div class="panel-heading"><h3>Today’s Overview</h3><button type="button" class="text-action" onclick="go(\\\'reports\\\')">View All →</button></div><div class="today-grid">'+
+ '<div class="today-stat"><span class="today-icon blue">▦</span><div><div class="metric-label">Today’s Sales</div><div class="metric-value">'+money(todaySales)+'</div></div></div>'+
+ (isAdmin()?'<div class="today-stat"><span class="today-icon green">↗</span><div><div class="metric-label">Today’s Sales Profits</div><div class="metric-value">'+money(todaySalesProfit)+'</div></div></div>':'')+
+ '<div class="today-stat"><span class="today-icon purple">▤</span><div><div class="metric-label">Today’s Services</div><div class="metric-value">'+money(todayServicesTotal)+'</div></div></div>'+
+ (isAdmin()?'<div class="today-stat"><span class="today-icon orange">◆</span><div><div class="metric-label">Today’s Service Profits</div><div class="metric-value">'+money(todayServicesProfit)+'</div></div></div>':'')+'</div></section>'+inventoryValueSummary("stock","Accessories Stock")+inventoryValueSummary("spareParts","Spare Parts Stock");
+}
+function inventoryValueSummary(collection,title){
+const items=records(collection);
+const totalCost=items.reduce((sum,x)=>sum+Math.max(0,Number(x.quantity)||0)*Math.max(0,Number(x.buyingPrice)||0),0);
+const totalSelling=items.reduce((sum,x)=>sum+Math.max(0,Number(x.quantity)||0)*Math.max(0,Number(x.sellingPrice)||0),0);
+return '<section class="dashboard-panel"><div class="panel-heading"><h3>'+title+'</h3></div><div class="dashboard-metrics">'+
+(isAdmin()?'<div class="metric-card"><div><div class="metric-label">Total Stock Cost</div><div class="metric-value">'+money(totalCost)+'</div></div></div>':'')+
+'<div class="metric-card"><div><div class="metric-label">Total Selling Value</div><div class="metric-value">'+money(totalSelling)+'</div></div></div>'+
+'</div></section>';
+}
+
+function inventoryValueTables(collection,title){
+const items=records(collection);
+const qty=x=>Math.max(0,Number(x.quantity)||0);
+const unitCost=x=>Math.max(0,Number(x.buyingPrice)||0);
+const unitSell=x=>Math.max(0,Number(x.sellingPrice)||0);
+const totalCost=items.reduce((sum,x)=>sum+qty(x)*unitCost(x),0);
+const totalSelling=items.reduce((sum,x)=>sum+qty(x)*unitSell(x),0);
+const costTable=isAdmin()?'<div class="card"><h3>'+title+' — Cost Price Calculation</h3><p class="muted">See how much money is tied up in the current stock, using each item’s buying price.</p><div class="inventory-table-wrap"><table><thead><tr><th>Item</th><th>Qty</th><th>Cost Price / Unit</th><th>Total Cost</th></tr></thead><tbody>'+items.map(x=>'<tr><td>'+esc(x.name)+'</td><td>'+qty(x)+'</td><td>'+money(unitCost(x))+'</td><td>'+money(qty(x)*unitCost(x))+'</td></tr>').join('')+'<tr><th colspan="3">TOTAL STOCK COST</th><th>'+money(totalCost)+'</th></tr></tbody></table></div></div>':'';
+const sellingTable='<div class="card"><h3>'+title+' — Selling Price Calculation</h3><p class="muted">See the expected money from selling all the quantities currently in stock at their set selling prices.</p><div class="inventory-table-wrap"><table><thead><tr><th>Item</th><th>Qty</th><th>Selling Price / Unit</th><th>Total Selling Value</th></tr></thead><tbody>'+items.map(x=>'<tr><td>'+esc(x.name)+'</td><td>'+qty(x)+'</td><td>'+money(unitSell(x))+'</td><td>'+money(qty(x)*unitSell(x))+'</td></tr>').join('')+'<tr><th colspan="3">TOTAL SELLING VALUE</th><th>'+money(totalSelling)+'</th></tr></tbody></table></div></div>';
+return costTable+(collection==="stock"?"":sellingTable);
+}
+
+function stockScreen(s){s.innerHTML=`${isAdmin()?'<div class="card"><h3>Stock management</h3><div class="grid">'+formField("stName","Product name")+formField("stQty","Quantity","number")+formField("stLow","Low-stock alert at","number")+formField("stBuy","Buying price (MK)","number","","0.01")+formField("stSell","Selling price (MK)","number","","0.01")+'</div><button onclick="saveStock()">Save stock item</button></div>':""}${inventoryValueTables("stock","Accessories Stock")}<div class="card"><h3>Stock list</h3>${listHtml("stock",p=>`<b>📦 ${esc(p.name)}</b><br><span class="muted">Available quantity: ${p.quantity} · Low-stock alert: ${Number(p.lowStockAt??5)}</span><br>${Number(p.quantity||0)<=Number(p.lowStockAt??5)?'<b style="color:#ffd18b">LOW STOCK</b><br>':""}<b>Selling price: ${money(p.sellingPrice)}</b>${isAdmin()?'<br>Buying: '+money(p.buyingPrice)+' · Profit/unit: '+money(Number(p.sellingPrice)-Number(p.buyingPrice))+'<div class="actions"><button onclick="editItem(\'stock\',\''+p.id+'\')">Edit</button><button class="danger" onclick="removeDoc(\'stock\',\''+p.id+'\')">Delete</button></div>':""}`)}</div>`}
+
+async function saveStock(){if(!isAdmin())return alert("Admin permission required.");let name=val("stName"),quantity=num("stQty"),lowStockAt=val("stLow")===""?5:num("stLow"),buyingPrice=num("stBuy"),sellingPrice=num("stSell");if(!name||!Number.isInteger(quantity)||quantity<0||!Number.isInteger(lowStockAt)||lowStockAt<0||buyingPrice<0||sellingPrice<0)return alert("Enter valid stock details.");try{await db.doc(`${path("stock")}/${safeId(name)}`).set({name,quantity,lowStockAt,buyingPrice,sellingPrice,createdAt:stamp(),createdBy:user.uid,updatedAt:stamp(),updatedBy:user.uid},{merge:true});say("Stock item saved.");renderScreen()}catch(e){alert("Could not save stock: "+e.message)}}
+
+async function editItem(c,id){if(!isAdmin())return alert("Admin only.");let x=records(c).find(v=>v.id===id);if(!x)return;let name=prompt("Name:",x.name);if(name===null)return;let q=Number(prompt("Quantity:",x.quantity)),b=Number(prompt("Buying price:",x.buyingPrice||0)),p=Number(prompt("Selling price:",x.sellingPrice||0));if(!name.trim()||!Number.isInteger(q)||q<0||!Number.isFinite(b)||b<0||!Number.isFinite(p)||p<0)return alert("Invalid details.");try{await updateDoc(c,id,{name:name.trim(),quantity:q,buyingPrice:b,sellingPrice:p});say("Item updated.");renderScreen()}catch(e){alert("Update failed: "+e.message)}}
+
+function spareScreen(s){s.innerHTML=`${isAdmin()?'<div class="card"><h3>Spare parts management</h3><div class="grid">'+formField("spName","Spare part name")+formField("spQty","Quantity","number")+formField("spLow","Low-stock alert at","number")+formField("spBuy","Buying price (MK)","number","","0.01")+formField("spSell","Selling price (MK)","number","","0.01")+'</div><button onclick="saveSpare()">Save spare part</button></div>':""}${inventoryValueTables("spareParts","Spare Parts Stock")}<div class="card"><h3>Spare parts list</h3>${listHtml("spareParts",p=>`<b>🔧 ${esc(p.name)}</b><br>Qty: ${p.quantity} · ${Number(p.quantity||0)<=Number(p.lowStockAt??5)?'<b style="color:#ffd18b">LOW STOCK</b> · ':""}Selling: ${money(p.sellingPrice)}${isAdmin()?'<br>Buy: '+money(p.buyingPrice)+' · Profit/unit: '+money(p.sellingPrice-p.buyingPrice)+' · Potential profit: '+money((p.sellingPrice-p.buyingPrice)*p.quantity)+'<div class="actions"><button onclick="editItem(\'spareParts\',\''+p.id+'\')">Edit</button><button class="danger" onclick="removeDoc(\'spareParts\',\''+p.id+'\')">Delete</button></div>':""}`)}</div>`}
+
+async function saveSpare(){if(!isAdmin())return alert("Admin permission required.");let name=val("spName"),quantity=num("spQty"),lowStockAt=val("spLow")===""?5:num("spLow"),buyingPrice=num("spBuy"),sellingPrice=num("spSell");if(!name||!Number.isInteger(quantity)||quantity<0||!Number.isInteger(lowStockAt)||lowStockAt<0||buyingPrice<0||sellingPrice<0)return alert("Enter valid spare part details.");try{await db.doc(`${path("spareParts")}/${safeId(name)}`).set({name,quantity,lowStockAt,buyingPrice,sellingPrice,createdAt:stamp(),createdBy:user.uid,updatedAt:stamp(),updatedBy:user.uid},{merge:true});say("Spare part saved.");renderScreen()}catch(e){alert("Could not save spare part: "+e.message)}}
+
+function salesScreen(s){let so=records("stock").map(x=>`<option value="${x.id}">${esc(x.name)} (${x.quantity} available)</option>`).join(""),po=records("spareParts").map(x=>`<option value="${x.id}">${esc(x.name)} (${x.quantity} available)</option>`).join("");s.innerHTML=`<div class="card"><h3>Record stock sale</h3><div class="grid">${selectField("saleStock","Stock item",so)}${formField("saleQty","Quantity","number")}${formField("saleCustomer","Customer name")}${formField("salePhone","Customer phone")}${formField("salePaid","Amount paid (MK)","number","","0.01")}</div><button onclick="sellItem('stock')">Record stock sale</button></div><div class="card"><h3>Record spare part sale</h3><div class="grid">${selectField("saleSpare","Spare part",po)}${formField("spareQtySale","Quantity","number")}${formField("spareCustomer","Customer name")}${formField("sparePhone","Customer phone")}${formField("sparePaid","Amount paid (MK)","number","","0.01")}</div><button onclick="sellItem('spareParts')">Record spare part sale</button></div><div class="card"><h3>Sales history</h3><h3>Stock sales</h3>${listHtml("transactions",x=>`<b>🧾 ${esc(x.itemName)}</b> × ${x.quantity} = <b>${money(x.total)}</b><br><span class="muted">${esc(x.customerName||"Walk-in")} · ${esc(x.workerName||"")} · ${dateText(x.createdAt)}</span>${isAdmin()?`<br>Profit: ${money(x.profit||0)}${adminDelete("transactions",x)}`:""}`)}<h3>Spare part sales</h3>${listHtml("spareSales",x=>`<b>🧾 ${esc(x.itemName)}</b> × ${x.quantity} = <b>${money(x.total)}</b><br><span class="muted">${esc(x.customerName||"Walk-in")} · ${esc(x.workerName||"")} · ${dateText(x.createdAt)}</span>${isAdmin()?`<br>Profit: ${money(x.profit||0)}${adminDelete("spareSales",x)}`:""}`)}</div>`}
+
+async function sellItem(kind){let spare=kind==="spareParts",id=val(spare?"saleSpare":"saleStock"),qty=num(spare?"spareQtySale":"saleQty"),item=records(kind).find(x=>x.id===id),paidRaw=val(spare?"sparePaid":"salePaid"),paid=paidRaw===""?null:Number(paidRaw);if(!item||!Number.isInteger(qty)||qty<1||(paid!==null&&(!Number.isFinite(paid)||paid<0)))return alert("Choose an item, enter a valid quantity and a non-negative payment.");let col=spare?"spareSales":"transactions",ref=db.doc(`${path(kind)}/${id}`),tx=db.collection(path(col)).doc(),customerName=val(spare?"spareCustomer":"saleCustomer")||"Walk-in",phone=val(spare?"sparePhone":"salePhone");try{let saleData;await db.runTransaction(async t=>{let snap=await t.get(ref);if(!snap.exists||Number(snap.data().quantity)<qty)throw Error("Not enough stock available.");let d=snap.data(),total=qty*Number(d.sellingPrice||0),cost=qty*Number(d.buyingPrice||0);if(paid!==null&&paid>total)throw Error("Amount paid cannot exceed the sale total.");saleData={invoiceNo:"SIA-"+Date.now().toString().slice(-8),customerName,phone,description:`${d.name} × ${qty}`,quantity:qty,unitPrice:Number(d.sellingPrice||0),total,paid:paid===null?total:paid,balance:total-(paid===null?total:paid),sourceType:spare?"spare_sale":"sale",sourceId:tx.id,recordedBy:invoiceRecorder(),recordedByUid:user.uid};t.update(ref,{quantity:Number(d.quantity)-qty,lastSaleTxId:tx.id,updatedAt:stamp(),updatedBy:user.uid});t.set(tx,{itemId:id,itemName:d.name,quantity:qty,unitPrice:Number(d.sellingPrice||0),unitCost:Number(d.buyingPrice||0),total,cost,profit:total-cost,customerName,customerPhone:phone,workerUid:user.uid,workerName:member.name||user.email,type:spare?"spare_sale":"sale",createdAt:stamp()})});let invRef=await addDoc("invoices",saleData);saleData.id=invRef.id;saleData.createdAt=new Date();say("Sale recorded, stock updated and invoice generated.");showInvoice(saleData);renderScreen()}catch(e){alert("Sale failed: "+e.message)}}
+
+function jobsScreen(s){s.innerHTML=`<div class="card"><h3>New repair / technician job</h3><div class="grid">${formField("jobCustomer","Customer name")}${formField("jobPhone","Customer phone")}${formField("jobDevice","Device / item")}${formField("jobIssue","Problem / work required")}${formField("jobFee","Service charge (MK)","number","","0.01")}${formField("jobParts","Parts cost (MK)","number","","0.01")}${formField("jobPaid","Amount paid (MK)","number","","0.01")}</div><label>Job notes</label><textarea id="jobNotes"></textarea><button onclick="saveJob()">Save job & invoice</button></div><div class="card"><h3>Repair jobs</h3>${listHtml("jobs",j=>`<b>🛠️ ${esc(j.device)}</b> · ${esc(j.customerName)}<br>${esc(j.issue)}<br>Charge: ${money(j.fee)}${isAdmin()?` · Parts: ${money(j.partsCost)}`:""} · Status: <b>${esc(j.status)}</b><br><span class="muted">Technician: ${esc(j.workerName||"")}</span><div class="actions"><button onclick="changeJob('${j.id}')">Update status</button>${adminDelete("jobs",j)}</div>`)}</div>`}
+
+async function saveJob(){let d={customerName:val("jobCustomer"),customerPhone:val("jobPhone"),device:val("jobDevice"),issue:val("jobIssue"),fee:num("jobFee"),partsCost:num("jobParts"),notes:val("jobNotes"),status:"Received",workerUid:user.uid,workerName:member.name||user.email};let paidJob=val("jobPaid")===""?d.fee:num("jobPaid");if(!d.customerName||!d.device||!d.issue||!Number.isFinite(d.fee)||d.fee<0||!Number.isFinite(d.partsCost)||d.partsCost<0||!Number.isFinite(paidJob)||paidJob<0||paidJob>d.fee)return alert("Complete valid job details. Payment must be between zero and the service charge.");try{let j=await addDoc("jobs",d);let inv={invoiceNo:"SIA-"+Date.now().toString().slice(-8),customerName:d.customerName,phone:d.customerPhone,description:`Repair: ${d.device} — ${d.issue}`,quantity:1,unitPrice:d.fee,total:d.fee,paid:paidJob,balance:d.fee-paidJob,sourceType:"repair",sourceId:j.id,recordedBy:invoiceRecorder(),recordedByUid:user.uid};let ir=await addDoc("invoices",inv);inv.id=ir.id;inv.createdAt=new Date();say("Repair job saved and invoice generated.");showInvoice(inv);renderScreen()}catch(e){alert("Job save failed: "+e.message)}}
+
+async function changeJob(id){let j=records("jobs").find(x=>x.id===id);if(!j)return;let status=prompt("Enter status: Received, Diagnosing, Waiting for parts, In progress, Completed, Collected",j.status);if(!status)return;try{await updateDoc("jobs",id,{status});say("Job status updated.");renderScreen()}catch(e){alert("Status update failed: "+e.message)}}
+
+const PRINT_SERVICES=["Black & white printing","Colour printing","Photocopying","Scanning","Lamination","Binding","Typing & document formatting","CV preparation","Application / cover letter","Passport-size photos","Graphic design","Business cards","Flyers & brochures","Posters","Banners","Booklets","Receipt / invoice printing","Other printing service"];
+
+function servicesScreen(s){s.innerHTML=`<div class="card"><h3>🖨️ Printing Services</h3><p class="muted">Choose a printing service, enter customer details, quantity/pages, charge and direct cost. An invoice is generated automatically.</p><div class="grid">${formField("svcCustomer","Customer name")}${formField("svcPhone","Customer phone")}${selectField("svcType","Service category",PRINT_SERVICES.map(x=>`<option>${esc(x)}</option>`).join(""))}${formField("svcDesc","Details (paper size, colour, pages, etc.)")}${formField("svcQty","Quantity / pages","number")}${formField("svcPrice","Amount charged (MK)","number","","0.01")}${formField("svcCost","Direct cost (MK)","number","","0.01")}${formField("svcPaid","Amount paid (MK)","number","","0.01")}</div><button onclick="saveService()">Save service & generate invoice</button></div><div class="card"><h3>📚 Recorded services</h3>${listHtml("services",x=>`<b>🧾 ${esc(x.serviceType)}</b> · ${esc(x.customerName)}<br>${esc(x.description)} · Qty ${x.quantity}<br><b>Charged: ${money(x.amount)}</b>${isAdmin()?` · Cost: ${money(x.cost)} · Profit: ${money(x.amount-x.cost)}`:""}<br><span class="muted">${dateText(x.createdAt)} · ${esc(x.workerName||"")}</span>${adminDelete("services",x)}`)}</div>`}
+
+async function saveService(){let d={customerName:val("svcCustomer"),phone:val("svcPhone"),serviceType:val("svcType"),description:val("svcDesc"),quantity:num("svcQty"),amount:num("svcPrice"),cost:num("svcCost"),workerUid:user.uid,workerName:member.name||user.email};let paidService=val("svcPaid")===""?d.amount:num("svcPaid");if(!d.customerName||!d.description||!Number.isFinite(d.amount)||d.amount<0||!Number.isFinite(d.cost)||d.cost<0||!Number.isFinite(d.quantity)||d.quantity<0||!Number.isFinite(paidService)||paidService<0||paidService>d.amount)return alert("Enter valid service details. Payment must be between zero and the amount charged.");try{let sr=await addDoc("services",d);let inv={invoiceNo:"SIA-"+Date.now().toString().slice(-8),customerName:d.customerName,phone:d.phone,description:`${d.serviceType}: ${d.description}`,quantity:d.quantity||1,unitPrice:d.amount,total:d.amount,paid:paidService,balance:d.amount-paidService,sourceType:"service",sourceId:sr.id,recordedBy:invoiceRecorder(),recordedByUid:user.uid};let ir=await addDoc("invoices",inv);inv.id=ir.id;inv.createdAt=new Date();say("Service saved and invoice generated.");showInvoice(inv);renderScreen()}catch(e){alert("Service save failed: "+e.message)}}
+function customersScreen(s){
+s.innerHTML=`
+<div class="card">
+<h3>Register Customer</h3>
+<div class="grid">
+${formField("custName","Customer name")}
+${formField("custPhone","Phone number")}
+${formField("custEmail","Email address","email")}
+${formField("custAddress","Address")}
+</div>
+<button onclick="saveCustomer()">Save customer</button>
+</div>
+<div class="card">
+<h3>Customer Records</h3>
+${listHtml("customers",c=>`
+<b>👤 ${esc(c.name)}</b><br>
+Phone: ${esc(c.phone||"Not provided")}<br>
+Email: ${esc(c.email||"Not provided")}<br>
+Address: ${esc(c.address||"Not provided")}
+${adminDelete("customers",c)}
+`)}
+</div>`;
+}
+
+async function saveCustomer(){
+let d={
+name:val("custName"),
+phone:val("custPhone"),
+email:val("custEmail"),
+address:val("custAddress")
+};
+if(!d.name)return alert("Enter the customer name.");
+try{
+await addDoc("customers",d);
+say("Customer saved.");
+renderScreen();
+}catch(e){alert(e.message)}
+}
+
+function suppliersScreen(s){
+s.innerHTML=`
+<div class="card">
+<h3>Register Supplier</h3>
+<div class="grid">
+${formField("supName","Supplier / company name")}
+${formField("supPhone","Phone number")}
+${formField("supEmail","Email address","email")}
+${formField("supAddress","Address")}
+</div>
+<button onclick="saveSupplier()">Save supplier</button>
+</div>
+<div class="card">
+<h3>Supplier Records</h3>
+${listHtml("suppliers",x=>`
+<b>🏢 ${esc(x.name)}</b><br>
+Phone: ${esc(x.phone||"Not provided")}<br>
+Email: ${esc(x.email||"Not provided")}<br>
+Address: ${esc(x.address||"Not provided")}
+${adminDelete("suppliers",x)}
+`)}
+</div>`;
+}
+
+async function saveSupplier(){
+if(!isAdmin())return alert("Admin permission required.");
+let d={
+name:val("supName"),
+phone:val("supPhone"),
+email:val("supEmail"),
+address:val("supAddress")
+};
+if(!d.name)return alert("Enter the supplier name.");
+try{
+await addDoc("suppliers",d);
+say("Supplier saved.");
+renderScreen();
+}catch(e){alert(e.message)}
+}
+
+function purchasesScreen(s){
+if(!isAdmin()){
+s.innerHTML="<div class='card'>Admin permission required.</div>";
+return;
+}
+s.innerHTML=`
+<div class="card">
+<h3>Record Stock Purchase</h3>
+<div class="grid">
+${selectField("purchaseType","Purchase category",`
+<option value="stock">Business stock</option>
+<option value="spareParts">Spare parts</option>`)}
+${formField("purchaseName","Item name")}
+${formField("purchaseQty","Quantity purchased","number")}
+${formField("purchaseCost","Cost per item (MK)","number","","0.01")}
+${formField("purchaseSupplier","Supplier name")}
+${formField("purchaseReference","Receipt / reference")}
+</div>
+<button onclick="savePurchase()">Record purchase</button>
+</div>
+<div class="card">
+<h3>Purchase History</h3>
+${listHtml("purchases",p=>`
+<b>📦 ${esc(p.itemName)}</b><br>
+Category: ${esc(p.category)}<br>
+Quantity: ${p.quantity}<br>
+Unit cost: ${money(p.unitCost)}<br>
+Total cost: <b>${money(p.totalCost)}</b><br>
+Supplier: ${esc(p.supplier||"Not specified")}<br>
+Reference: ${esc(p.reference||"")}<br>
+<span class="muted">${dateText(p.createdAt)}</span>
+${adminDelete("purchases",p)}
+`)}
+</div>`;
+}
+
+async function savePurchase(){
+if(!isAdmin())return alert("Admin permission required.");
+let category=val("purchaseType"),
+name=val("purchaseName"),
+quantity=num("purchaseQty"),
+unitCost=num("purchaseCost"),
+supplier=val("purchaseSupplier"),
+reference=val("purchaseReference");
+
+if(!name||!Number.isInteger(quantity)||quantity<1||
+!Number.isFinite(unitCost)||unitCost<0){
+return alert("Enter valid purchase details.");
+}
+
+let collection=category==="spareParts"?"spareParts":"stock";
+let itemId=safeId(name);
+let ref=db.doc(`${path(collection)}/${itemId}`);
+let totalCost=quantity*unitCost;
+
+try{
+await db.runTransaction(async t=>{
+let snap=await t.get(ref);
+if(snap.exists){
+let old=snap.data();
+let oldQty=Number(old.quantity||0);
+let oldCost=Number(old.buyingPrice||0);
+let newQty=oldQty+quantity;
+let averageCost=((oldQty*oldCost)+(quantity*unitCost))/newQty;
+t.update(ref,{
+quantity:newQty,
+buyingPrice:averageCost,
+updatedAt:stamp(),
+updatedBy:user.uid
+});
+}else{
+t.set(ref,{
+name,
+quantity,
+lowStockAt:5,
+buyingPrice:unitCost,
+sellingPrice:unitCost,
+createdAt:stamp(),
+createdBy:user.uid,
+updatedAt:stamp(),
+updatedBy:user.uid
+});
+}
+});
+
+await addDoc("purchases",{
+itemName:name,
+category,
+quantity,
+unitCost,
+totalCost,
+supplier,
+reference
+});
+
+// Purchases are recorded in the Purchases ledger and stock value.
+      // They are not operating expenses; cost of goods is reflected when items sell.
+
+say("Purchase recorded and stock quantity updated.");
+renderScreen();
+}catch(e){alert("Purchase failed: "+e.message)}
+}
+
+function expensesScreen(s){
+if(!isAdmin()){
+s.innerHTML="<div class='card'>Admin permission required.</div>";
+return;
+}
+s.innerHTML=`
+<div class="card">
+<h3>Record Business Expense</h3>
+<div class="grid">
+${selectField("expenseCategory","Expense category",`
+<option>Rent</option>
+<option>Electricity</option>
+<option>Internet</option>
+<option>Transport</option>
+<option>Salary</option>
+<option>Maintenance</option>
+<option>Office supplies</option>
+<option>Stock purchase</option>
+<option>Other</option>`)}
+${formField("expenseDesc","Description")}
+${formField("expenseAmount","Amount (MK)","number","","0.01")}
+${formField("expenseReference","Receipt / reference")}
+</div>
+<button onclick="saveExpense()">Save expense</button>
+</div>
+<div class="card">
+<h3>Expense Records</h3>
+${listHtml("expenses",x=>`
+<b>💸 ${esc(x.category)}</b><br>
+${esc(x.description)}<br>
+<b>${money(x.amount)}</b><br>
+Reference: ${esc(x.reference||"")}<br>
+<span class="muted">${dateText(x.createdAt)}</span>
+<div class="actions"><button type="button" onclick="printExpenseSlip('${x.id}')">Print Expense Slip</button></div>${adminDelete("expenses",x)}
+`)}
+</div>`;
+}
+
+async function saveExpense(){
+if(!isAdmin())return alert("Admin permission required.");
+let d={
+category:val("expenseCategory"),
+description:val("expenseDesc"),
+amount:num("expenseAmount"),
+reference:val("expenseReference")
+};
+if(!d.description||!Number.isFinite(d.amount)||d.amount<=0){
+return alert("Enter a description and a valid expense amount.");
+}
+try{
+await addDoc("expenses",d);
+say("Expense recorded.");
+renderScreen();
+}catch(e){alert(e.message)}
+}
+
+async function printHtmlDocument(html,title){
+ const documentHtml="<!doctype html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>"+esc(title||"Print")+"</title><style>"+
+ "html,body{background:#fff!important;color:#111!important;font-family:Arial,sans-serif;font-size:12px;margin:0;padding:0}body{padding:12mm}h1,h2,h3,h4,p,div,span,td,th{color:#111!important}table{width:100%;border-collapse:collapse;font-size:12px}th,td{border-bottom:1px solid #bbb;padding:8px;text-align:left;vertical-align:top}.card,.item,.dashboard-panel{background:#fff!important;color:#111!important;border:1px solid #ddd!important;box-shadow:none!important;break-inside:avoid}.stat{color:#111!important}.muted,.small{color:#444!important}button,.actions,.no-print{display:none!important}@page{size:auto;margin:10mm}"+
+ "</style></head><body>"+html+"</body></html>";
+ try{
+  if(window.SIAPrinter&&typeof window.SIAPrinter.printHtml==="function"){
+   await window.SIAPrinter.printHtml(documentHtml);
+   return;
+  }
+  const win=window.open("","_blank");
+  if(!win)throw new Error("The print window was blocked. Please allow pop-ups and try again.");
+  win.document.open();win.document.write(documentHtml);win.document.close();
+  win.onload=function(){win.focus();win.print();};
+ }catch(e){
+  alert("Could not open the phone's print service: "+(e?.message||e));
+ }
+}
+async function printExpenseSlip(id){
+ if(!isAdmin())return alert("Admin permission required.");
+ const x=records("expenses").find(v=>v.id===id);
+ if(!x)return alert("Expense record not found.");
+ const slip="<div style='max-width:700px;margin:0 auto;padding:12px;border:1px solid #ddd'>"+
+ "<h2 style='text-align:center;margin-bottom:4px'>S I A TECH PRINT MEDIA</h2>"+
+ "<p style='text-align:center;margin-top:0'>Lunzu Matindi (Blantyre)<br>0888 290 495 / 0999 290 495<br>siatechprintmedia.mw@gmail.com</p>"+
+ "<hr><h3 style='text-align:center'>EXPENSE PAYMENT SLIP</h3>"+
+ "<p><b>Date:</b> "+esc(dateText(x.createdAt))+"</p>"+
+ "<p><b>Category:</b> "+esc(x.category||"")+"</p>"+
+ "<p><b>Description:</b> "+esc(x.description||"")+"</p>"+
+ "<p><b>Receipt / Reference:</b> "+esc(x.reference||"—")+"</p>"+
+ "<h2 style='text-align:center;margin:26px 0'>Amount Paid: "+money(x.amount)+"</h2>"+
+ "<p><b>Recorded By:</b> "+esc(member?.name||user?.email||"")+"</p>"+
+ "<div style='display:flex;justify-content:space-between;margin-top:55px'><span>____________________<br>Prepared By</span><span>____________________<br>Approved By</span></div>"+
+ "<p style='text-align:center;margin-top:35px'>Thank You For Your Support</p></div>";
+ await printHtmlDocument(slip,"Expense Payment Slip");
+}
+function cashbookScreen(s){
+if(!isAdmin()){
+s.innerHTML="<div class='card'>Admin permission required.</div>";
+return;
+}
+let entries=records("cashbook"),
+income=entries.filter(x=>x.type==="income").reduce((a,x)=>a+Number(x.amount||0),0),
+outgoing=entries.filter(x=>x.type==="expense").reduce((a,x)=>a+Number(x.amount||0),0);
+
+s.innerHTML=`
+<div class="grid">
+<div class="card"><div class="muted">Cash received</div><div class="stat">${money(income)}</div></div>
+<div class="card"><div class="muted">Cash paid out</div><div class="stat">${money(outgoing)}</div></div>
+<div class="card"><div class="muted">Cashbook balance</div><div class="stat">${money(income-outgoing)}</div></div>
+</div>
+<div class="card">
+<h3>New Cashbook Entry</h3>
+<div class="grid">
+${selectField("cashType","Transaction type",`
+<option value="income">Money received</option>
+<option value="expense">Money paid out</option>`)}
+${formField("cashDesc","Description")}
+${formField("cashAmount","Amount (MK)","number","","0.01")}
+${formField("cashReference","Reference")}
+</div>
+<button onclick="saveCashbook()">Save entry</button>
+</div>
+<div class="card">
+<h3>Cashbook History</h3>
+${listHtml("cashbook",x=>`
+<b>${x.type==="income"?"🟢 Money received":"🔴 Money paid out"}</b><br>
+${esc(x.description)}<br>
+Amount: <b>${money(x.amount)}</b><br>
+Reference: ${esc(x.reference||"")}<br>
+<span class="muted">${dateText(x.createdAt)}</span>
+${adminDelete("cashbook",x)}
+`)}
+</div>`;
+}
+
+async function saveCashbook(){
+if(!isAdmin())return alert("Admin permission required.");
+let d={
+type:val("cashType"),
+description:val("cashDesc"),
+amount:num("cashAmount"),
+reference:val("cashReference")
+};
+if(!d.description||!Number.isFinite(d.amount)||d.amount<=0){
+return alert("Enter a description and valid amount.");
+}
+try{
+await addDoc("cashbook",d);
+say("Cashbook entry saved.");
+renderScreen();
+}catch(e){alert(e.message)}
+}
+
+function invoicesScreen(s){
+s.innerHTML=`
+<div class="card">
+<h3>Invoices & Customer Balances</h3>
+<p class="muted">Invoices are generated when sales, repair jobs and printing services are recorded.</p>
+<div class="grid">
+<div><b>Total invoiced</b><div class="stat">${money(records("invoices").reduce((a,x)=>a+Number(x.total||0),0))}</div></div>
+<div><b>Payments received</b><div class="stat">${money(records("invoices").reduce((a,x)=>a+Number(x.paid||0),0))}</div></div>
+<div><b>Outstanding balances</b><div class="stat">${money(records("invoices").reduce((a,x)=>a+Math.max(0,Number(x.balance||0)),0))}</div></div>
+</div>
+</div>
+<div class="card">
+<h3>Invoice Records</h3>
+${listHtml("invoices",x=>`
+<b>🧾 ${esc(x.invoiceNo||x.id)}</b><br>
+Customer: ${esc(x.customerName||"Walk-in")}<br>
+Phone: ${esc(x.phone||"Not provided")}<br>
+Description: ${esc(x.description||"")}<br>
+Total: <b>${money(x.total)}</b><br>
+Paid: ${money(x.paid)}<br>
+Balance: <b style="color:${Number(x.balance)>0?"#ffd18b":"#8de5a5"}">${money(x.balance)}</b><br>
+<span class="muted">Recorded by: ${esc(x.recordedBy||"")} · ${dateText(x.createdAt)}</span>
+<div class="actions">
+<button onclick="showInvoiceById('${x.id}')">View / Print</button>
+<button onclick="recordPayment('${x.id}')">Record payment</button>
+</div>
+${isAdmin()?adminDelete("invoices",x):""}
+`)}
+</div>`;
+}
+
+function showInvoice(x){
+  const preview=$("invoicePreview"),paper=$("invoicePaper");
+  if(!preview||!paper)return alert("Invoice preview is unavailable.");
+  const invoiceDate=esc(dateText(x.createdAt)||new Date().toLocaleString());
+  const invoiceNumber=esc(x.invoiceNo||x.id||"");
+  const customer=esc(x.customerName||"Walk-in");
+  const phone=esc(x.phone||x.customerPhone||"Not provided");
+  const description=esc(x.description||"Business service");
+  const qty=Number(x.quantity||1);
+  const total=money(x.total),paid=money(x.paid),balance=money(x.balance);
+  const recorded=esc(invoiceRecordedLabel(x));
+  paper.innerHTML=`
+  <style>
+    .sia-invoice{font-family:Arial,Helvetica,sans-serif;color:#071a2c;background:#fff;width:100%;max-width:760px;margin:0 auto;overflow:hidden}
+    .sia-head{display:block;text-align:center;padding:14px 8px 18px;border-bottom:5px solid #11b9c9}
+    .sia-brand{padding:0}
+    .sia-brandname{font-size:clamp(30px,6vw,48px);font-weight:900;line-height:1.08;color:#071a2c;letter-spacing:.4px}
+    .sia-brandname span{color:#087fca}
+    .sia-tagline{font-family:Georgia,serif;font-style:italic;font-weight:bold;font-size:18px;margin-top:7px}
+    .sia-motto{font-weight:bold;color:#087fca;font-size:14px;margin-top:6px;letter-spacing:1px}
+    .sia-contact{display:flex;justify-content:space-around;gap:8px;flex-wrap:wrap;background:#d9f6fb;padding:12px 6px;color:#071a2c;font-size:12px;font-weight:bold}
+    .sia-title{display:inline-block;margin:22px 0 12px;padding:8px 32px;border-radius:13px 24px 13px 13px;background:linear-gradient(110deg,#12c4ce,#006b89);color:#fff;font-size:38px;font-weight:900}
+    .sia-meta{padding:0 16px 14px;display:grid;grid-template-columns:1fr;gap:10px;font-size:14px}.sia-meta>div{display:block;padding:5px 0;border-bottom:1px solid #e5edf2}.sia-meta b{display:inline-block;min-width:145px}
+    .sia-meta b{display:inline-block;min-width:108px}
+    .sia-table{width:100%;border-collapse:separate;border-spacing:0;margin:6px 0 18px;font-size:14px}
+    .sia-table th{background:linear-gradient(100deg,#11b9c9,#07516e);color:#fff;padding:13px 11px;text-align:left;font-size:16px}
+    .sia-table th:first-child{border-radius:12px 0 0 0}
+    .sia-table th:last-child{text-align:right;border-radius:0 12px 0 0}
+    .sia-table td{background:#e2f8fb;padding:15px 11px;border-right:1px solid #fff;border-bottom:1px solid #fff}
+    .sia-table td:last-child{text-align:right;font-weight:bold}
+    .sia-totals{margin:0 8px 16px;max-width:460px}
+    .sia-total{background:#bceef5;border-radius:16px;padding:9px 16px;font-size:27px;font-weight:900;color:#071a2c}
+    .sia-payment{padding:7px 18px;font-size:16px;line-height:1.55}
+    .sia-rule{height:5px;background:#08aebe;border-radius:50%;margin:20px 0 28px}
+    .sia-footer{background:#071a2c;color:#fff;padding:22px 12px 18px;border-top:12px solid #09b8c7;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+    .sia-service{font-size:13px;font-weight:bold;line-height:1.35;padding:5px;border-right:1px solid #55d9e2}
+    .sia-service:last-child{border:0}
+    .sia-symbol{display:block;font-size:25px;margin-bottom:5px;color:#45e0e8}
+    .sia-slogan{grid-column:1/-1;margin-top:12px;color:#8cecf2;font-family:Georgia,serif;font-style:italic;font-weight:bold;font-size:17px}
+    @media(max-width:520px){.sia-head{padding:12px 4px 15px}.sia-brandname{font-size:clamp(25px,8vw,36px)}.sia-tagline{font-size:12px}.sia-motto{font-size:10px}.sia-contact{font-size:10px}.sia-title{font-size:30px}.sia-meta{grid-template-columns:1fr;font-size:13px}.sia-total{font-size:23px}}
+    @media print{.sia-invoice{max-width:none}.sia-head,.sia-contact,.sia-title,.sia-table th,.sia-table td,.sia-total,.sia-footer{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+  </style>
+  <div class="sia-invoice">
+    <header class="sia-head">
+      <div class="sia-brand">
+        <div class="sia-brandname">S I A TECH PRINT <span>MEDIA</span></div>
+        <div class="sia-tagline">Home Of Printing &amp; Computing</div>
+        <div class="sia-motto">INNOVATE &nbsp;•&nbsp; PRINT &nbsp;•&nbsp; GROW</div>
+      </div>
+    </header>
+    <div class="sia-contact"><span>⌖ &nbsp; Lunzu Matindi (Blantyre)</span><span>☎ &nbsp; 0888 290 495 / 0999 290 495</span><span>✉ &nbsp; siatechprintmedia.mw@gmail.com</span></div>
+    <div style="padding:0 8px"><div class="sia-title">INVOICE</div></div>
+    <div class="sia-meta">
+      <div><b>Invoice Number:</b> ${invoiceNumber}</div>
+      <div><b>Date:</b> ${invoiceDate}</div>
+      <div><b>Customer :</b> ${customer}</div>
+      <div><b>Phone Number :</b> ${phone}</div>
+    </div>
+    <table class="sia-table">
+      <thead><tr><th>Description</th><th style="text-align:center;width:18%">Qty</th><th>Amount</th></tr></thead>
+      <tbody><tr><td>${description}</td><td style="text-align:center">${qty}</td><td>${total}</td></tr></tbody>
+    </table>
+    <div class="sia-totals"><div class="sia-total">Total: ${total}</div></div>
+    <div class="sia-payment"><div><b>Paid:</b> ${paid}</div><div><b>Balance Due:</b> ${balance}</div><div><b>Recorded By:</b> ${recorded}</div></div>
+    <div style="margin-top:28px;padding:18px 10px;text-align:center;border-top:2px solid #11b9c9;color:#07516e;font-size:16px;font-weight:700;letter-spacing:.3px">
+      Thank You For Your Support
+    </div>
+  </div>`;
+  preview.style.display="block";
+  preview.scrollTop=0;
+}
+async function printCurrentInvoice(){
+  const paper=$("invoicePaper");
+  if(!paper?.innerHTML.trim())return alert("Open an invoice first.");
+  const html=`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Smart Business Manager Invoice</title><style>
+    body{font-family:Arial,sans-serif;color:#111;background:#fff;margin:0;padding:18px}
+    h1{text-align:center;font-size:28px;margin:12px 0;color:#111}
+    h2{font-size:22px;margin:18px 0;color:#111}
+    p{font-size:15px;line-height:1.5;margin:12px 0}
+    table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px}
+    th,td{text-align:left;padding:9px 7px;border-bottom:1px solid #999;color:#111}
+    hr{border:0;border-top:1px solid #999;margin:18px 0}
+    @page{size:auto;margin:12mm}
+  </style></head><body>${paper.innerHTML}</body></html>`;
+  try{
+    if(window.SIAPrinter?.printHtml){
+      await window.SIAPrinter.printHtml(html);
+    }else{
+      window.print();
+    }
+  }catch(e){
+    alert("Could not open the phone's print service: "+(e?.message||e));
+  }
+}
+function closeInvoicePreview(){
+  $("invoicePreview").style.display="none";
+}
+function showInvoiceById(id){
+let x=records("invoices").find(v=>v.id===id);
+if(x)showInvoice(x);
+}
+
+async function recordPayment(id){
+let x=records("invoices").find(v=>v.id===id);
+if(!x)return alert("Invoice not found.");
+let balance=Math.max(0,Number(x.balance||0));
+if(balance<=0)return alert("This invoice is already fully paid.");
+let amount=Number(prompt("Enter payment received (MK). Outstanding balance: "+money(balance)));
+if(!Number.isFinite(amount)||amount<=0||amount>balance){
+return alert("Enter a payment greater than zero and not more than the outstanding balance.");
+}
+try{
+let ref=db.doc(`${path("invoices")}/${id}`);
+await db.runTransaction(async t=>{
+let snap=await t.get(ref);
+if(!snap.exists)throw Error("Invoice not found.");
+let currentBalance=Number(snap.data().balance||0);
+if(amount>currentBalance)throw Error("The balance has changed. Please try again.");
+let newPaid=Number(snap.data().paid||0)+amount;
+let newBalance=currentBalance-amount;
+let history=Array.isArray(snap.data().paymentHistory)?snap.data().paymentHistory:[];
+history.push({
+amount,
+date:new Date().toISOString(),
+receivedBy:user.uid,
+receivedByName:member.name||user.email
+});
+t.update(ref,{
+paid:newPaid,
+balance:newBalance,
+paymentHistory:history,
+updatedAt:stamp(),
+updatedBy:user.uid
+});
+});
+say("Payment recorded successfully.");
+renderScreen();
+}catch(e){alert("Payment failed: "+e.message)}
+}
+
+function privateRecords(type){
+ return records("private").filter(x=>x.recordType===type);
+}
+async function savePrivateRecord(type,data,actionLabel){
+ if(!isAdmin())throw new Error("Business Owner permission required.");
+ const ref=await db.collection(path("private")).add({...data,recordType:type,createdAt:stamp(),createdBy:user.uid,createdByEmail:user.email||""});
+ return ref;
+}
+async function deletePrivateRecord(id,type){
+ if(!isAdmin())return alert("Business Owner permission required.");
+ if(!confirm("Delete this record?"))return;
+ try{
+  await db.doc(path("private")+"/"+id).delete();
+  say("Record deleted.");renderScreen();
+ }catch(e){alert("Could not delete record: "+e.message);}
+}
+function bankRecordsScreen(s){
+ if(!isAdmin())return s.innerHTML="<div class='card'>Business Owner permission required.</div>";
+ const rows=privateRecords("banking").sort((a,b)=>String(b.bankDate||"").localeCompare(String(a.bankDate||""))||String(b.bankTime||"").localeCompare(String(a.bankTime||"")));
+ const total=rows.reduce((n,x)=>n+Number(x.amount||0),0);
+ s.innerHTML=`<div class="card"><h3>Record Bank Deposit</h3><p class="muted">Record money deposited into your business bank account. This is a record only; it does not transfer money.</p><div class="grid">
+ ${formField("bankName","Bank Name")}${formField("bankAccountName","Account Name")}${formField("bankAccountNumber","Account Number")}
+ ${selectField("bankAccountType","Account Type",'<option value="Business">Business</option><option value="Current">Current</option><option value="Savings">Savings</option><option value="Other">Other</option>')}
+ ${formField("bankDate","Date of Banking","date")}${formField("bankTime","Time of Banking","time")}${formField("bankAmount","Banking Amount (MK)","number","","0.01")}
+ ${formField("bankReference","Transaction / Deposit Reference")}${formField("bankNotes","Notes / Description")}
+ </div><button onclick="saveBankRecord()">Save Banking Record</button></div>
+ <div class="card"><h3>Bank Records</h3><p><b>${money(total)}</b></p><p class="muted">Total of deposits you have recorded in this app. This is not a live balance from your bank.</p></div>
+ <div class="card"><h3>Banking History</h3>${rows.map(x=>`<div class="item"><b>${esc(x.bankName||"Bank")}</b> — ${esc(x.accountName)}<br>Account Number: ${esc(x.accountNumber)} · Type: ${esc(x.accountType)}<br>Date: ${esc(x.bankDate)} · Time: ${esc(x.bankTime)}<br><b>Amount: ${money(x.amount)}</b><br>Reference: ${esc(x.reference||"—")}<br>${esc(x.notes||"")}<div class="actions"><button class="danger" onclick="deletePrivateRecord('${x.id}','banking')">Delete</button></div></div>`).join("")||"<p class='muted'>No banking records yet.</p>"}</div>`;
+}
+async function saveBankRecord(){
+ const amount=num("bankAmount");
+ if(!val("bankAccountName")||!val("bankAccountNumber")||!val("bankDate")||!val("bankTime")||!(amount>0)||!Number.isFinite(amount))return alert("Enter the account name, account number, banking date, time and a valid amount.");
+ try{await savePrivateRecord("banking",{bankName:val("bankName"),accountName:val("bankAccountName"),accountNumber:val("bankAccountNumber"),accountType:val("bankAccountType"),bankDate:val("bankDate"),bankTime:val("bankTime"),amount,reference:val("bankReference"),notes:val("bankNotes")} ,"Recorded bank deposit");say("Banking record saved successfully.");renderScreen();}catch(e){alert("Could not save banking record: "+e.message);}
+}
+
+
+// Credentials Vault: sensitive fields are encrypted in the browser before being
+// written to Firestore. The master password is kept only in memory for this session.
+let credentialsVaultPassword = "";
+const credentialEncoder = new TextEncoder();
+const credentialDecoder = new TextDecoder();
+
+async function credentialKey(password, salt){
+ const material = await crypto.subtle.importKey("raw",credentialEncoder.encode(password),"PBKDF2",false,["deriveKey"]);
+ return crypto.subtle.deriveKey({name:"PBKDF2",salt,iterations:310000,hash:"SHA-256"},material,{name:"AES-GCM",length:256},false,["encrypt","decrypt"]);
+}
+function bytesToB64(bytes){
+ let binary="";bytes.forEach(b=>binary+=String.fromCharCode(b));return btoa(binary);
+}
+function b64ToBytes(value){
+ const binary=atob(value);return Uint8Array.from(binary,c=>c.charCodeAt(0));
+}
+async function encryptCredential(data,password){
+ const salt=crypto.getRandomValues(new Uint8Array(16));
+ const iv=crypto.getRandomValues(new Uint8Array(12));
+ const key=await credentialKey(password,salt);
+ const cipher=await crypto.subtle.encrypt({name:"AES-GCM",iv},key,credentialEncoder.encode(JSON.stringify(data)));
+ return {salt:bytesToB64(salt),iv:bytesToB64(iv),ciphertext:bytesToB64(new Uint8Array(cipher)),encryption:"AES-GCM/PBKDF2-SHA256"};
+}
+async function decryptCredential(record,password){
+ const key=await credentialKey(password,b64ToBytes(record.salt));
+ const plain=await crypto.subtle.decrypt({name:"AES-GCM",iv:b64ToBytes(record.iv)},key,b64ToBytes(record.ciphertext));
+ return JSON.parse(credentialDecoder.decode(plain));
+}
+function credentialsScreen(s){
+ if(!isAdmin())return s.innerHTML="<div class='card'>Business Owner permission required.</div>";
+ if(!window.crypto?.subtle)return s.innerHTML="<div class='card'><h3>Credentials Vault</h3><p class='muted'>This browser does not support the encryption required for the Credentials Vault. Open the app in a secure HTTPS browser.</p></div>";
+ if(!credentialsVaultPassword){
+  s.innerHTML=`<div class="card"><h3>🔐 Credentials Vault</h3>
+   <p class="muted">Your bank, mobile money, email and social-media details are encrypted before they are saved. Create a strong Vault Password and keep it safe. It cannot be recovered if you forget it.</p>
+   <label>Vault Password</label><input id="vaultPassword" type="password" autocomplete="new-password" placeholder="Create or enter your Vault Password">
+   <button onclick="unlockCredentialsVault()">Unlock Vault</button>
+   <p class="small">The Vault Password is not stored in this app or in Firestore. You will need it again after signing out or reopening the app.</p>
+  </div>`;
+  return;
+ }
+ const rows=privateRecords("credentials");
+ s.innerHTML=`<div class="card"><div class="row"><h3>🔐 Credentials Vault</h3><button class="secondary" onclick="lockCredentialsVault()">Lock Vault</button></div>
+ <p class="muted">Sensitive details are encrypted on this device before they are uploaded. Only the Business Owner can open this section.</p>
+ <div class="grid">
+ ${selectField("credentialCategory","Account Category",'<option>Bank Account</option><option>Mobile Money / Mobile Banking</option><option>Social Media</option><option>Email Account</option><option>Business Website</option><option>Other</option>')}
+ ${formField("credentialTitle","Bank / Service / Account Name")}
+ ${formField("credentialUsername","Username / Account Name / Phone")}
+ ${formField("credentialIdentifier","Account Number / Email / Profile Link")}
+ ${formField("credentialPassword","Password / PIN / Secret","password")}
+ ${formField("credentialRecovery","Recovery Email / Phone / Codes")}
+ </div>
+ <label>Additional Private Notes</label><textarea id="credentialNotes" placeholder="Other details you need to keep safely"></textarea>
+ <button onclick="saveCredential()">Encrypt & Save Credential</button>
+ </div>
+ <div class="card"><h3>Saved Credentials (${rows.length})</h3><div id="credentialList"><p class="muted">Loading encrypted records…</p></div></div>`;
+ renderCredentialList();
+}
+async function unlockCredentialsVault(){
+ const password=val("vaultPassword");
+ if(password.length<10)return alert("Use a Vault Password with at least 10 characters.");
+ credentialsVaultPassword=password;
+ renderScreen();
+}
+function lockCredentialsVault(){credentialsVaultPassword="";renderScreen();}
+async function renderCredentialList(){
+ const target=$("credentialList");if(!target)return;
+ const rows=privateRecords("credentials");
+ if(!rows.length){target.innerHTML="<p class='muted'>No credentials saved yet. Add your first account above.</p>";return;}
+ const output=[];
+ for(const row of rows){
+  try{
+   const data=await decryptCredential(row,credentialsVaultPassword);
+   const safeId=String(row.id).replace(/[^a-zA-Z0-9_-]/g,"");
+   output.push(`<div class="item credential-entry">
+    <h3>${esc(data.title||"Account")}</h3>
+    <p><b>Account Type:</b> ${esc(data.category||"Other")}</p>
+    ${data.username ? `<p><b>Username / Account Name / Phone:</b> ${esc(data.username)}</p>` : ""}
+    ${data.identifier ? `<p><b>Account Number / Email / Profile Link:</b> ${esc(data.identifier)}</p>` : ""}
+    ${data.password ? `<p><b>Password / PIN:</b> <span id="credential-secret-${safeId}">••••••••</span> <button class="secondary" type="button" onclick="toggleCredentialSecret('${safeId}')">Show</button><span id="credential-secret-value-${safeId}" hidden>${esc(data.password)}</span></p>` : ""}
+    ${data.recovery ? `<p><b>Recovery Details:</b> ${esc(data.recovery)}</p>` : ""}
+    ${data.notes ? `<p><b>Additional Notes:</b> ${esc(data.notes)}</p>` : ""}
+    <div class="actions"><button class="secondary" onclick="editCredential('${row.id}')">Edit Details</button><button class="danger" onclick="deletePrivateRecord('${row.id}','credentials')">Delete Account</button></div>
+   </div>`);
+  }catch(e){
+   output.push(`<div class="item"><b>Encrypted Credential</b><p class="muted">This record could not be unlocked with the current Vault Password.</p></div>`);
+  }
+ }
+ if($("credentialList"))$("credentialList").innerHTML=output.join("");
+}
+function toggleCredentialSecret(id){
+ const masked=$("credential-secret-"+id);
+ const actual=$("credential-secret-value-"+id);
+ if(!masked||!actual)return;
+ const showing=!actual.hidden;
+ masked.textContent=showing?"••••••••":actual.textContent;
+ actual.hidden=!showing;
+ const button=masked.parentElement?.querySelector("button");
+ if(button)button.textContent=showing?"Show":"Hide";
+}
+async function getCredential(id){
+ const row=privateRecords("credentials").find(x=>x.id===id);
+ if(!row)throw new Error("Credential record not found.");
+ return {row,data:await decryptCredential(row,credentialsVaultPassword)};
+}
+async function viewCredential(id){
+ try{
+  const {data}=await getCredential(id);
+  alert("Category: "+(data.category||"")+
+   "\\nAccount: "+(data.title||"")+
+   "\\nUsername / Account: "+(data.username||"")+
+   "\\nAccount Number / Email / Link: "+(data.identifier||"")+
+   "\\nPassword / PIN: "+(data.password||"")+
+   "\\nRecovery Details: "+(data.recovery||"")+
+   "\\nNotes: "+(data.notes||""));
+ }catch(e){alert("Could not open credential. Check your Vault Password. "+e.message);}
+}
+async function saveCredential(){
+ if(!isAdmin()||!credentialsVaultPassword)return alert("Unlock the Credentials Vault first.");
+ const data={category:val("credentialCategory"),title:val("credentialTitle"),username:val("credentialUsername"),identifier:val("credentialIdentifier"),password:val("credentialPassword"),recovery:val("credentialRecovery"),notes:val("credentialNotes")};
+ if(!data.title)return alert("Enter the bank, service or account name.");
+ try{
+  const encrypted=await encryptCredential(data,credentialsVaultPassword);
+  await db.collection(path("private")).add({...encrypted,recordType:"credentials",createdAt:stamp(),createdBy:user.uid});
+  say("Credential encrypted and saved.");
+  renderScreen();
+ }catch(e){alert("Could not encrypt and save credential: "+e.message);}
+}
+async function editCredential(id){
+ try{
+  const {data}=await getCredential(id);
+  const title=prompt("Account / service name:",data.title||"");if(title===null)return;
+  const username=prompt("Username / account name / phone:",data.username||"");if(username===null)return;
+  const identifier=prompt("Account number / email / profile link:",data.identifier||"");if(identifier===null)return;
+  const secret=prompt("Password / PIN / secret:",data.password||"");if(secret===null)return;
+  const recovery=prompt("Recovery email / phone / codes:",data.recovery||"");if(recovery===null)return;
+  const notes=prompt("Additional private notes:",data.notes||"");if(notes===null)return;
+  const updated={...data,title,username,identifier,password:secret,recovery,notes};
+  const encrypted=await encryptCredential(updated,credentialsVaultPassword);
+  await db.doc(path("private")+"/"+id).update({...encrypted,updatedAt:stamp(),updatedBy:user.uid});
+  say("Credential updated and encrypted.");
+  renderScreen();
+ }catch(e){alert("Could not update credential. Check your Vault Password. "+e.message);}
+}
+
+function businessAssetsScreen(s){
+ if(!isAdmin())return s.innerHTML="<div class='card'>Business Owner permission required.</div>";
+ const rows=privateRecords("asset");
+ const total=rows.reduce((a,x)=>a+Number(x.purchaseValue||0),0);
+ s.innerHTML=`<div class="card"><h3>Register Business Asset</h3><div class="grid">
+ ${formField("assetName","Asset Name")}${selectField("assetCategory","Asset Category",'<option>Equipment</option><option>Furniture</option><option>Computer & Electronics</option><option>Vehicle</option><option>Tools</option><option>Other</option>')}
+ ${formField("assetQty","Quantity","number")}${formField("assetValue","Purchase Value (MK)","number","","0.01")}
+ ${formField("assetDate","Purchase Date","date")}${formField("assetCondition","Condition / Location")}
+ </div><button onclick="saveBusinessAsset()">Save Asset</button></div>
+ <div class="card"><h3>Business Asset Register</h3><div class="stat">${money(total)}</div><p class="muted">Total recorded purchase value</p>
+ ${rows.map(x=>`<div class="item"><b>${esc(x.name)}</b><br>Category: ${esc(x.category)}<br>Quantity: ${esc(x.quantity)}<br>Purchase Value: <b>${money(x.purchaseValue)}</b><br>Purchase Date: ${esc(x.purchaseDate||"Not recorded")}<br>Condition / Location: ${esc(x.condition||"—")}<div class="actions"><button class="danger" onclick="deletePrivateRecord('${x.id}','asset')">Delete</button></div></div>`).join("")||"<p class='muted'>No business assets recorded yet.</p>"}</div>`;
+}
+async function saveBusinessAsset(){
+ const name=val("assetName"),quantity=num("assetQty"),purchaseValue=num("assetValue");
+ if(!name||quantity<=0||purchaseValue<0||!Number.isFinite(purchaseValue))return alert("Enter an asset name, valid quantity and purchase value.");
+ try{await savePrivateRecord("asset",{name,category:val("assetCategory"),quantity,purchaseValue,purchaseDate:val("assetDate"),condition:val("assetCondition")},"Registered business asset");say("Business asset saved.");renderScreen();}catch(e){alert(e.message);}
+}
+function shopStaffPeople(includeOwner=false){
+ const appWorkers=records("members").filter(x=>x.role==="worker"&&x.active!==false).map(x=>({...x,personType:"app_member"}));
+ const manualStaff=privateRecords("staff").filter(x=>x.active!==false).map(x=>({...x,personType:"manual_staff",id:x.id}));
+ const people=[...manualStaff,...appWorkers];
+ if(includeOwner&&user&&member){
+  people.unshift({id:"owner:"+user.uid,name:member.name||member.displayName||"Business Owner (You)",email:user.email||"",role:"owner",personType:"owner",active:true});
+ }
+ return people;
+}
+function staffName(p){return p.name||p.displayName||p.fullName||p.email||"Staff member";}
+function workersScreen(s){
+ if(!isAdmin())return s.innerHTML="<div class='card'>Business Owner permission required.</div>";
+ const rows=privateRecords("staff").sort((a,b)=>String(a.name||"").localeCompare(String(b.name||"")));
+ const appMembers=records("members").filter(w=>w.role==="worker");
+ s.innerHTML=`<div class="card"><h3>Add Shop Employee (No App Login)</h3>
+ <p class="muted">Add a technician or other employee here. This creates a staff/payroll record only. It does not create an app account or give the employee access to your business data.</p>
+ <div class="grid">${formField("newStaffName","Full Name")}${formField("newStaffPhone","Phone Number","tel")}${formField("newStaffPosition","Job Title / Position")}${formField("newStaffAddress","Address")}${formField("newStaffStart","Employment Start Date","date")}${formField("newStaffSalary","Agreed Basic Salary (MK)","number","","0.01")}</div>
+ <button onclick="addShopStaff()">Add Employee</button></div>
+ <div class="card"><h3>Shop Employees</h3>${rows.map(w=>`<div class="item"><b>👤 ${esc(staffName(w))}</b><br>Position: ${esc(w.position||"Not set")}<br>Phone: ${esc(w.phone||"Not set")}<br>Address: ${esc(w.address||"Not set")}<br>Started: ${esc(w.startDate||"Not set")}<br>Basic Salary: ${money(w.basicSalary||0)}<br>Status: <b>${w.active===false?"Terminated / Inactive":"Active"}</b><div class="actions"><button onclick="editShopStaff('${w.id}')">Edit Details</button><button onclick="toggleShopStaff('${w.id}')">${w.active===false?"Reactivate":"Terminate Employment"}</button>${w.active===false?`<button class="danger" onclick="permanentlyDeleteShopStaff('${w.id}')">Permanently Delete Employee & Payroll</button>`:""}</div></div>`).join("")||"<p class='muted'>No manually registered employees yet.</p>"}</div>
+ <div class="card"><h3>App Login Members</h3><p class="muted">These are existing accounts that can sign in. A manually registered employee above does not receive app access.</p>${appMembers.map(w=>`<div class="item"><b>${esc(staffName(w))}</b><br>${esc(w.email||"")} · ${w.active===false?"Inactive":"Active"}<br>Role: ${esc(w.role||"worker")}<div class="actions"><button onclick="editAppMember('${w.id}')">Edit Member</button><button class="danger" onclick="deleteAppMember('${w.id}')">Delete Member</button></div></div>`).join("")||"<p class='muted'>No worker app accounts.</p>"}</div>`;
+}
+async function addShopStaff(){
+ if(!isAdmin())return alert("Business Owner permission required.");
+ const name=val("newStaffName").trim(),phone=val("newStaffPhone").trim(),position=val("newStaffPosition").trim(),address=val("newStaffAddress").trim(),startDate=val("newStaffStart"),basicSalary=num("newStaffSalary");
+ if(!name||!position||!Number.isFinite(basicSalary)||basicSalary<0)return alert("Enter the employee name, job title and a valid basic salary.");
+ try{await savePrivateRecord("staff",{name,phone,position,address,startDate,basicSalary,active:true,employmentStatus:"Active"},"Added shop employee");say("Employee added. No app login has been created.");renderScreen();}catch(e){alert("Could not add employee: "+e.message);}
+}
+async function editShopStaff(id){
+ if(!isAdmin())return alert("Business Owner permission required.");
+ const w=privateRecords("staff").find(x=>x.id===id);if(!w)return alert("Employee record not found.");
+ const name=prompt("Employee full name:",w.name||"");if(name===null)return;
+ const phone=prompt("Phone number:",w.phone||"");if(phone===null)return;
+ const position=prompt("Job title / position:",w.position||"");if(position===null)return;
+ const address=prompt("Address:",w.address||"");if(address===null)return;
+ const startDate=prompt("Employment start date (YYYY-MM-DD):",w.startDate||"");if(startDate===null)return;
+ const salary=prompt("Agreed basic salary (MK):",String(w.basicSalary||0));if(salary===null)return;
+ const basicSalary=Number(salary);if(!name.trim()||!position.trim()||!Number.isFinite(basicSalary)||basicSalary<0)return alert("Enter valid employee details and salary.");
+ try{await db.doc(path("private")+"/"+id).update({name:name.trim(),phone:phone.trim(),position:position.trim(),address:address.trim(),startDate:startDate.trim(),basicSalary,updatedAt:stamp(),updatedBy:user.uid});say("Employee details updated.");renderScreen();}catch(e){alert("Could not update employee: "+e.message);}
+}
+async function toggleShopStaff(id){
+ if(!isAdmin())return alert("Business Owner permission required.");
+ const w=privateRecords("staff").find(x=>x.id===id);if(!w)return alert("Employee record not found.");
+ const active=w.active===false;
+ if(!active&&!confirm("Terminate this employee's active employment? Their past payroll history will be kept."))return;
+ try{await db.doc(path("private")+"/"+id).update({active,employmentStatus:active?"Active":"Terminated",statusChangedAt:stamp(),updatedBy:user.uid});say(active?"Employee reactivated.":"Employment marked as terminated. Payroll history has been kept.");renderScreen();}catch(e){alert("Could not update employment status: "+e.message);}
+}
+
+async function permanentlyDeleteShopStaff(id){
+ if(!isAdmin())return alert("Business Owner permission required.");
+ const w=privateRecords("staff").find(x=>x.id===id);
+ if(!w)return alert("Employee record not found.");
+ if(w.active!==false)return alert("For safety, only an inactive/terminated employee can be permanently deleted.");
+ const name=staffName(w);
+ let linkedPayrollDocs;
+ try{
+  const snapshot=await db.collection(path("private")).get();
+  linkedPayrollDocs=snapshot.docs.filter(doc=>{const data=doc.data();return data.recordType==="payroll"&&data.staffUid===id;});
+ }catch(e){return alert("Could not verify all payroll records from the cloud. Nothing was deleted. Check your internet connection and try again.");}
+ const warning="PERMANENT DELETION\n\nEmployee: "+name+"\nPayroll/payment records to delete: "+linkedPayrollDocs.length+"\n\nThis will permanently delete the employee profile and every payroll/payment record linked to this employee. This cannot be undone.\n\nContinue?";
+ if(!confirm(warning))return;
+ const typed=prompt("To confirm permanent deletion, type the employee's full name exactly:","");
+ if(typed===null)return;
+ if(typed.trim().toLowerCase()!==name.trim().toLowerCase())return alert("Name did not match. Nothing was deleted.");
+ try{
+  const refs=linkedPayrollDocs.map(doc=>doc.ref);
+  refs.push(db.doc(path("private")+"/"+id));
+  for(let i=0;i<refs.length;i+=400){
+   const batch=db.batch();
+   refs.slice(i,i+400).forEach(ref=>batch.delete(ref));
+   await batch.commit();
+  }
+  say("Employee profile and "+linkedPayrollDocs.length+" linked payroll/payment record(s) permanently deleted.");
+  renderScreen();
+ }catch(e){alert("Deletion could not be completed: "+e.message+". Check the records before trying again.");}
+}
+
+function staffAttendanceScreen(s){
+ if(!isAdmin())return s.innerHTML="<div class='card'>Business Owner permission required.</div>";
+ const staff=shopStaffPeople(false);
+ const rows=privateRecords("attendance").sort((a,b)=>String(b.workDate||"").localeCompare(String(a.workDate||"")));
+ s.innerHTML=`<div class="card"><h3>Staff Attendance</h3><div class="grid">
+ ${selectField("attendanceStaff","Staff Member",staff.map(x=>'<option value="'+esc(x.id)+'">'+esc(staffName(x))+'</option>').join("")||'<option value="">No staff found</option>')}
+ ${formField("attendanceDate","Attendance Date","date")}${selectField("attendanceStatus","Status",'<option>Present</option><option>Late</option><option>Absent</option><option>Leave</option>')}
+ ${formField("attendanceIn","Time In","time")}${formField("attendanceOut","Time Out","time")}${formField("attendanceNote","Notes")}
+ </div><button onclick="saveAttendance()">Save Attendance</button></div>
+ <div class="card"><h3>Attendance History</h3>${rows.map(x=>`<div class="item"><b>${esc(x.staffName)}</b> — ${esc(x.status)}<br>Date: ${esc(x.workDate)} · In: ${esc(x.timeIn||"—")} · Out: ${esc(x.timeOut||"—")}<br>${esc(x.note||"")}<div class="actions"><button class="danger" onclick="deletePrivateRecord('${x.id}','attendance')">Delete</button></div></div>`).join("")||"<p class='muted'>No attendance records yet.</p>"}</div>`;
+}
+async function saveAttendance(){
+ const staff=shopStaffPeople(false).find(x=>x.id===val("attendanceStaff"));
+ const workDate=val("attendanceDate");
+ if(!staff||!workDate)return alert("Select a staff member and attendance date.");
+ try{await savePrivateRecord("attendance",{staffUid:staff.id,staffName:staffName(staff),workDate,status:val("attendanceStatus"),timeIn:val("attendanceIn"),timeOut:val("attendanceOut"),note:val("attendanceNote")},"Recorded staff attendance");say("Attendance saved.");renderScreen();}catch(e){alert(e.message);}
+}
+function payrollScreen(s){
+ if(!isAdmin())return s.innerHTML="<div class='card'>Business Owner permission required.</div>";
+ const staff=shopStaffPeople(true);
+ const rows=privateRecords("payroll").sort((a,b)=>String(b.payPeriod||"").localeCompare(String(a.payPeriod||"")));
+ s.innerHTML=`<div class="card"><h3>Salaries & Payroll</h3><p class="muted">Record salary, allowances, deductions and payments for your employees and yourself as Business Owner. This records payments; it does not transfer money automatically.</p><div class="grid">
+ ${selectField("payrollStaff","Staff Member",staff.map(x=>'<option value="'+esc(x.id)+'">'+esc(staffName(x))+(x.personType==="owner"?" — Business Owner":"")+'</option>').join("")||'<option value="">No staff found</option>')}
+ ${formField("payPeriod","Pay Period (YYYY-MM)","month")}${formField("basicSalary","Basic Salary (MK)","number","","0.01")}${formField("salaryAllowance","Allowances (MK)","number","","0.01")}${formField("salaryDeduction","Deductions (MK)","number","","0.01")}${formField("salaryDate","Payment Date","date")}${selectField("salaryStatus","Payment Status",'<option>Paid</option><option>Pending</option>')}
+ </div><button onclick="savePayroll()">Save Payroll Record</button></div>
+ <div class="card"><h3>Payroll History</h3>${rows.map(x=>`<div class="item"><b>${esc(x.staffName)}</b>${x.personType==="owner"?" — Business Owner":""}<br>Period: ${esc(x.payPeriod)} · Status: ${esc(x.status)}<br>Basic: ${money(x.basicSalary)} · Allowances: ${money(x.allowances)} · Deductions: ${money(x.deductions)}<br><b>Net Pay: ${money(x.netPay)}</b><br>Payment Date: ${esc(x.paymentDate||"Not paid")}<div class="actions"><button class="danger" onclick="deletePrivateRecord('${x.id}','payroll')">Delete</button></div></div>`).join("")||"<p class='muted'>No payroll records yet.</p>"}</div>`;
+}
+async function savePayroll(){
+ const staff=shopStaffPeople(true).find(x=>x.id===val("payrollStaff"));
+ const basicSalary=num("basicSalary"),allowances=num("salaryAllowance"),deductions=num("salaryDeduction");
+ if(!staff||!val("payPeriod")||basicSalary<0||allowances<0||deductions<0||!Number.isFinite(basicSalary+allowances+deductions)||basicSalary+allowances<deductions)return alert("Select a staff member, enter a pay period and valid salary amounts.");
+ const netPay=basicSalary+allowances-deductions;
+ try{await savePrivateRecord("payroll",{staffUid:staff.id,staffName:staffName(staff),personType:staff.personType||"app_member",payPeriod:val("payPeriod"),basicSalary,allowances,deductions,netPay,paymentDate:val("salaryDate"),status:val("salaryStatus")} ,"Saved staff payroll");say("Payroll record saved.");renderScreen();}catch(e){alert(e.message);}
+}
+
+async function editWorkerName(id){
+if(!isAdmin())return alert("Business Owner permission required.");
+let w=records("members").find(x=>x.id===id);
+if(!w)return alert("Member record not found.");
+if(w.role!=="worker")return alert("You can edit names for member accounts only.");
+let newName=prompt("Enter the member's new name:",w.name||"");
+if(newName===null)return;
+newName=newName.trim();
+if(!newName)return alert("Member name cannot be empty.");
+try{
+await db.doc(`${path("members")}/${id}`).update({
+name:newName,
+updatedAt:stamp()
+});
+say("Member name updated successfully.");
+renderScreen();
+}catch(e){alert("Could not update worker name: "+e.message)}
+}
+
+async function editAppMember(id){
+ if(!isAdmin())return alert("Business Owner permission required.");
+ const w=records("members").find(x=>x.id===id);
+ if(!w)return alert("Member record not found.");
+ if(w.role!=="worker")return alert("The Business Owner account cannot be edited here.");
+ const name=prompt("Member full name:",w.name||"");
+ if(name===null)return;
+ if(!name.trim())return alert("Member name cannot be empty.");
+ const roleChoice=prompt("Member role (worker or admin):",w.role||"worker");
+ if(roleChoice===null)return;
+ const newRole=roleChoice.trim().toLowerCase();
+ if(!["worker","admin"].includes(newRole))return alert("Enter worker or admin.");
+ const activeChoice=confirm("Should this member account be active?\n\nOK = Active\nCancel = Inactive");
+ try{
+  await db.doc(`${path("members")}/${id}`).update({
+   name:name.trim(),
+   role:newRole,
+   active:activeChoice,
+   updatedAt:stamp(),
+   updatedBy:user.uid
+  });
+  say("App login member updated successfully.");
+  renderScreen();
+ }catch(e){alert("Could not update member: "+e.message);}
+}
+
+async function deleteAppMember(id){
+ if(!isAdmin())return alert("Business Owner permission required.");
+ const w=records("members").find(x=>x.id===id);
+ if(!w)return alert("Member record not found.");
+ if(w.role!=="worker")return alert("The Business Owner account cannot be deleted here.");
+ const label=staffName(w);
+ if(!confirm("Remove app access for "+label+"?\n\nThis deletes the member's business access record. Their Firebase sign-in account itself cannot be deleted from this app."))return;
+ try{
+  await db.doc(`${path("members")}/${id}`).delete();
+  say("Member access record deleted. Their app access has been removed.");
+  renderScreen();
+ }catch(e){alert("Could not delete member access: "+e.message);}
+}
+
+async function changeWorker(id){
+if(!isAdmin())return alert("Admin permission required.");
+let w=records("members").find(x=>x.id===id);
+if(!w)return;
+let roleChoice=prompt("Enter role: worker or admin",w.role||"worker");
+if(!roleChoice)return;
+roleChoice=roleChoice.toLowerCase().trim();
+if(!["worker","admin"].includes(roleChoice))return alert("Invalid role.");
+let activeChoice=confirm("Should this member account be active?");
+try{
+await db.doc(`${path("members")}/${id}`).update({
+role:roleChoice,
+active:activeChoice,
+updatedAt:stamp()
+});
+say("Member updated.");
+renderScreen();
+}catch(e){alert(e.message)}
+}
+
+function grossProfit(){
+let sales=records("transactions").reduce((a,x)=>a+Number(x.profit||0),0);
+let spares=records("spareSales").reduce((a,x)=>a+Number(x.profit||0),0);
+let services=records("services").reduce((a,x)=>a+Number(x.amount||0)-Number(x.cost||0),0);
+let repairs=records("jobs").reduce((a,x)=>a+Number(x.fee||0)-Number(x.partsCost||0),0);
+return sales+spares+services+repairs;
+}
+
+
+let performancePeriod="Daily";
+function performanceDate(x){
+ const v=x&&x.createdAt;
+ if(!v)return null;
+ const d=v.toDate?v.toDate():new Date(v);
+ return Number.isNaN(d.getTime())?null:d;
+}
+function performanceRanges(period){
+ const now=new Date(),start=new Date(now);
+ start.setHours(0,0,0,0);
+ if(period==="Weekly"){
+   const day=(start.getDay()+6)%7;
+   start.setDate(start.getDate()-day);
+ }else if(period==="Monthly"){
+   start.setDate(1);
+ }
+ const elapsed=now.getTime()-start.getTime();
+ const previousStart=new Date(start);
+ if(period==="Weekly")previousStart.setDate(previousStart.getDate()-7);
+ else if(period==="Monthly")previousStart.setMonth(previousStart.getMonth()-1);
+ else previousStart.setDate(previousStart.getDate()-1);
+ const previousEnd=new Date(previousStart.getTime()+elapsed);
+ return {start,end:now,previousStart,previousEnd};
+}
+function performancePercent(value,total){
+ if(!total)return 0;
+ return Math.max(0,Math.min(100,(value/total)*100));
+}
+function performanceChange(current,previous){
+ if(previous===0)return current>0?"New":"0%";
+ const n=((current-previous)/Math.abs(previous))*100;
+ return (n>0?"+":"")+n.toFixed(1)+"%";
+}
+function performanceScreen(s){if(!isAdmin()){s.innerHTML="<div class='card'>Admin permission required.</div>";return;}
+ const ranges=performanceRanges(performancePeriod);
+ const sources=[
+  {key:"transactions",label:"Stock Sales",revenue:x=>Number(x.total||0),profit:x=>Number(x.profit||0),icon:"📦"},
+  {key:"spareSales",label:"Spare Parts Sales",revenue:x=>Number(x.total||0),profit:x=>Number(x.profit||0),icon:"🔩"},
+  {key:"jobs",label:"Repairing Services",revenue:x=>Number(x.fee||0),profit:x=>Number(x.fee||0)-Number(x.partsCost||0),icon:"🔧"},
+  {key:"services",label:"Printing Services",revenue:x=>Number(x.amount||0),profit:x=>Number(x.amount||0)-Number(x.cost||0),icon:"🖨️"}
+ ];
+ const summary=sources.map(source=>{
+  const rows=records(source.key);
+  const current=rows.filter(x=>{const d=performanceDate(x);return d&&d>=ranges.start&&d<=ranges.end;});
+  const previous=rows.filter(x=>{const d=performanceDate(x);return d&&d>=ranges.previousStart&&d<ranges.previousEnd;});
+  return {
+   ...source,
+   revenue:current.reduce((a,x)=>a+source.revenue(x),0),
+   profit:current.reduce((a,x)=>a+source.profit(x),0),
+   previousRevenue:previous.reduce((a,x)=>a+source.revenue(x),0),
+   count:current.length
+  };
+ });
+ const revenue=summary.reduce((a,x)=>a+x.revenue,0);
+ const profit=summary.reduce((a,x)=>a+x.profit,0);
+ const previousRevenue=summary.reduce((a,x)=>a+x.previousRevenue,0);
+ const margin=revenue>0?(profit/revenue)*100:0;
+ const periodButtons=["Daily","Weekly","Monthly"].map(p=>'<button type="button" class="'+(performancePeriod===p?'active':'')+'" onclick="setPerformancePeriod(\''+p+'\')">'+p+'</button>').join("");
+ const cards=summary.map(item=>{
+  const share=performancePercent(item.revenue,revenue);
+  const change=performanceChange(item.revenue,item.previousRevenue);
+  const positive=change==="New"||change.startsWith("+");
+  return '<div class="performance-card">'+
+   '<div class="performance-card-head"><span class="performance-icon">'+item.icon+'</span><b>'+item.label+'</b></div>'+
+   '<div class="performance-percent">'+share.toFixed(1)+'%</div>'+
+   '<div class="performance-track"><span style="width:'+share.toFixed(2)+'%"></span></div>'+
+   '<div class="performance-detail"><span>Revenue</span><b>'+money(item.revenue)+'</b></div>'+
+   '<div class="performance-detail"><span>Profit</span><b>'+money(item.profit)+'</b></div>'+
+   '<div class="performance-detail"><span>Records</span><b>'+item.count+'</b></div>'+
+   '<div class="performance-detail"><span>Vs Previous Period</span><b class="'+(positive?'performance-up':'performance-down')+'">'+change+'</b></div>'+
+  '</div>';
+ }).join("");
+ const periodLabel=performancePeriod==="Daily"?"Today":performancePeriod==="Weekly"?"This Week":"This Month";
+ s.innerHTML=
+ '<section class="dashboard-panel performance-panel">'+
+  '<div class="panel-heading"><div><h3>Business Performance</h3><div class="muted">Based on your recorded sales and services</div></div></div>'+
+  '<div class="tabs performance-period">'+periodButtons+'</div>'+
+  '<div class="performance-overview">'+
+   '<div><span class="muted">'+periodLabel+' Revenue</span><strong>'+money(revenue)+'</strong></div>'+
+   '<div><span class="muted">Gross Profit</span><strong>'+money(profit)+'</strong></div>'+
+   '<div><span class="muted">Profit Margin</span><strong>'+margin.toFixed(1)+'%</strong></div>'+
+   '<div><span class="muted">Revenue Change</span><strong class="'+(performanceChange(revenue,previousRevenue)==="New"||performanceChange(revenue,previousRevenue).startsWith("+")?'performance-up':'performance-down')+'">'+performanceChange(revenue,previousRevenue)+'</strong></div>'+
+  '</div>'+
+  '<p class="muted performance-explain">Category percentages show each activity’s share of your total recorded revenue for this period. Changes compare the same elapsed part of the previous period.</p>'+
+ '</section>'+
+ '<section class="dashboard-panel"><div class="panel-heading"><h3>Performance By Activity</h3></div>'+
+ (revenue>0?'<div class="performance-list">'+cards+'</div>':'<div class="performance-empty"><b>No activity recorded for this period yet.</b><span>Record a stock sale, spare parts sale, repair or printing service to see your percentages here.</span></div>')+
+ '</section>'+
+ '<section class="dashboard-panel"><h3>How To Read These Percentages</h3>'+
+ '<p class="muted">Activity Share = that activity’s revenue divided by all stock and service revenue. Profit Margin = gross profit divided by revenue. Period Change compares revenue with the matching previous period. These figures use saved records only; they are not targets or estimated scores.</p>'+
+ '</section>';
+}
+function setPerformancePeriod(period){
+ if(!["Daily","Weekly","Monthly"].includes(period))return;
+ performancePeriod=period;
+ renderScreen();
+}
+
+function reportsScreen(s){
+if(!isAdmin()){
+s.innerHTML="<div class='card'>Admin permission required.</div>";
+return;
+}
+let stockValue=records("stock").reduce((a,x)=>a+Number(x.quantity||0)*Number(x.buyingPrice||0),0);
+let spareValue=records("spareParts").reduce((a,x)=>a+Number(x.quantity||0)*Number(x.buyingPrice||0),0);
+let expenses=records("expenses").filter(x=>!x.purchase).reduce((a,x)=>a+Number(x.amount||0),0);
+let stockProfit=records("transactions").reduce((a,x)=>a+Number(x.profit||0),0);
+let spareProfit=records("spareSales").reduce((a,x)=>a+Number(x.profit||0),0);
+let printProfit=records("services").reduce((a,x)=>a+Number(x.amount||0)-Number(x.cost||0),0);
+let repairProfit=records("jobs").reduce((a,x)=>a+Number(x.fee||0)-Number(x.partsCost||0),0);
+let totalProfit=stockProfit+spareProfit+printProfit+repairProfit;
+
+s.innerHTML=`
+<div class="card">
+<h3>Business Financial Reports</h3>
+<div class="grid">
+<div class="card"><div class="muted">Stock sales profit</div><div class="stat">${money(stockProfit)}</div></div>
+<div class="card"><div class="muted">Spare parts profit</div><div class="stat">${money(spareProfit)}</div></div>
+<div class="card"><div class="muted">Printing profit</div><div class="stat">${money(printProfit)}</div></div>
+<div class="card"><div class="muted">Repair profit</div><div class="stat">${money(repairProfit)}</div></div>
+<div class="card"><div class="muted">Total gross profit</div><div class="stat">${money(totalProfit)}</div></div>
+<div class="card"><div class="muted">Operating expenses</div><div class="stat">${money(expenses)}</div></div>
+<div class="card"><div class="muted">Estimated net profit</div><div class="stat">${money(totalProfit-expenses)}</div></div>
+<div class="card"><div class="muted">Stock purchase value</div><div class="stat">${money(stockValue)}</div></div>
+<div class="card"><div class="muted">Spare parts value</div><div class="stat">${money(spareValue)}</div></div>
+</div>
+</div>
+
+<div class="card">
+<h3>Sales and Service Totals</h3>
+<table>
+<tr><th>Category</th><th>Amount</th></tr>
+<tr><td>Stock sales</td><td>${money(records("transactions").reduce((a,x)=>a+Number(x.total||0),0))}</td></tr>
+<tr><td>Spare parts sales</td><td>${money(records("spareSales").reduce((a,x)=>a+Number(x.total||0),0))}</td></tr>
+<tr><td>Printing services</td><td>${money(records("services").reduce((a,x)=>a+Number(x.amount||0),0))}</td></tr>
+<tr><td>Repair services</td><td>${money(records("jobs").reduce((a,x)=>a+Number(x.fee||0),0))}</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>Expense Breakdown</h3>
+<div class="stat">${money(expenses)}</div>
+<table>
+<tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th></tr>
+${records("expenses").filter(x=>!x.purchase).map(x=>`<tr><td>${dateText(x.createdAt)}</td><td>${esc(x.category||"")}</td><td>${esc(x.description||"")}</td><td>${money(x.amount)}</td></tr>`).join("")||"<tr><td colspan=\"4\">No expenses recorded.</td></tr>"}
+<tr><th colspan="3">TOTAL EXPENSES</th><th>${money(expenses)}</th></tr>
+</table>
+</div>
+
+<div class="card">
+<h3>Outstanding Customer Balances</h3>
+<div class="stat">${money(records("invoices").reduce((a,x)=>a+Math.max(0,Number(x.balance||0)),0))}</div>
+</div>
+
+<div class="card">
+<h3>Export Reports</h3>
+<button onclick="exportReport()">Download CSV Report</button>
+<button onclick="printFullReport()">Print Full Report</button>
+</div>`;
+}
+
+function exportReport(){
+if(!isAdmin())return alert("Admin permission required.");
+let rows=[
+["Category","Description","Quantity","Cost","Selling / Total","Profit"],
+...records("transactions").map(x=>["Stock Sale",x.itemName,x.quantity,x.cost,x.total,x.profit]),
+...records("spareSales").map(x=>["Spare Sale",x.itemName,x.quantity,x.cost,x.total,x.profit]),
+...records("services").map(x=>["Printing Service",x.serviceType,x.quantity,x.cost,x.amount,Number(x.amount||0)-Number(x.cost||0)]),
+...records("jobs").map(x=>["Repair",x.device,1,x.partsCost,x.fee,Number(x.fee||0)-Number(x.partsCost||0)]),
+...records("expenses").map(x=>["Expense",x.description,"",x.amount,"",""])
+];
+let csv=rows.map(r=>r.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")).join("\n");
+let blob=new Blob([csv],{type:"text/csv;charset=utf-8;"});
+let url=URL.createObjectURL(blob);
+let a=document.createElement("a");
+a.href=url;
+a.download="SIA-Business-Report.csv";
+a.click();
+URL.revokeObjectURL(url);
+}
+
+async function printFullReport(){
+ if(!isAdmin())return alert("Admin permission required.");
+ const screen=$("screen");
+ if(!screen)return alert("Report screen is not ready.");
+ const copy=screen.cloneNode(true);
+ copy.querySelectorAll("button,.actions,.no-print").forEach(el=>el.remove());
+ await printHtmlDocument(copy.innerHTML,"Full Business Report");
+}
+
+
+function backupEncode(value){
+  if(value && typeof value.toDate==="function" && typeof value.seconds==="number"){
+    return {__siaType:"timestamp",seconds:value.seconds,nanoseconds:value.nanoseconds||0};
+  }
+  if(Array.isArray(value))return value.map(backupEncode);
+  if(value&&typeof value==="object"){
+    let out={};
+    for(let [k,v] of Object.entries(value))out[k]=backupEncode(v);
+    return out;
+  }
+  return value;
+}
+function backupDecode(value){
+  if(Array.isArray(value))return value.map(backupDecode);
+  if(value&&typeof value==="object"){
+    if(value.__siaType==="timestamp"&&Number.isFinite(value.seconds)){
+      return new firebase.firestore.Timestamp(value.seconds,Number(value.nanoseconds||0));
+    }
+    let out={};
+    for(let [k,v] of Object.entries(value))out[k]=backupDecode(v);
+    return out;
+  }
+  return value;
+}
+async function driveAccessToken(){
+  if(!window.SIAGoogleDriveAuth||typeof window.SIAGoogleDriveAuth.getAccessToken!=="function"){
+    throw new Error("Google Drive sign-in is not available in this APK. Build and install the latest APK first.");
+  }
+  return window.SIAGoogleDriveAuth.getAccessToken();
+}
+async function driveRequest(url,token,options={}){
+  let response=await fetch(url,{...options,headers:{...(options.headers||{}),Authorization:"Bearer "+token}});
+  if(!response.ok){
+    let detail="";
+    try{let j=await response.json();detail=j.error?.message||JSON.stringify(j)}catch(e){try{detail=await response.text()}catch(x){}}
+    throw new Error("Google Drive error ("+response.status+"): "+(detail||response.statusText));
+  }
+  return response;
+}
+async function backupToGoogleDrive(button,options={}){
+  const automatic=options.automatic===true;
+  if(!isAdmin())return automatic?false:alert("Admin permission required.");
+  if(button){button.disabled=true;button.textContent="Preparing Backup...";}
+  try{
+    say(automatic?"Daily automatic backup: reading business records...":"Reading business records for backup...");
+    let names=[...COLLECTIONS],exported={},denied=[];
+    for(let c of names){
+      try{
+        let snap=await db.collection(path(c)).get();
+        exported[c]=snap.docs.map(d=>({id:d.id,data:backupEncode(d.data())}));
+      }catch(e){
+        denied.push({collection:c,error:e.code||e.message||"Read denied"});
+        exported[c]=null;
+      }
+    }
+    let readable=Object.keys(exported).filter(c=>Array.isArray(exported[c]));
+    if(!readable.length)throw new Error("Firestore did not allow reading any business collections. No backup file was created.");
+    let backup={
+      app:"SIA BUSINESS",
+      formatVersion:1,
+      businessId:BUSINESS_ID,
+      exportedAt:new Date().toISOString(),
+      backupType:denied.length?"PARTIAL":"COMPLETE",
+      collections:exported,
+      inaccessibleCollections:denied
+    };
+    let token=await driveAccessToken();
+    let stampName=new Date().toISOString().replace(/[:.]/g,"-");
+    let filename="SIA-Business-Backup-"+stampName+".json";
+    let boundary="sia_backup_"+Date.now();
+    let metadata={name:filename,mimeType:"application/json",description:"S I A BUSINESS Firestore backup. "+(denied.length?"Partial backup":"Complete backup")};
+    let body="--"+boundary+"\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n"+JSON.stringify(metadata)+"\r\n--"+boundary+"\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n"+JSON.stringify(backup)+"\r\n--"+boundary+"--";
+    let response=await driveRequest("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,createdTime",token,{
+      method:"POST",
+      headers:{"Content-Type":"multipart/related; boundary="+boundary},
+      body
+    });
+    let file=await response.json();
+    let count=readable.reduce((n,c)=>n+exported[c].length,0);
+    let message=(denied.length?"PARTIAL BACKUP SAVED":"BACKUP SAVED")+" to Google Drive. "+count+" records from "+readable.length+" collections. "+(denied.length?"Blocked collections: "+denied.map(x=>x.collection).join(", ")+".":"All app collections were readable.");
+    if(automatic){
+      const day=localBackupDay();
+      localStorage.setItem("sia_business_last_auto_backup_"+user.uid,day);
+      say("Daily automatic backup completed. "+count+" records saved to Google Drive.");
+    }else{
+      say(message);
+      alert(message);
+    }
+    return true;
+  }catch(e){
+    console.error(e);
+    const failure="Backup failed: "+e.message;
+    say(automatic?"Daily automatic backup could not complete: "+e.message:failure);
+    if(!automatic)alert(failure);
+    return false;
+  }finally{
+    if(button){button.disabled=false;button.textContent="Back Up Business Records To Google Drive";}
+  }
+}
+async function restoreLatestFromGoogleDrive(button){
+  if(!isAdmin())return alert("Admin permission required.");
+  if(!confirm("Restore the latest S I A BUSINESS backup? Existing records will NEVER be overwritten. Only missing records that Firestore rules allow will be added."))return;
+  if(button){button.disabled=true;button.textContent="Checking Google Drive...";}
+  try{
+    let token=await driveAccessToken();
+    let q=encodeURIComponent("trashed=false and name contains 'SIA-Business-Backup-'");
+    let listResponse=await driveRequest("https://www.googleapis.com/drive/v3/files?q="+q+"&pageSize=20&orderBy=createdTime desc&fields=files(id,name,createdTime)",token);
+    let files=(await listResponse.json()).files||[];
+    if(!files.length)throw new Error("No S I A BUSINESS backup file was found in the Google account you connected.");
+    let chosen=files[0];
+    if(!confirm("Use this backup?\n"+chosen.name+"\n\nThe restore adds missing records only. It does not replace or delete existing records."))return;
+    say("Downloading backup "+chosen.name+"...");
+    let download=await driveRequest("https://www.googleapis.com/drive/v3/files/"+encodeURIComponent(chosen.id)+"?alt=media",token);
+    let backup=await download.json();
+    if(backup.app!=="SIA BUSINESS"||backup.businessId!==BUSINESS_ID||!backup.collections||typeof backup.collections!=="object"){
+      throw new Error("This file is not a valid backup for this S I A BUSINESS account.");
+    }
+    let added=0,existing=0,blocked=[],invalid=0;
+    for(let c of COLLECTIONS){
+      let docs=backup.collections[c];
+      if(!Array.isArray(docs))continue;
+      for(let item of docs){
+        if(!item||typeof item.id!=="string"||!item.id||!item.data||typeof item.data!=="object"){invalid++;continue;}
+        try{
+          let ref=db.doc(path(c)+"/"+item.id);
+          let currentDoc=await ref.get();
+          if(currentDoc.exists){existing++;continue;}
+          await ref.set(backupDecode(item.data));
+          added++;
+        }catch(e){
+          blocked.push(c);
+        }
+      }
+    }
+    let uniqueBlocked=[...new Set(blocked)];
+    let message="Restore finished. Added "+added+" missing records. Left "+existing+" existing records unchanged. "+(uniqueBlocked.length?"Firestore blocked writes in: "+uniqueBlocked.join(", ")+". ":"")+(invalid?"Skipped "+invalid+" invalid entries.":"");
+    say(message);
+    alert(message);
+  }catch(e){
+    console.error(e);
+    say("Restore failed: "+e.message);
+    alert("Restore failed: "+e.message);
+  }finally{
+    if(button){button.disabled=false;button.textContent="Restore Latest Backup (Add Missing Records Only)";}
+  }
+}
+
+const AUTO_BACKUP_ENABLED_KEY="sia_business_daily_auto_backup_enabled";
+let autoBackupRunning=false;
+function localBackupDay(){
+  const d=new Date();
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+function dailyAutoBackupEnabled(){
+  return localStorage.getItem(AUTO_BACKUP_ENABLED_KEY)!=="false";
+}
+function toggleDailyAutoBackup(){
+  localStorage.setItem(AUTO_BACKUP_ENABLED_KEY,dailyAutoBackupEnabled()?"false":"true");
+  renderScreen();
+}
+async function maybeRunDailyAutoBackup(){
+  if(!user||!isAdmin()||!dailyAutoBackupEnabled()||autoBackupRunning)return;
+  const day=localBackupDay();
+  const last=localStorage.getItem("sia_business_last_auto_backup_"+user.uid);
+  if(last===day)return;
+  autoBackupRunning=true;
+  try{
+    await backupToGoogleDrive(null,{automatic:true});
+  }finally{
+    autoBackupRunning=false;
+  }
+}
+
+function settingsScreen(s){
+s.innerHTML=`
+<div class="card">
+<h3>Account Information</h3>
+<div class="item">
+<b>S I A Tech Print Media</b><br>
+Home Of Printing & Computing<br>
+Matindi Trading Centre, Malawi<br>
+0999 290 495 &nbsp; 0888 290 495
+</div>
+<p>Email: ${esc(user.email)}</p>
+<p>Name: ${esc(role==="admin"?(member.name||"Shuaibu Idi"):(member.name||"Not set"))}</p>
+<p>Role: ${esc(role==="admin"?"Business Owner":role==="worker"?"Shop Manager":role)}</p>
+</div>
+${isAdmin()?`<div class="card">
+<h3>Data Connection</h3>
+<p class="muted">Business records are stored in Firebase Firestore.</p>
+<p id="connectionStatus">Connected account: ${esc(user.email)}</p>
+<button onclick="refreshData()">Refresh Business Records</button>
+</div>
+<div class="card">
+<h3>Google Drive Backup & Restore</h3>
+<p class="muted">Backups are saved as JSON files in your connected Google Drive account.</p>
+<p><b>Daily Automatic Backup: ${dailyAutoBackupEnabled() ? 'Enabled' : 'Disabled'}</b></p>
+<p class="muted">When enabled, the app backs up once per local calendar day the first time an Admin opens the app and signs in. Google may ask you to confirm the account if sign-in is required.</p>
+<button class="secondary" onclick="toggleDailyAutoBackup()">${dailyAutoBackupEnabled() ? 'Turn Off Daily Automatic Backup' : 'Turn On Daily Automatic Backup'}</button>
+<button onclick="backupToGoogleDrive(this)">Back Up Business Records To Google Drive</button>
+<button class="secondary" onclick="restoreLatestFromGoogleDrive(this)">Restore Latest Backup (Add Missing Records Only)</button>
+<p class="muted">Restore never replaces or deletes existing records. Firestore security rules still control which missing records can be restored. This feature does not require Firebase Blaze. Automatic backup runs when the app is opened, not while it is closed.</p>
+</div>`: ""}
+<div class="card">
+<h3>Security</h3>
+${isAdmin()?`<h4>Change Business Owner Password</h4>
+<p class="muted">Enter your current password, then choose a new password. You will remain signed in if the change succeeds.</p>
+<label>Current Password</label><input id="adminCurrentPassword" type="password" autocomplete="current-password">
+<label>New Password</label><input id="adminNewPassword" type="password" autocomplete="new-password">
+<label>Confirm New Password</label><input id="adminConfirmPassword" type="password" autocomplete="new-password">
+<button onclick="changeAdminPassword()">Change Password</button>`:""}
+<button class="secondary" onclick="logout()">Sign Out</button>
+</div>`;
+}
+
+async function changeAdminPassword(){
+if(!isAdmin())return alert("Only the Business Owner can change this password here.");
+const currentPassword=val("adminCurrentPassword");
+const newPassword=val("adminNewPassword");
+const confirmPassword=val("adminConfirmPassword");
+if(!currentPassword||!newPassword||!confirmPassword)return alert("Complete all three password fields.");
+if(newPassword.length<6)return alert("The new password must contain at least 6 characters.");
+if(newPassword!==confirmPassword)return alert("The new passwords do not match.");
+if(currentPassword===newPassword)return alert("Choose a different password from your current one.");
+try{
+const currentUser=auth.currentUser;
+if(!currentUser||!currentUser.email)throw new Error("Please sign in again before changing your password.");
+const credential=firebase.auth.EmailAuthProvider.credential(currentUser.email,currentPassword);
+await currentUser.reauthenticateWithCredential(credential);
+await currentUser.updatePassword(newPassword);
+$("adminCurrentPassword").value="";
+$("adminNewPassword").value="";
+$("adminConfirmPassword").value="";
+alert("Your Business Owner password has been changed successfully.");
+}catch(e){
+let message=e.code==="auth/wrong-password"||e.code==="auth/invalid-credential"?"The current password is incorrect.":e.code==="auth/requires-recent-login"?"Please sign out, sign in again, and retry.":e.message;
+alert("Password change failed: "+message);
+}
+}
+
+window.handleSignIn=async function handleSignIn(){
+const button=$("signInButton"),message=$("msg");
+const email=val("email"),password=val("password");
+if(!email||!password){
+ message.textContent="Please enter both your email and password.";
+ return;
+}
+if(!auth||!auth.signInWithEmailAndPassword){
+ message.textContent="Sign-in service is not ready. Check your internet connection and reload the app.";
+ return;
+}
+if(button){button.disabled=true;button.textContent="Signing in...";}
+message.textContent="Connecting securely...";
+try{
+ await authPersistenceReady;
+ await auth.signInWithEmailAndPassword(email,password);
+ message.textContent="Sign-in successful. Opening your business...";
+}catch(e){
+ const messages={
+  "auth/invalid-email":"Please check your email address.",
+  "auth/user-not-found":"No account was found for this email.",
+  "auth/wrong-password":"The password is incorrect.",
+  "auth/invalid-credential":"Email or password is incorrect.",
+  "auth/network-request-failed":"Connection failed. Check your internet and try again.",
+  "auth/too-many-requests":"Too many attempts. Please wait and try again."
+ };
+ message.textContent=messages[e.code]||("Sign-in failed: "+(e.message||"Please try again."));
+}finally{
+ if(button){button.disabled=false;button.textContent="Sign in";}
+}
+}
+
+async function register(){
+let email=val("email"),password=val("password");
+if(!email||password.length<6)return alert("Enter a valid email and a password of at least six characters.");
+try{
+await auth.createUserWithEmailAndPassword(email,password);
+alert("Account created. Ask the Business Owner to activate your account.");
+}catch(e){
+$("msg").textContent=e.message;
+}
+}
+
+async function logout(){
+try{
+await auth.signOut();
+}catch(e){alert(e.message)}
+}
+
+function clearListeners(){
+unsubs.forEach(fn=>{try{fn()}catch(e){}});
+unsubs=[];
+}
+
+function listen(collection,query){
+let ref=db.collection(path(collection));
+if(query)ref=query(ref);
+let unsub=ref.onSnapshot(snapshot=>{
+cache[collection]=snapshot.docs.map(d=>({id:d.id,...d.data()}));
+if(current==="dashboard"||current==="performance"||current==="reports"||current==="invoices"||current==="workers"||current==="stock"||current==="spares"||current==="sales"||current==="jobs"||current==="services"||current==="customers"||current==="suppliers"||current==="purchases"||current==="expenses"||current==="cashbook"||current==="banking"||current==="credentials"||current==="assets"||current==="attendance"||current==="payroll"){
+renderScreen();
+}
+if($("salesTotal")){
+let total=records("transactions").reduce((a,x)=>a+Number(x.total||0),0);
+total+=records("spareSales").reduce((a,x)=>a+Number(x.total||0),0);
+$("salesTotal").textContent=money(total);
+}
+},error=>{
+say("Unable to load "+collection+": "+error.message);
+});
+unsubs.push(unsub);
+}
+
+async function startData(){
+clearListeners();
+cache={};
+try{
+let memberRef=db.doc(`${path("members")}/${user.uid}`);
+let memberSnap=await memberRef.get();
+if(!memberSnap.exists){
+await auth.signOut();
+$("msg").textContent="Your account is not registered as a business member. Contact the Business Owner.";
+return;
+}
+member=memberSnap.data();
+if(member.active===false){
+await auth.signOut();
+$("msg").textContent="Your account is inactive. Contact the Business Owner.";
+return;
+}
+role=member.role||"worker";
+$("login").classList.add("hidden");
+$("app").classList.remove("hidden");
+
+renderNav();
+go("dashboard");
+
+let collections=[
+"stock","spareParts","transactions","spareSales","jobs",
+"services","customers","invoices"
+];
+// Financial and purchasing records are private to the Business Owner.
+// Do not attach listeners for these collections to Shop Manager accounts.
+if(isAdmin()) collections.push("suppliers","purchases","expenses","cashbook","private");
+
+// All active members use the same business inventory and records.
+    // Access is controlled by Firestore Security Rules, not by client-side filters.
+    for(let c of collections){
+      listen(c);
+    }
+
+    if(isAdmin()){
+      listen("members");
+      // Run at most one successful automatic backup per local calendar day.
+      // A failed or cancelled attempt remains eligible for retry next time the app opens.
+      maybeRunDailyAutoBackup();
+    }
+}catch(e){
+say("Account setup error: "+e.message);
+}
+}
+
+async function refreshData(){
+if(!user)return;
+await startData();
+say("Business records refreshed.");
+}
+
+auth.onAuthStateChanged(async u=>{
+user=u;
+if(!u){
+clearListeners();
+member=null;
+role=null;
+$("login").classList.remove("hidden");
+$("app").classList.add("hidden");
+if($("adminSalesSummary"))$("adminSalesSummary").classList.add("hidden");
+return;
+}
+await startData();
+});
+
+window.addEventListener("beforeunload",clearListeners);
+</script>
+</body>
+</html>
