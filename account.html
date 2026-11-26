@@ -17,7 +17,7 @@
 </div>
 <div id="dashboard" class="hidden"><h2 class="form-title">Your account</h2><p class="muted">You are signed in to SIA Digital Vision.</p><div class="dashboard"><div class="dash-row"><span>Customer name</span><b id="dashName">—</b></div><div class="dash-row"><span>Email address</span><b id="dashEmail">—</b></div><div class="dash-row"><span>Account status</span><b style="color:#0b9d68">Signed in</b></div>
 <div class="dash-row"><span>Account ID (for support)</span><b id="dashUid" style="font-size:10px;overflow-wrap:anywhere">—</b></div></div><div id="profileNotice" class="message"></div><form id="profileForm" class="dashboard"><h3 style="margin:0 0 5px;color:var(--navy);font-size:17px">Your profile details</h3><p class="muted">Keep your contact information up to date so we can reach you about your services and orders.</p><div class="field"><label for="profileFullName">Full name</label><input id="profileFullName" type="text" autocomplete="name" required minlength="2" placeholder="Your full name"></div><div class="field"><label for="profilePhone">Phone number</label><input id="profilePhone" type="tel" autocomplete="tel" placeholder="e.g. 0999 123 456"></div><div class="field"><label for="profileAddress">Address / Location</label><textarea id="profileAddress" autocomplete="street-address" placeholder="Your area, town or delivery address"></textarea></div><button class="submit" id="saveProfileBtn" type="submit">Save profile details</button><div id="profileSaveNotice" class="message"></div></form>
-<form id="orderForm" class="order-panel" data-section="place-order"><h3>Place a service or product order</h3><p class="muted">Choose what you need and send your request to our team. We will confirm availability, price and collection or delivery arrangements.</p>
+<form id="orderForm" class="order-panel" data-section="place-order"><h3>Place a service or product order</h3><p class="muted">Choose what you need and send your request to our team. We will confirm availability, price and collection or delivery arrangements.</p><div id="cartOrderSummary" class="hidden"></div>
 <div class="field"><label for="orderType">Order type</label><select id="orderType" required><option value="Service">Service request</option><option value="Product">Product / accessory order</option></select></div>
 <div class="field"><label for="orderName">Choose from our catalogue</label><select id="orderName" required><option value="">Loading catalogue items…</option></select></div>
 <div class="field"><label for="orderQuantity">Quantity</label><input id="orderQuantity" type="number" min="1" step="1" value="1" required></div>
@@ -36,6 +36,13 @@ const app=initializeApp(firebaseConfig);const auth=getAuth(app);const db=getFire
 const authReady=setPersistence(auth,browserLocalPersistence).catch(()=>setPersistence(auth,browserSessionPersistence));
 const $=id=>document.getElementById(id);const loginForm=$('loginForm'),registerForm=$('registerForm'),notice=$('notice');
 const orderParams=new URLSearchParams(location.search);
+const CART_KEY="sia_market_cart_v1";
+const cartMode=orderParams.get("cart")==="1";
+function readShoppingCart(){try{const data=JSON.parse(localStorage.getItem(CART_KEY)||"[]");return Array.isArray(data)?data:[]}catch(e){return []}}
+function clearShoppingCart(){try{localStorage.removeItem(CART_KEY)}catch(e){}}
+function showCartSummary(items){const host=$("cartOrderSummary");if(!host)return;host.classList.remove("hidden");host.style.cssText="padding:14px;background:#fff8f1;border:1px solid #ffd5b5;border-radius:10px;margin:12px 0";host.replaceChildren();const heading=document.createElement("h4");heading.textContent="Your shopping cart ("+items.length+" item types)";heading.style.margin="0 0 10px";host.append(heading);items.forEach(line=>{const row=document.createElement("div");row.style.cssText="display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid #f0dfd2;font-size:12px";const label=document.createElement("span");label.textContent=(line.name||"Catalogue item")+" · "+line.type+" × "+line.quantity;const remove=document.createElement("button");remove.type="button";remove.textContent="Remove";remove.className="linkbtn";remove.addEventListener("click",()=>{const cart=readShoppingCart().filter(x=>x.id!==line.id);try{localStorage.setItem(CART_KEY,JSON.stringify(cart))}catch(e){}location.reload()});row.append(label,remove);host.append(row)});const note=document.createElement("p");note.className="muted";note.textContent="Each cart line will be submitted as a separate order so you can track each item independently.";host.append(note)}
+function setCartOrderMode(){if(!cartMode)return;["orderType","orderName","orderQuantity"].forEach(id=>{const el=$(id);if(el){const field=el.closest(".field");if(field)field.classList.add("hidden")}});$("orderDetails").placeholder="Add any overall instructions for this order (optional).";$("orderDetails").required=false;const heading=$("orderForm").querySelector("h3");if(heading)heading.textContent="Submit your shopping cart";const p=$("orderForm").querySelector("p");if(p)p.textContent="Review your selected items and send all requests together.";const button=$("placeOrderBtn");if(button)button.textContent="Submit all cart items"}
+
 const requestedType=orderParams.get("type");
 if(requestedType==="Product"||requestedType==="Service")$("orderType").value=requestedType;
 function showMessage(text,type='error'){notice.textContent=text;notice.className='message '+type}
@@ -164,6 +171,27 @@ $("orderName").addEventListener("change",updateOrderQuantityLimit);
 $("orderQuantity").addEventListener("change",updateOrderQuantityLimit);
 $('orderType').addEventListener('change',loadOrderCatalogue);
 $('orderForm').addEventListener('submit',async e=>{
+ if(cartMode){
+  const cart=readShoppingCart().filter(x=>x&&x.id&&Number(x.quantity)>0);
+  if(!cart.length){msg.textContent="Your cart is empty. Return to the marketplace and add items first.";msg.className="message error";return}
+  btn.disabled=true;btn.textContent="Submitting cart…";
+  try{
+   const profileSnap=await getDoc(doc(db,"platformCustomers",user.uid)),profile=profileSnap.exists()?profileSnap.data():{},details=$("orderDetails").value.trim();
+   const prepared=[];
+   for(const line of cart){
+    const itemSnap=await getDoc(doc(db,"catalogueItems",line.id));
+    if(!itemSnap.exists()||itemSnap.data().active===false)throw new Error("An item in your cart is no longer available. Please return to the marketplace and review your cart.");
+    const item=itemSnap.data(),type=item.type==="product"?"Product":"Service",quantity=Math.max(1,Math.floor(Number(line.quantity)||1));
+    if(type==="Product"&&item.stockTracked===true&&quantity>Number(item.stockQuantity||0))throw new Error((item.name||"A product")+" does not have enough stock for the quantity in your cart.");
+    prepared.push({line,item,type,quantity});
+   }
+   for(const entry of prepared){const {line,item,type,quantity}=entry;await addDoc(collection(db,"serviceOrders"),{customerId:user.uid,catalogueItemId:line.id,catalogueItemName:item.name||"Catalogue item",orderType:type,unitPrice:item.price??item.pricePerPage??null,serviceName:(type==="Product"?"Product order — ":"Service request — ")+(item.name||"Catalogue item"),description:"Order type: "+type+"\nQuantity: "+quantity+"\nDetails: "+(details||"No additional details provided."),status:"pending",createdAt:serverTimestamp(),customerName:profile.fullName||user.displayName||"",customerEmail:user.email||"",customerPhone:profile.phone||"",quantity});}
+   clearShoppingCart();msg.textContent="All "+prepared.length+" cart item(s) were submitted successfully. You can track each item separately under My orders.";msg.className="message ok";showCartSummary([]);await loadCustomerOrders();
+  }catch(err){msg.textContent="Could not submit the complete cart ("+(err.code||err.message||"error")+"). Your cart has been kept so you can review it and try again.";msg.className="message error"}
+  finally{btn.disabled=false;btn.textContent="Submit all cart items"}
+  return;
+ }
+
  e.preventDefault();const btn=$('placeOrderBtn'),msg=$('orderNotice'),user=auth.currentUser;
  msg.className='message';msg.textContent='';
  if(!user){msg.textContent='Please sign in again before placing an order.';msg.className='message error';return}
@@ -197,6 +225,7 @@ $('orderForm').addEventListener('submit',async e=>{
 });
 $('refreshOrdersBtn').addEventListener('click',loadCustomerOrders);
 $('signOutBtn').addEventListener('click',async()=>{try{await signOut(auth)}catch(e){showMessage(friendlyError(e))}});
+if(cartMode){setCartOrderMode();const currentCart=readShoppingCart();if(currentCart.length){(async()=>{try{const snap=await getDocs(collection(db,"catalogueItems"));const byId=new Map(snap.docs.map(d=>[d.id,{id:d.id,...d.data()}]));const lines=currentCart.map(x=>({...x,name:byId.get(x.id)?.name||"Unavailable item",type:byId.get(x.id)?.type==="product"?"Product":"Service"}));showCartSummary(lines)}catch(e){showCartSummary(currentCart.map(x=>({...x,name:"Catalogue item",type:"Item"})))}})()}else showCartSummary([])}
 onAuthStateChanged(auth,user=>{if(user){$('authArea').classList.add('hidden');$('dashboard').classList.remove('hidden');$('dashName').textContent=user.displayName||'Customer';$('dashEmail').textContent=user.email||'—';$('dashUid').textContent=user.uid||'Unavailable';ensureCustomerProfile(user);loadCustomerOrders();loadCustomerInvoices();loadOrderCatalogue()}else{$('authArea').classList.remove('hidden');$('dashboard').classList.add('hidden')}});
 if(location.hash==='#register')setTab('register');
 </script></body></html>
