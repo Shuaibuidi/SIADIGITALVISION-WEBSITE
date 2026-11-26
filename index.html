@@ -142,7 +142,12 @@ footer{background:#04152f;color:#d5e2f1;padding:34px 0 16px}.footer-grid{display
 <section class="section live-catalogue" id="products">
  <div class="container">
   <div class="section-head"><div><div class="kicker">S I A TECH PRINT MEDIA</div><h2>Products &amp; Services</h2></div><p>Browse the products and services currently published by our shop.</p></div>
-  <div class="live-catalogue-meta"><span id="catalogueCount">Loading published items…</span><button type="button" id="clearSearch" class="filter">Clear search</button></div>
+  <div class="live-catalogue-meta"><span id="catalogueCount">Loading published items…</span><button type="button" id="clearSearch" class="filter">Clear all filters</button></div>
+  <div class="catalogue-filters" style="display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 20px">
+   <label style="flex:1;min-width:135px"> <span style="display:block;font-size:12px;margin-bottom:5px">Show</span><select id="catalogueTypeFilter" style="width:100%;padding:11px;border:1px solid #ddd;border-radius:8px;background:#fff"><option value="all">All items</option><option value="product">Products only</option><option value="service">Services only</option></select></label>
+   <label style="flex:1;min-width:150px"><span style="display:block;font-size:12px;margin-bottom:5px">Department</span><select id="catalogueCategoryFilter" style="width:100%;padding:11px;border:1px solid #ddd;border-radius:8px;background:#fff"><option value="all">All departments</option></select></label>
+   <label style="flex:1;min-width:150px"><span style="display:block;font-size:12px;margin-bottom:5px">Sort by</span><select id="catalogueSort" style="width:100%;padding:11px;border:1px solid #ddd;border-radius:8px;background:#fff"><option value="name">Name: A to Z</option><option value="name-desc">Name: Z to A</option><option value="price-asc">Price: Low to high</option><option value="price-desc">Price: High to low</option></select></label>
+  </div>
   <div class="live-catalogue-grid" id="liveCatalogueGrid" aria-live="polite"><div class="catalogue-message">Loading products and services…</div></div>
   <div class="catalogue-message" id="catalogueEmpty" hidden>No products or services have been published yet.</div>
  </div>
@@ -218,9 +223,11 @@ function closeItemDetails(){$("itemDetailBackdrop").hidden=true;document.body.st
 $("itemDetailClose").addEventListener("click",closeItemDetails);
 $("itemDetailBackdrop").addEventListener("click",e=>{if(e.target===$("itemDetailBackdrop"))closeItemDetails()});
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeItemDetails()});
+function catalogueNumericPrice(item){const method=item.pricingMethod||(item.pricePerPage!==null&&item.pricePerPage!==undefined&&item.pricePerPage!==""?"per page":"");const raw=method==="per page"?item.pricePerPage:item.price;return raw===null||raw===undefined||raw===""||method==="quotation"?null:Number(raw)}
 function renderCatalogue(){
- const term=(search.value||"").trim().toLowerCase();
- const shown=catalogueItems.filter(x=>!term||[x.name,x.category,x.description,x.type].join(" ").toLowerCase().includes(term));
+ const term=(search.value||"").trim().toLowerCase(),typeFilter=$("catalogueTypeFilter").value,categoryFilter=$("catalogueCategoryFilter").value,sort=$("catalogueSort").value;
+ const shown=catalogueItems.filter(x=>(!term||[x.name,x.category,x.description,x.type].join(" ").toLowerCase().includes(term))&&(typeFilter==="all"||x.type===typeFilter)&&(categoryFilter==="all"||x.category===categoryFilter));
+ shown.sort((a,b)=>{if(sort==="name-desc")return String(b.name||"").localeCompare(String(a.name||""));if(sort==="price-asc"||sort==="price-desc"){const ap=catalogueNumericPrice(a),bp=catalogueNumericPrice(b);if(ap===null&&bp===null)return String(a.name||"").localeCompare(String(b.name||""));if(ap===null)return 1;if(bp===null)return -1;return sort==="price-asc"?ap-bp:bp-ap}return String(a.name||"").localeCompare(String(b.name||""))});
  grid.replaceChildren();count.textContent=shown.length+" published item"+(shown.length===1?"":"s");
  empty.hidden=shown.length!==0;
  if(!shown.length){const p=document.createElement("div");p.className="catalogue-message";p.textContent=term?"No published items match your search.":"No products or services have been published yet.";grid.append(p);return}
@@ -245,7 +252,8 @@ async function loadCatalogue(){
 function buildCategoryMenu(){
  const side=document.getElementById("dynamicCategoryLinks"),features=document.getElementById("dynamicCategoryFeatures");
  if(!side||!features)return;side.replaceChildren();features.replaceChildren();
- const categories=[...new Set(catalogueItems.map(x=>x.category).filter(Boolean))];
+ const categories=[...new Set(catalogueItems.map(x=>x.category).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+ const categoryFilter=$("catalogueCategoryFilter");categoryFilter.replaceChildren();const allOption=document.createElement("option");allOption.value="all";allOption.textContent="All departments";categoryFilter.append(allOption);categories.forEach(cat=>{const option=document.createElement("option");option.value=cat;option.textContent=cat;categoryFilter.append(option)});
  if(!categories.length){side.textContent="No published categories yet.";features.textContent="Published products and services will appear here.";return}
  categories.forEach((cat,i)=>{
   const matching=catalogueItems.filter(x=>x.category===cat);const link=document.createElement("a");link.href="#products";link.textContent=(matching.some(x=>x.type==="product")?"📦 ":"🛠️ ")+cat;link.addEventListener("click",()=>{search.value=cat;renderCatalogue();setAllCategoriesOpen(false)});side.append(link);
@@ -253,8 +261,9 @@ function buildCategoryMenu(){
  });
 }
 search.addEventListener("input",renderCatalogue);
+$("catalogueTypeFilter").addEventListener("change",renderCatalogue);$("catalogueCategoryFilter").addEventListener("change",renderCatalogue);$("catalogueSort").addEventListener("change",renderCatalogue);
 $("marketSearchForm").addEventListener("submit",e=>{e.preventDefault();renderCatalogue();document.getElementById("products").scrollIntoView({behavior:"smooth"})});
-$("clearSearch").addEventListener("click",()=>{search.value="";renderCatalogue()});
+$("clearSearch").addEventListener("click",()=>{search.value="";$("catalogueTypeFilter").value="all";$("catalogueCategoryFilter").value="all";$("catalogueSort").value="name";renderCatalogue()});
 const allCategoriesTrigger=document.getElementById("allCategoriesTrigger"),allCategoriesPanel=document.getElementById("allCategoriesPanel"),allCategoriesBackdrop=document.getElementById("allCategoriesBackdrop");
 function setAllCategoriesOpen(open){allCategoriesPanel.hidden=!open;allCategoriesBackdrop.hidden=!open;allCategoriesTrigger.setAttribute("aria-expanded",String(open))}
 allCategoriesTrigger.addEventListener("click",()=>setAllCategoriesOpen(allCategoriesPanel.hidden));allCategoriesBackdrop.addEventListener("click",()=>setAllCategoriesOpen(false));document.getElementById("allCategoriesClose").addEventListener("click",()=>setAllCategoriesOpen(false));document.addEventListener("keydown",e=>{if(e.key==="Escape")setAllCategoriesOpen(false)});
