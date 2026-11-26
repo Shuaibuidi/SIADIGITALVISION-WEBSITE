@@ -199,7 +199,7 @@ function renderCatalogue(){
   const price=document.createElement("strong");price.className="live-item-price";price.textContent=itemPrice(item);
   const status=document.createElement("span");status.className="live-item-status";status.textContent=itemStatus(item);
   const action=document.createElement("button");action.type="button";action.className="live-item-action";action.textContent="View details";action.addEventListener("click",()=>openItemDetails(item));
-  card.addEventListener("click",e=>{if(e.target===card||e.target===art||e.target===photo)openItemDetails(item)});
+  card.addEventListener("click",e=>{if(e.target===card||art.contains(e.target))openItemDetails(item)});
   body.append(tag,title,desc,price,status,action);card.append(art,body);grid.append(card);
  });
 }
