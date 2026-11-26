@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#071b3b">
+<title>Business Management | SIA Digital Vision</title>
+<style>
+:root{--navy:#071b3b;--blue:#0877e8;--gold:#ffca28;--ink:#172b49;--muted:#718096;--line:#e3eaf2}
+*{box-sizing:border-box}body{margin:0;background:#f3f6fa;color:var(--ink);font-family:Arial,sans-serif}
+header{background:var(--navy);color:#fff;padding:16px max(16px,calc((100% - 1180px)/2));display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+header b{font-size:15px}header small{display:block;color:#bfd2e8;font-size:10px;margin-top:4px}
+a{color:inherit;text-decoration:none}.wrap{width:min(1180px,calc(100% - 26px));margin:22px auto}
+.panel{background:#fff;border:1px solid var(--line);border-radius:12px;padding:20px;margin:14px 0}
+h1{font-size:24px;color:var(--navy);margin:0 0 8px}.muted{font-size:12px;color:var(--muted);line-height:1.7}
+.btn{border:0;border-radius:8px;background:var(--blue);color:#fff;padding:12px 17px;font-weight:800;font-size:12px;cursor:pointer}.btn:disabled{opacity:.55;cursor:wait}.btn.secondary{background:#eaf1fa;color:var(--navy)}
+.notice{font-size:12px;line-height:1.6;padding:12px;border-radius:8px;background:#eef5ff;color:#174b84;margin:12px 0}.notice.error{background:#fff0ef;color:#a52d28}.hidden{display:none!important}
+#managerFrame{width:100%;height:calc(100vh - 150px);min-height:650px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+@media(max-width:600px){.wrap{width:calc(100% - 16px);margin:12px auto}#managerFrame{height:calc(100vh - 120px);min-height:620px}.panel{padding:15px}}
+</style>
+</head>
+<body>
+<header><div><b>S I A TECH PRINT MEDIA</b><small>ADMINISTRATION · BUSINESS MANAGEMENT</small></div><a href="dashboard.html" style="font-size:12px;font-weight:800">← Admin Dashboard</a></header>
+<main class="wrap">
+<section id="checking" class="panel"><b>Verifying administrator access…</b><p class="muted">Please wait while we check your website administrator account.</p></section>
+<section id="denied" class="panel hidden"><h1>Administrator access required</h1><p id="deniedText" class="muted">Sign in with your approved website administrator account.</p><a class="btn secondary" href="account.html">Open sign-in page</a></section>
+<section id="access" class="panel hidden">
+<h1>Smart Business Manager</h1>
+<p class="muted">Open your existing business records using your SIA Digital Vision administrator sign-in. Your business records remain in their separate Firebase project.</p>
+<div id="notice" class="notice">Your administrator access is verified. Choose Open Business Manager to securely connect.</div>
+<div class="actions"><button id="openManager" class="btn" type="button">Open Business Manager</button><a class="btn secondary" href="dashboard.html">Back to Dashboard</a></div>
+</section>
+<iframe id="managerFrame" class="hidden" title="Smart Business Manager" referrerpolicy="same-origin"></iframe>
+</main>
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+import {getAuth,onAuthStateChanged} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+import {getFirestore,doc,getDoc} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+const firebaseConfig={apiKey:"AIzaSyAFP-RfZWPKPcHU9NqtTzX1b8HvVVzkb3Y",authDomain:"mobile-tech-room.firebaseapp.com",projectId:"mobile-tech-room",storageBucket:"mobile-tech-room.firebasestorage.app",messagingSenderId:"620229324084",appId:"1:620229324084:web:7e2ae7a2550228a4dfc961",measurementId:"G-GPJM1C83TT"};
+const app=initializeApp(firebaseConfig);const auth=getAuth(app);const db=getFirestore(app);const $=id=>document.getElementById(id);
+// Replace this URL after the secure Worker is deployed. Never put service-account secrets here.
+const SSO_ENDPOINT="https://sia-business-sso.YOUR-CLOUDFLARE-SUBDOMAIN.workers.dev/sso/business-token";
+let approvedUser=null;
+function deny(message){$("checking").classList.add("hidden");$("access").classList.add("hidden");$("denied").classList.remove("hidden");$("deniedText").textContent=message}
+onAuthStateChanged(auth,async user=>{
+ if(!user){deny("Please sign in with your approved administrator account first.");return}
+ try{
+  const profile=await getDoc(doc(db,"users",user.uid));const data=profile.exists()?profile.data():{};
+  if(data.role!=="admin"||data.status!=="approved"){deny("This account is not an approved website administrator.");return}
+  approvedUser=user;$("checking").classList.add("hidden");$("access").classList.remove("hidden");
+ }catch(error){deny("We could not verify administrator access. Please reload and try again.")}
+});
+$("openManager").addEventListener("click",async()=>{
+ const button=$("openManager"),notice=$("notice");
+ if(!approvedUser)return;
+ if(SSO_ENDPOINT.includes("YOUR-CLOUDFLARE-SUBDOMAIN")){
+  notice.className="notice error";notice.textContent="The secure sign-in service has not been connected yet. Deploy the SSO Worker and add its URL to this page before opening Business Manager.";return;
+ }
+ button.disabled=true;button.textContent="Connecting securely…";notice.className="notice";notice.textContent="Verifying your approved website sign-in and business administrator access…";
+ try{
+  const idToken=await approvedUser.getIdToken(true);
+  const response=await fetch(SSO_ENDPOINT,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({idToken})});
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok||!data.customToken)throw new Error(data.error||"Secure sign-in was denied.");
+  const frame=$("managerFrame");
+  frame.classList.remove("hidden");
+  frame.onload=()=>frame.contentWindow.postMessage({type:"SIA_BUSINESS_SSO_TOKEN",customToken:data.customToken},location.origin);
+  frame.src="business-manager-app.html";
+  notice.textContent="Secure sign-in accepted. Your business workspace is opening below.";
+  button.textContent="Reconnect Business Manager";
+ }catch(error){notice.className="notice error";notice.textContent=error.message||"Could not connect. Please try again.";button.textContent="Try Again"}
+ finally{button.disabled=false}
+});
+</script>
+</body>
+</html>
