@@ -29,6 +29,7 @@ function b64url(bytes) {
 }
 function encodePart(value) { return b64url(encoder.encode(JSON.stringify(value))); }
 function pemBytes(pem) {
+  pem = pem.replace(/\\n/g, "\n");
   const body = pem.replace(/-----BEGIN PRIVATE KEY-----|-----END PRIVATE KEY-----|\s/g, "");
   const binary = atob(body);
   return Uint8Array.from(binary, c => c.charCodeAt(0));
