@@ -25,15 +25,81 @@ footer{background:#04152f;color:#d5e2f1;padding:34px 0 16px}.footer-grid{display
 .no-results{display:none;background:#fff;padding:20px;border-radius:10px;color:var(--muted);font-size:13px;text-align:center}
 @media(max-width:900px){.search{width:220px}.category-grid{grid-template-columns:repeat(3,1fr)}.service-grid{grid-template-columns:repeat(2,1fr)}.footer-grid{grid-template-columns:1fr 1fr}.nav-in a{padding:14px 9px}.hero-in{gap:20px}.product-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:620px){.container{width:calc(100% - 22px)}.announce-in{justify-content:center;padding:7px 0;text-align:center}.announce-links{display:none}.head-main{min-height:70px;flex-wrap:wrap;padding:10px 0}.brand-mark{width:40px;height:40px}.brand-name{font-size:15px}.brand-tag{font-size:8px}.head-actions{width:100%;gap:7px}.search{flex:1;width:auto}.head-actions .btn{padding:11px 12px;font-size:11px}.navbar{overflow-x:auto}.nav-in{width:max-content;min-height:42px}.nav-in a{font-size:10px;padding:13px 10px}.hero-in{grid-template-columns:1fr;padding:36px 0}.hero h1{font-size:39px}.hero p{font-size:13px}.hero-panel{justify-self:stretch;max-width:none}.trust-in{grid-template-columns:1fr 1fr;gap:15px}.trust-item{justify-content:flex-start}.section{padding:39px 0}.section-head{display:block}.section-head p{margin-top:10px}.section h2{font-size:25px}.category-grid{grid-template-columns:repeat(3,1fr);gap:8px}.category{padding:13px 7px}.category .ico{width:42px;height:42px}.category b{font-size:10px}.service-grid{grid-template-columns:1fr}.service-card{min-height:0}.product-grid{gap:9px}.product-art{height:90px;font-size:38px}.product-info{padding:11px}.steps-grid{grid-template-columns:1fr}.account-in{display:block;padding:20px}.account-in .btn{margin-top:15px}.contact-grid{grid-template-columns:1fr}.footer-grid{grid-template-columns:1fr 1fr;gap:18px}.footer-grid>div:first-child{grid-column:1/-1}.copyright{justify-content:center;text-align:center}}
+
+/* Alibaba-inspired SIA marketplace search header */
+.sia-market-header{position:sticky;top:0;background:#fff;z-index:30;box-shadow:0 2px 10px #18212b10}
+.sia-topline{min-height:65px;display:flex;align-items:center;justify-content:space-between;gap:18px}
+.sia-topline .brand-mark{width:43px;height:43px}
+.sia-top-actions{display:flex;align-items:center;gap:22px}
+.sia-country{font-size:19px;color:#303b46;display:flex;align-items:center;gap:5px}
+.sia-country small{font-size:11px;color:#6b7280}
+.sia-icon-link{font-size:23px;color:#303b46;line-height:1}
+.sia-create{border-radius:24px;padding:13px 24px}
+.sia-secondary{border-top:1px solid #f0f0f0}
+.sia-secondary-in{display:flex;align-items:center;gap:30px;min-height:43px}
+.sia-secondary-in a{font-size:12px;color:#3f4852;font-weight:650;white-space:nowrap}
+.sia-nav-spacer{flex:1}
+.sia-search-area{background:linear-gradient(100deg,#fffaf5,#fff 55%,#fffaf4);padding:18px 0 25px}
+.sia-mode-tabs{display:flex;align-items:center;justify-content:center;gap:38px;margin:0 auto 20px}
+.sia-mode-tabs a{font-size:25px;font-weight:850;color:#20262d;padding:6px 0 9px;border-bottom:3px solid transparent}
+.sia-mode-tabs a:first-child{font-size:21px}
+.sia-mode-tabs a.active{color:#e85f00;border-color:#ff6a00}
+.sia-tab-divider{color:#c6cbd0}
+.sia-big-search{width:min(100%,1050px);min-height:142px;margin:auto;background:#fff;border:2px solid transparent;border-radius:22px;padding:18px 20px 13px;box-shadow:0 3px 14px #ff6a0020;position:relative;background:linear-gradient(#fff,#fff) padding-box,linear-gradient(105deg,#e65b4d,#ffb000) border-box}
+.sia-big-search>input{width:100%;height:43px;border:0!important;outline:0;background:transparent;font-size:17px;color:#29323b;padding:4px 0}
+.sia-big-search>input::placeholder{color:#9299a1}
+.sia-search-tools{display:flex;align-items:center;gap:12px;margin-top:12px}
+.sia-search-tools button{border:0;background:transparent;color:#303943;font-size:13px;font-weight:750;padding:7px 3px;cursor:pointer}
+.sia-search-tools>span{height:20px;width:1px;background:#d8dce0}
+.sia-search-tools .sia-search-submit{margin-left:auto;background:linear-gradient(100deg,#ff9d00,#f04419);color:#fff;border-radius:28px;padding:15px 32px;font-size:15px;min-width:150px}
+.sia-main-nav{border-top:1px solid #f0f0f0}
+.sia-main-nav .nav-in{min-height:43px}
+.sia-main-nav .nav-in a{padding-top:13px;padding-bottom:13px}
+@media(max-width:700px){
+ .sia-topline{min-height:58px;gap:8px}.sia-topline .brand-mark{width:37px;height:37px}.sia-topline .brand-name{font-size:13px}.sia-topline .brand-tag{font-size:7px;letter-spacing:.7px}
+ .sia-top-actions{gap:10px}.sia-country{display:none}.sia-icon-link{font-size:19px}.sia-create{font-size:10px;padding:10px 12px}
+ .sia-secondary{overflow-x:auto}.sia-secondary-in{width:max-content;min-height:39px;gap:20px}.sia-secondary-in a{font-size:10px}
+ .sia-search-area{padding:13px 0 16px}.sia-mode-tabs{gap:17px;margin-bottom:13px}.sia-mode-tabs a{font-size:17px}.sia-mode-tabs a:first-child{font-size:15px}
+ .sia-big-search{min-height:120px;border-radius:15px;padding:13px 13px 10px}.sia-big-search>input{font-size:14px;height:35px}
+ .sia-search-tools{gap:8px;margin-top:10px;flex-wrap:wrap}.sia-search-tools button{font-size:10px}.sia-search-tools .sia-search-submit{min-width:92px;padding:11px 14px;font-size:12px}
+ .sia-main-nav{overflow-x:auto}.sia-main-nav .nav-in{width:max-content;min-height:38px}.sia-main-nav .nav-in a{font-size:9px;padding:11px 8px}
+}
 </style><link rel="stylesheet" href="marketplace.css?v=1">
 </head>
 <body>
-<header class="header">
- <div class="container head-main">
+<header class="header sia-market-header" id="home">
+ <div class="container sia-topline">
   <a class="brand" href="#home"><span class="brand-mark">SIA</span><span><span class="brand-name">S I A TECH PRINT MEDIA</span><span class="brand-tag">HOME OF PRINTING &amp; COMPUTING</span></span></a>
-  <div class="head-actions"><label class="search"><span>⌕</span><input id="siteSearch" type="search" placeholder="Search services and products..." aria-label="Search services and products"></label><a class="btn btn-outline" href="account.html">Sign in</a><a class="btn btn-blue" href="account.html#register">Create account</a></div>
+  <div class="sia-top-actions">
+   <span class="sia-country" title="Serving Malawi">◎ <small>Malawi</small></span>
+   <a class="sia-icon-link" href="account.html#orders" aria-label="My orders" title="My orders">🛒</a>
+   <a class="sia-icon-link" href="account.html" aria-label="Customer account" title="Customer account">♙</a>
+   <a class="btn btn-blue sia-create" href="account.html#register">Create account</a>
+  </div>
  </div>
- <div class="navbar"><nav class="container nav-in"><a class="selected" href="#home">Home</a><a href="#departments">Departments</a><a href="#services">Services</a><a href="#products">Products</a><a href="#how">How it works</a><a href="#contact">Contact</a><span class="nav-spacer"></span><a class="account-link" href="account.html">♙ Customer Portal →</a></nav></div>
+ <div class="sia-secondary">
+  <nav class="container sia-secondary-in">
+   <a href="#departments">☰ &nbsp;All categories</a><a href="#services">Verified services</a><a href="#products">Accessories &amp; sales</a>
+   <span class="sia-nav-spacer"></span><a href="#about">About SIA</a><a href="#contact">Help Center</a><a href="account.html">Customer portal</a><a href="https://wa.me/265999290495">Contact SIA</a>
+  </nav>
+ </div>
+ <div class="sia-search-area">
+  <div class="container">
+   <nav class="sia-mode-tabs" aria-label="Marketplace sections">
+    <a href="https://wa.me/265999290495?text=I%20need%20help%20choosing%20a%20product%20or%20service">SIA Assist</a><span class="sia-tab-divider">|</span><a class="active" href="#products">Products</a><a href="#services">Services</a><a href="#departments">Departments</a>
+   </nav>
+   <form class="sia-big-search" id="marketSearchForm" role="search">
+    <input id="siteSearch" type="search" placeholder="Search products, services and accessories" aria-label="Search products and services">
+    <div class="sia-search-tools">
+     <button type="button" id="imageEnquiryBtn">▧ &nbsp;Image Search</button><span></span><button type="button" id="fileEnquiryBtn">▤ &nbsp;Search with File</button>
+     <button class="sia-search-submit" type="submit">⌕ &nbsp;Search</button>
+    </div>
+   </form>
+   <input id="imageEnquiryFile" type="file" accept="image/*" hidden>
+   <input id="fileEnquiryFile" type="file" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.jpg,.jpeg,.png" hidden>
+  </div>
+ </div>
+ <div class="sia-main-nav"><nav class="container nav-in"><a class="selected" href="#home">Home</a><a href="#departments">Departments</a><a href="#services">Services</a><a href="#products">Products</a><a href="#how">How it works</a><a href="#contact">Contact</a><span class="nav-spacer"></span><a class="account-link" href="account.html">♙ Customer Portal →</a></nav></div>
 </header>
 <main>
 <section class="hero" id="home"><div class="container hero-in">
@@ -76,10 +142,24 @@ footer{background:#04152f;color:#d5e2f1;padding:34px 0 16px}.footer-grid{display
 </main>
 <footer><div class="container"><div class="footer-grid"><div><div class="footer-brand">S I A TECH <span>PRINT MEDIA</span></div><p>HOME OF PRINTING &amp; COMPUTING<br>Professional printing, computing, mobile technology and digital support in Matindi, Blantyre.</p></div><div><h3>Explore</h3><a href="#services">Our services</a><br><a href="#products">Products</a><br><a href="account.html">Customer portal</a></div><div><h3>Customer support</h3><a href="https://wa.me/265999290495">WhatsApp support</a><br><a href="tel:+265888290495">Call 0888 290 495</a><br><a href="#contact">Visit our shop</a></div><div><h3>Other platform</h3><a href="https://shuaibuidi.github.io/MOBILE-TECH-ROOM/">Mobile Tech Room</a><br><a href="https://www.facebook.com/">Facebook</a></div></div><div class="copyright"><span>© 2026 S I A TECH PRINT MEDIA. All rights reserved.</span><span>siadigitalvision.com</span><span>Powered by S I A Tech Print Media</span></div></div></footer>
 <script>
-const search=document.getElementById('siteSearch');const cards=[...document.querySelectorAll('.service-card')];const noResults=document.getElementById('noResults');let active='All';
-function applyFilters(){const q=(search.value||'').trim().toLowerCase();let shown=0;cards.forEach(c=>{const okCat=active==='All'||c.dataset.category===active;const okText=!q||(c.dataset.search+' '+c.innerText).toLowerCase().includes(q);c.style.display=okCat&&okText?'flex':'none';if(okCat&&okText)shown++});noResults.style.display=shown?'none':'block'}
+const search=document.getElementById('siteSearch');
+const serviceCards=[...document.querySelectorAll('.service-card')];
+const productCards=[...document.querySelectorAll('.product')];
+const noResults=document.getElementById('noResults');
+let active='All';
+function applyFilters(){
+ const q=(search.value||'').trim().toLowerCase();let serviceShown=0,productShown=0;
+ serviceCards.forEach(c=>{const okCat=active==='All'||c.dataset.category===active;const okText=!q||((c.dataset.search||'')+' '+c.innerText).toLowerCase().includes(q);c.style.display=okCat&&okText?'flex':'none';if(okCat&&okText)serviceShown++});
+ productCards.forEach(c=>{const okText=!q||((c.dataset.search||'')+' '+c.innerText).toLowerCase().includes(q);c.style.display=okText?'block':'none';if(okText)productShown++});
+ if(noResults)noResults.style.display=(serviceShown+productShown)?'none':'block';
+ if(q){document.getElementById('services').scrollIntoView({behavior:'smooth',block:'start'});}
+}
 document.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click',()=>{active=b.dataset.filter;document.querySelectorAll('[data-filter]').forEach(x=>x.classList.toggle('active',x===b));applyFilters()}));
 document.querySelectorAll('[data-filter-link]').forEach(a=>a.addEventListener('click',()=>{active=a.dataset.filterLink;document.querySelectorAll('[data-filter]').forEach(x=>x.classList.toggle('active',x.dataset.filter===active));applyFilters()}));
+document.getElementById('marketSearchForm').addEventListener('submit',e=>{e.preventDefault();active='All';document.querySelectorAll('[data-filter]').forEach(x=>x.classList.toggle('active',x.dataset.filter==='All'));applyFilters()});
 search.addEventListener('input',()=>{active='All';document.querySelectorAll('[data-filter]').forEach(x=>x.classList.toggle('active',x.dataset.filter==='All'));applyFilters()});
+function openEnquiry(fileInput,message){fileInput.click();fileInput.onchange=()=>{const f=fileInput.files&&fileInput.files[0];if(!f)return;const url='https://wa.me/265999290495?text='+encodeURIComponent(message+' I selected this file: '+f.name+'. I will attach it in WhatsApp.');window.open(url,'_blank');fileInput.value='';};}
+document.getElementById('imageEnquiryBtn').addEventListener('click',()=>openEnquiry(document.getElementById('imageEnquiryFile'),'I want help identifying or enquiring about a product using an image.'));
+document.getElementById('fileEnquiryBtn').addEventListener('click',()=>openEnquiry(document.getElementById('fileEnquiryFile'),'I want to send a document or file for a printing or service enquiry.'));
 </script>
 </body></html>
