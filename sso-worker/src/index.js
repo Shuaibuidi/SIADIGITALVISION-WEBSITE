@@ -49,7 +49,6 @@ async function googleAccessToken(env) {
   const key = await importPrivateKey(env.SERVICE_ACCOUNT_PRIVATE_KEY);
   const assertion = await signJwt({
     iss: env.SERVICE_ACCOUNT_EMAIL,
-    sub: env.SERVICE_ACCOUNT_EMAIL,
     aud: "https://oauth2.googleapis.com/token",
     scope: "https://www.googleapis.com/auth/cloud-platform",
     iat: now,
