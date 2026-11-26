@@ -130,7 +130,7 @@ const app=initializeApp(firebaseConfig);const db=getFirestore(app);
 const $=id=>document.getElementById(id);let catalogueItems=[];
 const search=$("siteSearch"),grid=$("liveCatalogueGrid"),count=$("catalogueCount"),empty=$("catalogueEmpty");
 function esc(value){return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
-function itemPrice(item){return item.price===null||item.price===undefined||item.price===""?"Price on request":"MK "+Number(item.price).toLocaleString("en-US")}
+function itemPrice(item){const method=item.pricingMethod||(item.pricePerPage!==null&&item.pricePerPage!==undefined&&item.pricePerPage!==""?"per page":"");const value=method==="per page"&&item.pricePerPage!==null&&item.pricePerPage!==undefined&&item.pricePerPage!==""?item.pricePerPage:item.price;if(value===null||value===undefined||value===""||method==="quotation")return "Price on request";const amount="MK "+Number(value).toLocaleString("en-US");return method?amount+" "+method:amount}
 function itemStatus(item){if(item.type==="product"&&item.stockTracked){const n=Number(item.stockQuantity||0);const limit=Number(item.lowStockThreshold??3);return n<=0?"Out of stock":n<=limit?"Low stock":"In stock"}return item.availability||"Available"}
 function renderCatalogue(){
  const term=(search.value||"").trim().toLowerCase();
@@ -145,7 +145,7 @@ function renderCatalogue(){
   const tag=document.createElement("small");tag.className="live-item-category";tag.textContent=item.category||"S I A TECH PRINT MEDIA";
   const title=document.createElement("h3");title.textContent=item.name||"Catalogue item";
   const desc=document.createElement("p");desc.textContent=item.description||"";
-  const price=document.createElement("strong");price.className="live-item-price";price.textContent=item.pricePerPage!==null&&item.pricePerPage!==undefined&&item.pricePerPage!==""?"MK "+Number(item.pricePerPage).toLocaleString("en-US")+" per page":itemPrice(item);
+  const price=document.createElement("strong");price.className="live-item-price";price.textContent=itemPrice(item);
   const status=document.createElement("span");status.className="live-item-status";status.textContent=itemStatus(item);
   const action=document.createElement("a");action.className="live-item-action";action.href="account.html";action.textContent="Order / Enquire";
   body.append(tag,title,desc,price,status,action);card.append(art,body);grid.append(card);
