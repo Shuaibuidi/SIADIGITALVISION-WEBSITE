@@ -25,6 +25,8 @@ label{display:block;font-size:11px;font-weight:800;margin:12px 0 6px}
 .actions{display:grid;grid-template-columns:minmax(0,220px) auto;gap:8px;align-items:end;margin-top:10px}
 .hidden{display:none!important}.empty{font-size:12px;color:var(--muted);padding:15px 0}
 @media(max-width:650px){.grid{grid-template-columns:1fr 1fr}.actions{grid-template-columns:1fr}.wrap{margin:18px auto}}
+
+.order-note{margin-top:13px;padding:12px;border:1px solid #dce7f2;border-radius:9px;background:#f8fbff}.order-note textarea{min-height:72px;resize:vertical}.order-note .btn{margin-top:8px}.note-label{font-size:11px;font-weight:800;color:var(--navy);display:block;margin-bottom:6px}
 </style>
 <link rel="stylesheet" href="marketplace.css?v=marketplace261126"><link rel="stylesheet" href="marketplace.css?v=1">
 </head>
@@ -96,7 +98,13 @@ async function loadOrders(){
   }else tx.update(orderRef,{status:nextStatus,statusUpdatedAt:serverTimestamp(),statusHistory:arrayUnion({status:nextStatus,updatedAt:new Date().toISOString()}),updatedAt:serverTimestamp()});
  }else tx.update(orderRef,{status:nextStatus,statusUpdatedAt:serverTimestamp(),statusHistory:arrayUnion({status:nextStatus,updatedAt:new Date().toISOString()}),updatedAt:serverTimestamp()});
 });pill.textContent=select.value;notice(select.value==="approved"&&o.orderType==="Product"&&o.catalogueItemId&&!o.stockDeducted?"Order approved and product stock deducted (once).":"Order "+o.id+" updated to "+select.value+".");await loadOrders()}catch(e){notice("Could not update order ("+(e.message||e.code||"error")+").","error")}finally{save.disabled=false;save.textContent="Save status"}});
-   controls.append(select,save);card.append(top,details,controls);if(o.customerPhone){const contact=document.createElement("a");contact.className="order-contact";contact.target="_blank";contact.rel="noopener";contact.href="https://wa.me/"+String(o.customerPhone).replace(/\\D/g,"")+"?text="+encodeURIComponent("Hello "+(o.customerName||"")+" — regarding your SIA Digital Vision order "+o.id+".");contact.textContent="Message customer on WhatsApp";card.append(contact)}host.append(card);
+   const noteBox=document.createElement("section");noteBox.className="order-note";
+   const noteLabel=document.createElement("label");noteLabel.className="note-label";noteLabel.textContent="Message for customer (visible in their account)";
+   const noteInput=document.createElement("textarea");noteInput.maxLength=1200;noteInput.placeholder="Write an update, collection instruction or question for the customer…";noteInput.value=o.adminNote||"";
+   const noteSave=document.createElement("button");noteSave.className="btn secondary";noteSave.type="button";noteSave.textContent="Save customer message";
+   noteSave.addEventListener("click",async()=>{noteSave.disabled=true;noteSave.textContent="Saving…";try{await updateDoc(doc(db,"serviceOrders",o.id),{adminNote:noteInput.value.trim(),adminNoteUpdatedAt:serverTimestamp(),updatedAt:serverTimestamp()});notice("Customer message saved for order "+o.id+".");noteSave.textContent="Saved";}catch(e){notice("Could not save customer message ("+(e.message||e.code||"error")+").","error");noteSave.textContent="Save customer message"}finally{noteSave.disabled=false}});
+   noteBox.append(noteLabel,noteInput,noteSave);
+   controls.append(select,save);card.append(top,details,controls,noteBox);if(o.customerPhone){const contact=document.createElement("a");contact.className="order-contact";contact.target="_blank";contact.rel="noopener";contact.href="https://wa.me/"+String(o.customerPhone).replace(/\\D/g,"")+"?text="+encodeURIComponent("Hello "+(o.customerName||"")+" — regarding your SIA Digital Vision order "+o.id+".");contact.textContent="Message customer on WhatsApp";card.append(contact)}host.append(card);
   }
   sortOrderCards();
  }catch(e){host.innerHTML='<div class="empty">Could not load orders ('+esc(e.code||e.message||"error")+'). Check that this account has administrator access and the Firestore rules allow admins to list orders.</div>'}
