@@ -14,11 +14,11 @@ The non-secret project IDs and business ID are in `wrangler.toml.example`.
 
 ## Google Cloud permissions
 
-The service account must be allowed to:
-- Read Firestore documents in both projects (including `users/{websiteUid}` and `businesses/{businessId}/members/{businessUid}`).
-- Look up Firebase Authentication users in `smart-business-manager-f319f` (`firebaseauth.users.get`).
+Create the service account in the `smart-business-manager-f319f` Google Cloud project. Grant it read-only access:
+- `roles/datastore.viewer` on **both** `smart-business-manager-f319f` and `mobile-tech-room`, so it can read the one business membership document and the one approved website profile document.
+- `roles/firebaseauth.viewer` on `smart-business-manager-f319f`, so it can find the existing business-project Auth user by verified email.
 
-Grant the minimum required IAM roles only. Do not grant Owner or Editor. The exact IAM role bindings should be reviewed in Google Cloud IAM before deployment. The service account is used only by this Worker; never expose its private key to a browser.
+Do not grant Owner, Editor, Firebase Authentication Admin, or any write role. The service account is used only by this Worker; never expose its private key to a browser. If Google Cloud reports a missing permission, stop and review the exact denied permission rather than granting broad access.
 
 ## Deploy
 
