@@ -138,7 +138,7 @@ async function issueBusinessToken(email, env, accessToken, signingKey) {
     iat: now,
     exp: now + 3600,
     uid: businessUser.localId,
-    claims: { businessId, role: "admin" }
+    businessId,\n    role: "admin"
   }, signingKey);
 }
 
