@@ -107,7 +107,7 @@ footer{background:#04152f;color:#d5e2f1;padding:34px 0 16px}.footer-grid{display
   <a class="brand" href="#home"><span class="brand-mark">SIA</span><span><span class="brand-name">S I A TECH PRINT MEDIA</span><span class="brand-tag">HOME OF PRINTING &amp; COMPUTING</span></span></a>
   <div class="sia-top-actions">
    <span class="sia-country" title="Serving Malawi">◎ <small>Malawi</small></span>
-   <a class="sia-icon-link" href="account.html#orders" aria-label="My orders" title="My orders">🛒</a>
+   <a class="sia-icon-link" id="marketCartLink" href="account.html?cart=1#place-order" aria-label="Shopping cart" title="Shopping cart">🛒 <span id="marketCartCount" style="font-size:11px;font-weight:900;color:#e85f00">0</span></a>
    <a class="sia-icon-link" href="account.html" aria-label="Customer account" title="Customer account">♙</a>
    <a class="btn btn-blue sia-create" href="account.html#register">Create account</a>
   </div>
@@ -164,7 +164,7 @@ footer{background:#04152f;color:#d5e2f1;padding:34px 0 16px}.footer-grid{display
     <p id="itemDetailDescription"></p>
     <strong class="item-detail-price" id="itemDetailPrice"></strong>
     <span class="item-detail-status" id="itemDetailStatus"></span>
-    <div class="item-detail-quantity" id="itemDetailQuantityWrap"><label for="itemDetailQuantity">Quantity</label><input id="itemDetailQuantity" type="number" min="1" step="1" value="1"></div><div class="item-detail-actions"><a class="item-detail-order" id="itemDetailOrder" href="account.html">Order Now</a><a class="item-detail-whatsapp" id="itemDetailWhatsApp" href="https://wa.me/265999290495" target="_blank" rel="noopener">Enquire on WhatsApp</a></div>
+    <div class="item-detail-quantity" id="itemDetailQuantityWrap"><label for="itemDetailQuantity">Quantity</label><input id="itemDetailQuantity" type="number" min="1" step="1" value="1"></div><div class="item-detail-actions"><button type="button" class="item-detail-order" id="itemDetailAddCart" style="border:0;cursor:pointer">Add to cart</button><a class="item-detail-order" id="itemDetailOrder" href="account.html">Order Now</a><a class="item-detail-whatsapp" id="itemDetailWhatsApp" href="https://wa.me/265999290495" target="_blank" rel="noopener">Enquire on WhatsApp</a></div>
    </div>
   </div>
  </section>
@@ -178,6 +178,12 @@ import {getFirestore,collection,getDocs} from "https://www.gstatic.com/firebasej
 const firebaseConfig={apiKey:"AIzaSyAFP-RfZWPKPcHU9NqtTzX1b8HvVVzkb3Y",authDomain:"mobile-tech-room.firebaseapp.com",projectId:"mobile-tech-room",storageBucket:"mobile-tech-room.firebasestorage.app",messagingSenderId:"620229324084",appId:"1:620229324084:web:7e2ae7a2550228a4dfc961",measurementId:"G-GPJM1C83TT"};
 const app=initializeApp(firebaseConfig);const db=getFirestore(app);
 const $=id=>document.getElementById(id);let catalogueItems=[];
+const CART_KEY="sia_market_cart_v1";
+function readCart(){try{const value=JSON.parse(localStorage.getItem(CART_KEY)||"[]");return Array.isArray(value)?value:[]}catch(e){return []}}
+function writeCart(items){try{localStorage.setItem(CART_KEY,JSON.stringify(items));updateCartCount();return true}catch(e){alert("Your browser could not save the cart. Please enable site storage and try again.");return false}}
+function updateCartCount(){const count=readCart().reduce((sum,line)=>sum+Math.max(1,Number(line.quantity)||1),0),badge=$("marketCartCount");if(badge)badge.textContent=String(count)}
+function addActiveItemToCart(){if(!activeDetailItem)return;const item=activeDetailItem,qty=item.type==="product"?Math.max(1,Math.floor(Number($("itemDetailQuantity").value)||1)):1;if(item.type==="product"&&item.stockTracked===true&&qty>Number(item.stockQuantity||0)){alert("The requested quantity is greater than available stock.");return}const cart=readCart(),existing=cart.find(x=>x.id===item.id);if(existing)existing.quantity=Math.max(1,Number(existing.quantity)||1)+qty;else cart.push({id:item.id,type:item.type,quantity:qty});if(writeCart(cart)){const btn=$("itemDetailAddCart");btn.textContent="Added ✓";setTimeout(()=>{if(btn)btn.textContent="Add to cart"},1300)}}
+
 const search=$("siteSearch"),grid=$("liveCatalogueGrid"),count=$("catalogueCount"),empty=$("catalogueEmpty");
 function esc(value){return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function itemPrice(item){const method=item.pricingMethod||(item.pricePerPage!==null&&item.pricePerPage!==undefined&&item.pricePerPage!==""?"per page":"");const value=method==="per page"&&item.pricePerPage!==null&&item.pricePerPage!==undefined&&item.pricePerPage!==""?item.pricePerPage:item.price;if(value===null||value===undefined||value===""||method==="quotation")return "Price on request";const amount="MK "+Number(value).toLocaleString("en-US");return method?amount+" "+method:amount}
@@ -219,6 +225,7 @@ function openItemDetails(item){
  $("itemDetailBackdrop").hidden=false;document.body.style.overflow="hidden";
 }
 $("itemDetailQuantity").addEventListener("input",updateDetailActions);
+$("itemDetailAddCart").addEventListener("click",addActiveItemToCart);
 function closeItemDetails(){$("itemDetailBackdrop").hidden=true;document.body.style.overflow=""}
 $("itemDetailClose").addEventListener("click",closeItemDetails);
 $("itemDetailBackdrop").addEventListener("click",e=>{if(e.target===$("itemDetailBackdrop"))closeItemDetails()});
@@ -267,6 +274,6 @@ $("clearSearch").addEventListener("click",()=>{search.value="";$("catalogueTypeF
 const allCategoriesTrigger=document.getElementById("allCategoriesTrigger"),allCategoriesPanel=document.getElementById("allCategoriesPanel"),allCategoriesBackdrop=document.getElementById("allCategoriesBackdrop");
 function setAllCategoriesOpen(open){allCategoriesPanel.hidden=!open;allCategoriesBackdrop.hidden=!open;allCategoriesTrigger.setAttribute("aria-expanded",String(open))}
 allCategoriesTrigger.addEventListener("click",()=>setAllCategoriesOpen(allCategoriesPanel.hidden));allCategoriesBackdrop.addEventListener("click",()=>setAllCategoriesOpen(false));document.getElementById("allCategoriesClose").addEventListener("click",()=>setAllCategoriesOpen(false));document.addEventListener("keydown",e=>{if(e.key==="Escape")setAllCategoriesOpen(false)});
-loadCatalogue();
+updateCartCount();loadCatalogue();
 </script>
 </body></html>
