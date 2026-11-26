@@ -78,15 +78,23 @@ async function loadCustomerOrders(){
   let statusSeen=0,noteSeen=0;try{statusSeen=Number(localStorage.getItem(statusKey)||0);noteSeen=Number(localStorage.getItem(noteKey)||0)}catch(e){}
   const events=[];
   orders.forEach(o=>{
-   const statusTime=o.statusUpdatedAt?.toMillis?.()||0;
-   if(statusTime)events.push({kind:'status',order:o,time:statusTime,unread:statusTime>statusSeen});
+   const history=Array.isArray(o.statusHistory)?o.statusHistory:[];
+   if(history.length){
+    history.forEach(entry=>{
+     const statusTime=entry.updatedAt&&typeof entry.updatedAt.toMillis==="function"?entry.updatedAt.toMillis():Date.parse(entry.updatedAt||"");
+     if(statusTime&&Number.isFinite(statusTime))events.push({kind:'status',order:o,status:entry.status||o.status,time:statusTime,unread:statusTime>statusSeen});
+    });
+   }else{
+    const statusTime=o.statusUpdatedAt?.toMillis?.()||0;
+    if(statusTime)events.push({kind:'status',order:o,status:o.status,time:statusTime,unread:statusTime>statusSeen});
+   }
    const noteTime=o.adminNoteUpdatedAt?.toMillis?.()||0;
    if(noteTime&&String(o.adminNote||'').trim())events.push({kind:'message',order:o,time:noteTime,unread:noteTime>noteSeen});
   });
   events.sort((a,b)=>b.time-a.time);
   const unread=events.filter(e=>e.unread),badge=$('orderUnreadBadge'),markBtn=$('markUpdatesReadBtn');
   if(unread.length){badge.hidden=false;badge.textContent=unread.length+' new';markBtn.hidden=false}else{badge.hidden=true;markBtn.hidden=true}
-  const recentEvents=events.slice(0,12);
+  const recentEvents=events;
   if(!recentEvents.length){updatesHost.innerHTML='<div class="empty-orders">No notifications yet. Order updates and messages from our team will appear here.</div>'}
   else recentEvents.forEach(event=>{
    const o=event.order,item=document.createElement('article');
@@ -98,7 +106,7 @@ async function loadCustomerOrders(){
    heading.append(name,kind);
    const body=document.createElement('p');
    if(event.kind==='message'){body.textContent=o.adminNote||''}
-   else body.textContent='Our team updated this order to: '+orderStatusLabel(o.status)+'.';
+   else body.textContent='Our team updated this order to: '+orderStatusLabel(event.status)+'.';
    const when=document.createElement('p');when.textContent=(event.kind==='message'?'Message received: ':'Status updated: ')+new Date(event.time).toLocaleString();
    item.append(heading,body,when);updatesHost.append(item);
   });
