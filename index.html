@@ -188,7 +188,7 @@ footer{background:#04152f;color:#d5e2f1;padding:34px 0 16px}.footer-grid{display
   <a class="brand sia-brand-logo" href="#home" aria-label="S I A Tech Print Media home"><img class="sia-brand-image" src="sia-logo.svg" alt="SIA Tech Print Media logo" width="64" height="64"><span class="sia-brand-wordmark"><span class="brand-name">S I A Tech Print Media</span></span></a>
   <form class="sia-inline-search" id="marketSearchForm" role="search"><label class="sia-search-scope">Products⌄</label><input id="siteSearch" type="search" placeholder="What are you looking for?" aria-label="Search products and services"><button type="submit">⌕ Search</button></form>
   <div class="sia-top-actions sia-auth-actions">
-   <a class="sia-auth-button sia-signin-button" href="account.html">Sign In</a>
+   <a id="marketSignInButton" class="sia-auth-button sia-signin-button" href="account.html">Sign In</a>
    <a class="sia-auth-button sia-help-button" href="help-center.html">Help Center</a>
   </div>
  </div>
@@ -272,7 +272,9 @@ footer{background:#04152f;color:#d5e2f1;padding:34px 0 16px}.footer-grid{display
 import {initializeApp} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
 import {getFirestore,collection,getDocs,query,where} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 const firebaseConfig={apiKey:"AIzaSyAFP-RfZWPKPcHU9NqtTzX1b8HvVVzkb3Y",authDomain:"mobile-tech-room.firebaseapp.com",projectId:"mobile-tech-room",storageBucket:"mobile-tech-room.firebasestorage.app",messagingSenderId:"620229324084",appId:"1:620229324084:web:7e2ae7a2550228a4dfc961",measurementId:"G-GPJM1C83TT"};
+import {getAuth,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
 const app=initializeApp(firebaseConfig);const db=getFirestore(app);
+const auth=getAuth(app);
 const $=id=>document.getElementById(id);let catalogueItems=[];
 const CART_KEY="sia_market_cart_v1";
 function readCart(){try{const value=JSON.parse(localStorage.getItem(CART_KEY)||"[]");return Array.isArray(value)?value:[]}catch(e){return []}}
@@ -385,6 +387,10 @@ const allCategoriesTrigger=document.getElementById("allCategoriesTrigger"),allCa
 function setAllCategoriesOpen(open){allCategoriesPanel.hidden=!open;allCategoriesBackdrop.hidden=!open;allCategoriesTrigger.setAttribute("aria-expanded",String(open))}
 allCategoriesTrigger.addEventListener("click",()=>setAllCategoriesOpen(allCategoriesPanel.hidden));document.getElementById("stageAllCategories").addEventListener("click",()=>{setAllCategoriesOpen(true);allCategoriesPanel.scrollIntoView({block:"nearest"})});allCategoriesBackdrop.addEventListener("click",()=>setAllCategoriesOpen(false));document.getElementById("allCategoriesClose").addEventListener("click",()=>setAllCategoriesOpen(false));document.addEventListener("keydown",e=>{if(e.key==="Escape")setAllCategoriesOpen(false)});
 document.querySelectorAll("[data-department]").forEach(card=>card.addEventListener("click",()=>{const category=card.getAttribute("data-department"),filter=$("catalogueCategoryFilter");search.value="";$("catalogueTypeFilter").value="all";if([...filter.options].some(option=>option.value===category)){filter.value=category}else{filter.value="all";search.value=category}renderCatalogue();document.getElementById("products").scrollIntoView({behavior:"smooth"})}));
+
+const marketSignInButton=document.getElementById('marketSignInButton');
+onAuthStateChanged(auth,user=>{if(!marketSignInButton)return;marketSignInButton.textContent=user?'Sign Out':'Sign In';marketSignInButton.href=user?'#sign-out':'account.html';marketSignInButton.setAttribute('aria-label',user?'Sign out of your customer account':'Sign in to your customer account');});
+marketSignInButton?.addEventListener('click',async event=>{if(marketSignInButton.textContent!=='Sign Out')return;event.preventDefault();marketSignInButton.style.pointerEvents='none';try{await signOut(auth)}catch(error){alert('Could not sign out. Please try again.')}finally{marketSignInButton.style.pointerEvents='';}});
 updateCartCount();loadCatalogue();
 </script>
 </body></html>
