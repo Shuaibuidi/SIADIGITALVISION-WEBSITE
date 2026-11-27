@@ -46,7 +46,7 @@
       {"@type":"OfferCatalog","name":"Unlocking & Security Solutions"},
       {"@type":"OfferCatalog","name":"Digital & Account Solutions"},
       {"@type":"OfferCatalog","name":"GSM Tools & Technical Services"},
-      {"@type":"OfferCatalog","name":"Accessories & Sales"}
+      {"@type":"OfferCatalog","name":"Accessories Sales"}
     ]
   },
   "contactPoint": {
@@ -211,7 +211,7 @@ footer{background:#0B1F33;color:#d5e2f1;padding:34px 0 16px}.footer-grid{display
    <a href="/phone-unlocking.html"><span aria-hidden="true">🔓</span><strong>Phone Unlocking</strong><b aria-hidden="true">›</b></a>
    <a href="/digital-account-services.html"><span aria-hidden="true">💻</span><strong>Digital Solutions</strong><b aria-hidden="true">›</b></a>
    <a href="/gsm-technical-services.html"><span aria-hidden="true">🧰</span><strong>GSM Technical</strong><b aria-hidden="true">›</b></a>
-   <a href="/phone-accessories.html"><span aria-hidden="true">🎧</span><strong>Accessories &amp; Sales</strong><b aria-hidden="true">›</b></a>
+   <a href="/phone-accessories.html"><span aria-hidden="true">🎧</span><strong>Accessories Sales</strong><b aria-hidden="true">›</b></a>
    <button type="button" id="stageAllCategories"><span aria-hidden="true">▦</span><strong>Browse all categories</strong><b aria-hidden="true">›</b></button>
   </aside>
   <div class="sia-market-feature">
@@ -237,7 +237,6 @@ footer{background:#0B1F33;color:#d5e2f1;padding:34px 0 16px}.footer-grid{display
 </section><section class="section live-catalogue" id="products">
  <div class="container">
   <div class="section-head"><div><div class="kicker">S I A TECH PRINT MEDIA</div><h2>Products &amp; Services</h2></div><p>Browse the products and services currently published by our shop.</p></div>
-  <div class="live-catalogue-meta"><span id="catalogueCount">Loading published items…</span><button type="button" id="clearSearch" class="filter">Clear all filters</button></div>
   <div class="catalogue-filters" style="display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 20px">
    <label style="flex:1;min-width:135px"> <span style="display:block;font-size:12px;margin-bottom:5px">Show</span><select id="catalogueTypeFilter" style="width:100%;padding:11px;border:1px solid #ddd;border-radius:8px;background:#fff"><option value="all">All items</option><option value="product">Products only</option><option value="service">Services only</option></select></label>
    <label style="flex:1;min-width:150px"><span style="display:block;font-size:12px;margin-bottom:5px">Department</span><select id="catalogueCategoryFilter" style="width:100%;padding:11px;border:1px solid #ddd;border-radius:8px;background:#fff"><option value="all">All departments</option></select></label>
@@ -283,7 +282,7 @@ function writeCart(items){try{localStorage.setItem(CART_KEY,JSON.stringify(items
 function updateCartCount(){const count=readCart().reduce((sum,line)=>sum+Math.max(1,Number(line.quantity)||1),0),badge=$("marketCartCount");if(badge)badge.textContent=String(count)}
 function addActiveItemToCart(){if(!activeDetailItem)return;const item=activeDetailItem,qty=item.type==="product"?Math.max(1,Math.floor(Number($("itemDetailQuantity").value)||1)):1;if(item.type==="product"&&item.stockTracked===true&&qty>Number(item.stockQuantity||0)){alert("The requested quantity is greater than available stock.");return}const cart=readCart(),existing=cart.find(x=>x.id===item.id);if(existing)existing.quantity=Math.max(1,Number(existing.quantity)||1)+qty;else cart.push({id:item.id,type:item.type,quantity:qty});if(writeCart(cart)){const btn=$("itemDetailAddCart");btn.textContent="Added ✓";setTimeout(()=>{if(btn)btn.textContent="Add to cart"},1300)}}
 
-const search=$("siteSearch"),grid=$("liveCatalogueGrid"),count=$("catalogueCount"),empty=$("catalogueEmpty");
+const search=$("siteSearch"),grid=$("liveCatalogueGrid"),empty=$("catalogueEmpty");
 function esc(value){return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function itemPrice(item){const method=item.pricingMethod||(item.pricePerPage!==null&&item.pricePerPage!==undefined&&item.pricePerPage!==""?"per page":"");const value=method==="per page"&&item.pricePerPage!==null&&item.pricePerPage!==undefined&&item.pricePerPage!==""?item.pricePerPage:item.price;if(value===null||value===undefined||value===""||method==="quotation")return "Price on request";const amount="MK "+Number(value).toLocaleString("en-US");return method?amount+" "+method:amount}
 function itemStatus(item){if(item.type==="product"&&item.stockTracked){const n=Number(item.stockQuantity||0);const limit=Number(item.lowStockThreshold??3);return n<=0?"Out of stock":n<=limit?"Low stock":"In stock"}return item.availability||"Available"}
@@ -334,7 +333,7 @@ function renderCatalogue(){
  const term=(search.value||"").trim().toLowerCase(),typeFilter=$("catalogueTypeFilter").value,categoryFilter=$("catalogueCategoryFilter").value,sort=$("catalogueSort").value;
  const shown=catalogueItems.filter(x=>(!term||[x.name,x.category,x.description,x.type].join(" ").toLowerCase().includes(term))&&(typeFilter==="all"||x.type===typeFilter)&&(categoryFilter==="all"||x.category===categoryFilter));
  shown.sort((a,b)=>{if(sort==="name-desc")return String(b.name||"").localeCompare(String(a.name||""));if(sort==="price-asc"||sort==="price-desc"){const ap=catalogueNumericPrice(a),bp=catalogueNumericPrice(b);if(ap===null&&bp===null)return String(a.name||"").localeCompare(String(b.name||""));if(ap===null)return 1;if(bp===null)return -1;return sort==="price-asc"?ap-bp:bp-ap}return String(a.name||"").localeCompare(String(b.name||""))});
- grid.replaceChildren();count.textContent=shown.length+" published item"+(shown.length===1?"":"s");
+ grid.replaceChildren();
  empty.hidden=shown.length!==0;
  if(!shown.length){const p=document.createElement("div");p.className="catalogue-message";p.textContent=term?"No published items match your search.":"No products or services have been published yet.";grid.append(p);return}
  shown.forEach(item=>{
@@ -369,7 +368,7 @@ function buildCategoryMenu(){
 search.addEventListener("input",renderCatalogue);
 $("catalogueTypeFilter").addEventListener("change",renderCatalogue);$("catalogueCategoryFilter").addEventListener("change",renderCatalogue);$("catalogueSort").addEventListener("change",renderCatalogue);
 $("marketSearchForm").addEventListener("submit",e=>{e.preventDefault();renderCatalogue();document.getElementById("products").scrollIntoView({behavior:"smooth"})});
-$("clearSearch").addEventListener("click",()=>{search.value="";$("catalogueTypeFilter").value="all";$("catalogueCategoryFilter").value="all";$("catalogueSort").value="name";renderCatalogue()});
+
 const bannerBox=document.getElementById("siaBannerSlideshow"),bannerSlides=[...bannerBox.querySelectorAll(".sia-banner-slide")],bannerDots=[...document.querySelectorAll("#siaBannerDots button")],bannerPrev=bannerBox.querySelector(".sia-banner-prev"),bannerNext=bannerBox.querySelector(".sia-banner-next");let bannerSlideIndex=0,bannerTimer=null,bannerStartX=0,bannerStartY=0,bannerDragging=false;
 function showBannerSlide(index){bannerSlideIndex=(index+bannerSlides.length)%bannerSlides.length;bannerSlides.forEach((slide,i)=>{slide.classList.toggle("is-active",i===bannerSlideIndex);slide.setAttribute("aria-hidden",String(i!==bannerSlideIndex))});bannerDots.forEach((dot,i)=>{dot.classList.toggle("active",i===bannerSlideIndex);dot.setAttribute("aria-current",i===bannerSlideIndex?"true":"false")})}
 function stopBannerSlideshow(){if(bannerTimer){clearInterval(bannerTimer);bannerTimer=null}}
