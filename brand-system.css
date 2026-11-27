@@ -166,3 +166,8 @@ hr{border-color:var(--sia-line)!important}
  width:100%!important;
  min-width:0!important;
 }
+
+/* Homepage catalogue: keep the published-item count and Clear all filters control off the page */
+.live-catalogue .live-catalogue-meta{
+ display:none!important;
+}
