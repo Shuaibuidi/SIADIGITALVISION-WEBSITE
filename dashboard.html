@@ -38,7 +38,7 @@ h1{font-size:26px;margin:0 0 6px;color:#263238}.muted{font-size:12px;color:var(-
 <div class="row"><div><h1>Business Dashboard</h1><p class="muted">A live overview of your customers, orders, invoices and payments.</p></div><button class="btn secondary" id="refresh" type="button">Refresh figures</button></div>
 <div id="notice" class="notice"></div>
 <div class="grid">
-<div class="stat"><span class="label">REGISTERED CUSTOMERS</span><strong id="customers">—</strong><small>Customer accounts</small></div>
+<div class="stat"><span class="label">REGISTERED CUSTOMERS</span><strong id="customers">—</strong><small>Customer accounts</small></div><div class="stat"><span class="label">APPROVED RESELLERS</span><strong id="resellers">—</strong><small>Reseller accounts</small></div>
 <div class="stat"><span class="label">TOTAL ORDERS</span><strong id="orders">—</strong><small>All customer requests</small></div>
 <div class="stat"><span class="label">PENDING ORDERS</span><strong id="pending">—</strong><small>Waiting for review</small></div>
 <div class="stat"><span class="label">TOTAL INVOICES</span><strong id="invoices">—</strong><small>Invoices issued</small></div>
@@ -82,12 +82,12 @@ async function loadDashboard(){
   const inProgress=orders.filter(o=>statusOf(o)==="in progress").length;
   const readyOrders=orders.filter(o=>statusOf(o)==="ready for collection").length;
   const completedOrders=orders.filter(o=>statusOf(o)==="completed").length;
-  const unpaidInvoices=invoices.filter(inv=>Number(inv.balanceDue??Math.max(0,Number(inv.total||0)-Number(inv.amountPaid||0)))>0).length;
+  const unpaidInvoices=invoices.filter(inv=>Math.max(0,Number(inv.total||0)-(paidByInvoice[inv.id]||0))>0).length;
   const lowStock=catalogue.filter(item=>item.active!==false&&item.type==="product"&&item.stockTracked===true&&Number(item.stockQuantity||0)<=Number(item.lowStockThreshold??3)).length;
   const received=payments.reduce((sum,p)=>sum+Number(p.amount||0),0);
   const paidByInvoice={};payments.forEach(p=>{if(p.invoiceId)paidByInvoice[p.invoiceId]=(paidByInvoice[p.invoiceId]||0)+Number(p.amount||0)});
   const outstanding=invoices.reduce((sum,inv)=>sum+Math.max(0,Number(inv.total||0)-(paidByInvoice[inv.id]||0)),0);
-  $("customers").textContent=customers.length.toLocaleString();
+  $("customers").textContent=customers.length.toLocaleString();$("resellers").textContent=customers.filter(d=>(d.data().accountType||"customer")==="reseller").length.toLocaleString();
   $("orders").textContent=orders.length.toLocaleString();
   $("pending").textContent=pending.toLocaleString();
   $("invoices").textContent=invoices.length.toLocaleString();
