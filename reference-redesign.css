@@ -155,3 +155,7 @@ footer .copyright{border-top:1px solid #ffffff30;margin-top:22px;padding-top:13p
 .sia-auth-actions .sia-signin-button:hover{background:#eef5ff}
 .sia-auth-actions .sia-create-button:hover{background:#06499d}
 @media(max-width:600px){.sia-top-actions.sia-auth-actions{gap:5px}.sia-auth-actions .sia-auth-button{min-height:34px;padding:0 9px;font-size:11px;border-radius:7px}}
+
+/* Header actions: Sign In and Help Center only */
+.sia-auth-actions .sia-help-button{color:#0b3b83;background:#fff;border-color:#0b4fa8}
+.sia-auth-actions .sia-help-button:hover{background:#eef5ff}
