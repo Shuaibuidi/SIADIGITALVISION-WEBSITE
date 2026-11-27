@@ -111,28 +111,46 @@ hr{border-color:var(--sia-line)!important}
 }
 
 
-/* Homepage: remove the department column and let the hero use the full row */
-.sia-market-stage-grid{
- grid-template-columns:minmax(0,1fr)!important;
+/* Homepage service navigation: visual links only, without repeating hero copy */
+.sia-market-categories h2{
+ color:var(--sia-navy)!important;font-size:12px!important;font-weight:900!important;
+ letter-spacing:1.3px!important;margin:7px 10px 13px!important;padding:0 4px 12px!important;
+ border-bottom:1px solid var(--sia-line)!important;
 }
-.sia-market-feature{width:100%!important;min-width:0!important}
-.sia-market-banner{width:100%!important}
-.sia-banner-copy{width:100%!important;max-width:none!important;min-width:0!important}
-.sia-banner-copy h1{
- width:100%!important;max-width:none!important;white-space:nowrap!important;
- overflow:visible!important;line-height:1.12!important;
+.sia-market-categories>a,.sia-market-categories>button{
+ min-height:48px!important;gap:11px!important;padding:7px 9px!important;
+ border:1px solid transparent!important;border-radius:9px!important;
+ background:#fff!important;color:var(--sia-ink)!important;
+ transition:background .18s ease,border-color .18s ease,transform .18s ease;
 }
-.sia-banner-copy h1 em{
- display:inline-block!important;white-space:nowrap!important;
- font-size:clamp(16px,5.6vw,48px)!important;
- letter-spacing:-.065em!important;
+.sia-market-categories>a:hover,.sia-market-categories>button:hover{
+ background:var(--sia-soft)!important;border-color:#BFDBFE!important;
+ color:var(--sia-blue)!important;transform:translateX(2px);
 }
-@media(max-width:600px){
- .sia-market-stage-grid{grid-template-columns:minmax(0,1fr)!important;padding:10px!important}
- .sia-market-banner{padding:18px 14px!important}
- .sia-market-banner .sia-banner-copy{padding:14px 0!important}
- .sia-market-banner .sia-banner-copy h1 em{
-  font-size:clamp(15px,5.4vw,24px)!important;
-  letter-spacing:-.065em!important;
- }
+.sia-market-categories>a span,.sia-market-categories>button>span{
+ flex:0 0 34px!important;width:34px!important;height:34px!important;
+ display:grid!important;place-items:center!important;border-radius:9px!important;
+ background:var(--sia-soft)!important;font-size:18px!important;
+}
+.sia-market-categories>a strong,.sia-market-categories>button strong{
+ font-size:11px!important;font-weight:800!important;line-height:1.25;
+}
+.sia-market-categories>a b,.sia-market-categories>button b{
+ margin-left:auto!important;color:var(--sia-blue)!important;font-size:18px!important;
+}
+.sia-market-categories>button{
+ border-top:1px solid var(--sia-line)!important;margin-top:7px!important;
+ padding-top:10px!important;font-weight:800!important;
+}
+@media(max-width:900px){
+ .sia-market-stage-grid{grid-template-columns:250px minmax(0,1fr)!important}
+}
+@media(max-width:620px){
+ .sia-market-stage-grid{grid-template-columns:1fr!important;gap:14px!important}
+ .sia-market-categories{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px!important}
+ .sia-market-categories h2{grid-column:1/-1;margin-bottom:4px!important}
+ .sia-market-categories>a,.sia-market-categories>button{min-height:52px!important;padding:6px!important;gap:7px!important}
+ .sia-market-categories>a span,.sia-market-categories>button>span{flex-basis:30px!important;width:30px!important;height:30px!important;font-size:16px!important}
+ .sia-market-categories>a strong,.sia-market-categories>button strong{font-size:10px!important}
+ .sia-market-categories>button{margin-top:0!important;border-top:1px solid transparent!important}
 }
