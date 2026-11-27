@@ -311,6 +311,23 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
+    // Immutable administrator activity history for the SIA Digital Vision website.
+    match /adminAuditLogs/{logId} {
+      allow read: if websiteAdmin();
+      allow create: if websiteAdmin()
+        && request.resource.data.actorId == request.auth.uid
+        && request.resource.data.action is string
+        && request.resource.data.entityType is string
+        && request.resource.data.entityId is string
+        && request.resource.data.details is string
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.keys().hasOnly([
+          'actorId', 'actorEmail', 'action', 'entityType',
+          'entityId', 'details', 'createdAt'
+        ]);
+      allow update, delete: if false;
+    }
+
     // Existing SIA BUSINESS application data and permissions.
     match /businesses/{bid} {
       allow read: if allowedMember(bid);
