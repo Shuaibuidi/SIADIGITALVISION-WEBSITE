@@ -70,17 +70,104 @@ body{margin:0;color:#171717;font-family:Arial,Helvetica,sans-serif}
 <div class="order-panel"><div class="updates-heading"><h3>Notifications <span id="orderUnreadBadge" class="unread-badge" hidden></span></h3><button class="mark-read-btn" id="markUpdatesReadBtn" type="button" hidden>Mark all as read</button></div><p class="muted">See order status changes and messages from our team in one place.</p><div id="orderUpdatesList" class="order-list"><div class="empty-orders">Loading order updates…</div></div></div><div class="order-panel"><h3>Order overview</h3><p class="muted">A quick summary of your current order progress.</p><div class="customer-order-overview"><div class="customer-order-stat"><strong id="overviewPending">0</strong><span>Pending</span></div><div class="customer-order-stat"><strong id="overviewProgress">0</strong><span>In progress</span></div><div class="customer-order-stat"><strong id="overviewReady">0</strong><span>Ready for collection</span></div><div class="customer-order-stat"><strong id="overviewCompleted">0</strong><span>Completed</span></div></div></div><div class="order-panel"><h3>My orders</h3><p class="muted">View your submitted service and product requests and their latest status.</p><div class="customer-order-tools" style="display:grid;grid-template-columns:minmax(0,1fr) minmax(130px,180px) minmax(125px,155px);gap:8px;margin:12px 0"><input id="customerOrderSearch" type="search" placeholder="Search my orders" aria-label="Search my orders" style="min-width:0;padding:10px;border:1px solid #d7e1ed;border-radius:8px"><select id="customerOrderStatus" aria-label="Filter my orders" style="padding:10px;border:1px solid #d7e1ed;border-radius:8px"><option value="all">All statuses</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="in progress">In progress</option><option value="ready for collection">Ready for collection</option><option value="completed">Completed</option><option value="rejected">Rejected</option></select><select id="customerOrderSort" aria-label="Sort my orders" style="padding:10px;border:1px solid #d7e1ed;border-radius:8px"><option value="newest">Newest first</option><option value="oldest">Oldest first</option></select></div><div id="customerOrderCount" class="muted" aria-live="polite">Your orders</div><button class="linkbtn" id="refreshOrdersBtn" type="button">Refresh my orders</button><div id="ordersList" class="order-list"><div class="empty-orders">Loading your orders…</div></div></div><div class="order-panel"><h3>My invoices & payments</h3><p class="muted">View invoices issued for your orders, payments received and any remaining balance.</p><div class="invoice-overview"><div class="invoice-stat"><strong id="invoiceCount">0</strong><span>Total invoices</span></div><div class="invoice-stat"><strong id="invoicePaidCount">0</strong><span>Fully paid</span></div><div class="invoice-stat"><strong id="invoiceDueCount">0</strong><span>With balance due</span></div><div class="invoice-stat invoice-balance-stat"><strong id="invoiceBalanceSummary">—</strong><span>Total outstanding</span></div></div><button class="linkbtn" id="refreshInvoicesBtn" type="button">Refresh my invoices</button><div id="customerInvoices" class="order-list"><div class="empty-orders">Loading invoices…</div></div></div><div class="coming"><b>Payment information:</b> Orders are requests only until our team confirms them. We will issue an invoice with the amount due and record any payments against that invoice. There is no prepaid wallet.</div><button class="submit" id="signOutBtn" type="button">Sign out</button></div>
 <p class="legal">Your password is handled by Firebase Authentication. Never share your password, payment PIN or verification codes with anyone.</p>
 </section></main>
+<script>
+(function () {
+  const button = document.getElementById('googleSignInBtn');
+  const notice = document.getElementById('notice');
+  if (!button) return;
+  let context = null;
+  let initError = null;
+  button.disabled = true;
+  button.textContent = 'Preparing Google sign-in…';
+
+  // Load and initialize Firebase before the customer taps, so the popup opens
+  // directly inside the original click gesture (without an awaited import).
+  Promise.all([
+    import('https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js'),
+    import('https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js')
+  ]).then(([appSdk, authSdk]) => {
+    const firebaseConfig = {
+      apiKey: 'AIzaSyAFP-RfZWPKPcHU9NqtTzX1b8HvVVzkb3Y',
+      authDomain: 'mobile-tech-room.firebaseapp.com',
+      projectId: 'mobile-tech-room',
+      storageBucket: 'mobile-tech-room.firebasestorage.app',
+      messagingSenderId: '620229324084',
+      appId: '1:620229324084:web:7e2ae7a2550228a4dfc961',
+      measurementId: 'G-GPJM1C83TT'
+    };
+    const app = appSdk.getApps().length ? appSdk.getApp() : appSdk.initializeApp(firebaseConfig);
+    const auth = authSdk.getAuth(app);
+    const provider = new authSdk.GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+    context = { authSdk, auth, provider };
+    button.disabled = false;
+    button.innerHTML = '<span class="social-icon google-icon" aria-hidden="true">G</span><span>Continue with Google</span>';
+  }).catch(error => {
+    initError = error;
+    button.disabled = false;
+    button.innerHTML = '<span class="social-icon google-icon" aria-hidden="true">G</span><span>Continue with Google</span>';
+    if (notice) {
+      notice.textContent = 'Google sign-in could not load: ' + (error.message || 'Check your internet connection and reload the page.');
+      notice.className = 'message error';
+    }
+  });
+
+  button.addEventListener('click', async function () {
+    if (!context) {
+      if (notice) {
+        notice.textContent = initError ? ('Google sign-in could not load: ' + (initError.message || 'Please reload the page.')) : 'Google sign-in is still preparing. Please wait a moment and tap again.';
+        notice.className = 'message error';
+      }
+      return;
+    }
+    if (button.dataset.googleBusy === '1') return;
+    button.dataset.googleBusy = '1';
+    button.disabled = true;
+    button.textContent = 'Opening Google…';
+    if (notice) {
+      notice.textContent = 'Opening Google account selection…';
+      notice.className = 'message ok';
+    }
+    try {
+      // Start the popup synchronously in the click handler; do not await setup first.
+      const popupPromise = context.authSdk.signInWithPopup(context.auth, context.provider);
+      const credential = await popupPromise;
+      if (credential && credential.user) {
+        location.replace('index.html');
+      } else {
+        throw new Error('Google sign-in did not return a customer account.');
+      }
+    } catch (error) {
+      const messages = {
+        'auth/unauthorized-domain': 'This website domain is not authorized for Google sign-in in Firebase.',
+        'auth/operation-not-allowed': 'Google sign-in is not enabled in Firebase Authentication.',
+        'auth/popup-blocked': 'Your browser blocked the Google sign-in window. Allow pop-ups for this website and try again.',
+        'auth/popup-closed-by-user': 'The Google sign-in window was closed before sign-in finished.',
+        'auth/network-request-failed': 'Network error. Check your internet connection and try again.'
+      };
+      const message = messages[error && error.code] || (error && error.message) || 'Google sign-in could not start. Please try again.';
+      if (notice) {
+        notice.textContent = message;
+        notice.className = 'message error';
+      }
+      button.disabled = false;
+      button.dataset.googleBusy = '0';
+      button.innerHTML = '<span class="social-icon google-icon" aria-hidden="true">G</span><span>Continue with Google</span>';
+    }
+  });
+})();
+</script>
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+import { initializeApp, getApp, getApps } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, sendEmailVerification, updateProfile, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence, browserSessionPersistence, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc, updateDoc, addDoc, collection, query, where, getDocs, serverTimestamp, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 const firebaseConfig={apiKey:"AIzaSyAFP-RfZWPKPcHU9NqtTzX1b8HvVVzkb3Y",authDomain:"mobile-tech-room.firebaseapp.com",projectId:"mobile-tech-room",storageBucket:"mobile-tech-room.firebasestorage.app",messagingSenderId:"620229324084",appId:"1:620229324084:web:7e2ae7a2550228a4dfc961",measurementId:"G-GPJM1C83TT"};
-const app=initializeApp(firebaseConfig);const auth=getAuth(app);const db=getFirestore(app);
+const app=getApps().length?getApp():initializeApp(firebaseConfig);const auth=getAuth(app);const db=getFirestore(app);
 // Keep the customer signed in on this phone. If local browser storage is unavailable, use session storage.
 const authReady=setPersistence(auth,browserLocalPersistence).catch(()=>setPersistence(auth,browserSessionPersistence));
 const $=id=>document.getElementById(id);const loginForm=$('loginForm'),notice=$('notice');
 // Attach the Google action immediately so unrelated page setup cannot prevent the button from responding.
-$('googleSignInBtn')?.addEventListener('click',()=>startSocialSignIn(googleProvider,'Google'));
+// Google sign-in is attached by the standalone handler above so it still responds if this module fails to load.
 const orderParams=new URLSearchParams(location.search);
 const CART_KEY="sia_market_cart_v1";
 const cartMode=orderParams.get("cart")==="1";
