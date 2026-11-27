@@ -40,16 +40,148 @@ service cloud.firestore {
       return admin(bid) || activeMember(bid);
     }
 
-    // Customer/admin profile document. Customers can read only their own
-    // profile; website administrators can read profiles individually.
+    // Shared Mobile Tech Room / SIA website user profiles.
+    // Students can create only their own pending student profile. They cannot
+    // grant themselves approval or administrator/instructor privileges.
     match /users/{uid} {
-      allow get: if signedIn() && (request.auth.uid == uid || websiteAdmin());
-      allow list: if false;
-      allow create, update, delete: if false;
+      allow get: if signedIn() && (request.auth.uid == uid || mtrAdmin() || websiteAdmin());
+      allow list: if mtrAdmin() || websiteAdmin();
+
+      allow create: if signedIn()
+        && request.auth.uid == uid
+        && request.resource.data.role == 'student'
+        && request.resource.data.status == 'pending'
+        && request.resource.data.fullName is string
+        && request.resource.data.fullName.size() >= 2
+        && request.resource.data.fullName.size() <= 120
+        && request.resource.data.phone is string
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.keys().hasOnly([
+          'fullName', 'phone', 'email', 'role', 'status', 'createdAt'
+        ]);
+
+      // Admins manage approvals and roles. A user may only change their
+      // own language preference through the learning platform.
+      allow update: if mtrAdmin() || websiteAdmin()
+        || (signedIn() && request.auth.uid == uid
+          && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['preferredLanguage'])
+          && request.resource.data.preferredLanguage in ['en', 'ny']);
+
+      allow delete: if mtrAdmin() || websiteAdmin();
+
+      match /enrollments/{courseId} {
+        allow read: if signedIn() && (request.auth.uid == uid || mtrAdmin() || websiteAdmin());
+        allow create, update, delete: if mtrAdmin() || websiteAdmin();
+      }
+
+      match /supportState/{stateId} {
+        allow read: if signedIn() && request.auth.uid == uid;
+        allow create, update: if signedIn() && request.auth.uid == uid
+          && request.resource.data.keys().hasOnly(['lastReadAt'])
+          && request.resource.data.lastReadAt == request.time;
+        allow delete: if signedIn() && request.auth.uid == uid;
+      }
 
       match /appData/{docId} {
         allow read, write: if signedIn() && request.auth.uid == uid;
       }
+    }
+
+    // Mobile Tech Room course catalogue and protected lesson content.
+    match /courses/{courseId} {
+      allow read: if mtrCanReadCourse(courseId);
+      allow create: if mtrStaff()
+        && request.resource.data.createdBy == request.auth.uid;
+      allow update: if (mtrAdmin() || mtrCourseOwner(courseId))
+        && request.resource.data.createdBy == resource.data.createdBy;
+      allow delete: if mtrAdmin() || mtrCourseOwner(courseId);
+
+      match /lessons/{lessonId} {
+        allow read: if mtrCanReadLessons(courseId);
+        allow create: if mtrStaff()
+          && (mtrAdmin() || mtrCourseOwner(courseId))
+          && request.resource.data.createdBy == request.auth.uid;
+        allow update, delete: if mtrAdmin();
+      }
+    }
+
+    // Mobile Tech Room community support chat.
+    match /supportMessages/{messageId} {
+      allow read: if mtrAdmin() || mtrStudent();
+      allow create: if (mtrAdmin() || mtrStudent())
+        && request.resource.data.senderId == request.auth.uid
+        && request.resource.data.role == (mtrAdmin() ? 'admin' : 'student')
+        && request.resource.data.authorName is string
+        && request.resource.data.text is string
+        && request.resource.data.text.size() > 0
+        && request.resource.data.text.size() <= 5000
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.keys().hasOnly([
+          'text', 'senderId', 'authorName', 'role', 'replyTo', 'createdAt'
+        ]);
+      allow update: if false;
+      allow delete: if mtrAdmin();
+    }
+
+    // Mobile Tech Room roles share this Firebase project. Keep the learning
+    // platform's student, instructor, course and lesson access intact.
+    function userProfileExists(uid) {
+      return exists(/databases/$(database)/documents/users/$(uid));
+    }
+
+    function userProfile(uid) {
+      return get(/databases/$(database)/documents/users/$(uid)).data;
+    }
+
+    function mtrAdmin() {
+      return signedIn() && userProfileExists(request.auth.uid)
+        && userProfile(request.auth.uid).role == 'admin'
+        && userProfile(request.auth.uid).status == 'approved';
+    }
+
+    function mtrInstructor() {
+      return signedIn() && userProfileExists(request.auth.uid)
+        && userProfile(request.auth.uid).role == 'instructor'
+        && userProfile(request.auth.uid).status == 'approved';
+    }
+
+    function mtrStudent() {
+      return signedIn() && userProfileExists(request.auth.uid)
+        && userProfile(request.auth.uid).role == 'student'
+        && userProfile(request.auth.uid).status == 'approved';
+    }
+
+    function mtrStaff() {
+      return mtrAdmin() || mtrInstructor();
+    }
+
+    function mtrCourseExists(courseId) {
+      return exists(/databases/$(database)/documents/courses/$(courseId));
+    }
+
+    function mtrCourse(courseId) {
+      return get(/databases/$(database)/documents/courses/$(courseId)).data;
+    }
+
+    function mtrCourseOwner(courseId) {
+      return signedIn() && mtrCourseExists(courseId)
+        && mtrCourse(courseId).createdBy == request.auth.uid;
+    }
+
+    function mtrCanReadCourse(courseId) {
+      return mtrAdmin() || mtrCourseOwner(courseId)
+        || (mtrStudent() && mtrCourse(courseId).status == 'published');
+    }
+
+    function mtrCanReadLessons(courseId) {
+      return mtrAdmin() || mtrCourseOwner(courseId)
+        || (mtrStudent()
+          && mtrCourse(courseId).status == 'published'
+          && (mtrCourse(courseId).accessType != 'paid'
+            || (exists(/databases/$(database)/documents/users/$(request.auth.uid)/enrollments/$(courseId))
+              && get(/databases/$(database)/documents/users/$(request.auth.uid)/enrollments/$(courseId)).data.status == 'active')));
     }
 
     // PUBLIC CATALOGUE: public queries must include active == true.
