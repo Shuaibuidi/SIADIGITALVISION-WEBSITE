@@ -10,19 +10,17 @@
 .invoice-overview{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:14px 0}.invoice-stat{background:#f7f9fc;border:1px solid var(--line);border-radius:9px;padding:13px 11px;min-width:0}.invoice-stat strong{display:block;font-size:20px;color:var(--navy);line-height:1.25;overflow-wrap:anywhere}.invoice-stat span{display:block;margin-top:5px;font-size:10px;color:var(--muted)}.invoice-balance-stat{background:#fff8ef;border-color:#f3dfc8}.invoice-balance-stat strong{color:#a84b08}.invoice-balance-stat strong span{display:block;font-size:12px;margin-top:4px;color:#a84b08}@media(max-width:380px){.invoice-stat{padding:10px 8px}.invoice-stat strong{font-size:17px}}
 .customer-admin-note{margin-top:12px;padding:12px;border-left:3px solid #0877e8;border-radius:7px;background:#edf5ff;color:#183b63;font-size:12px;line-height:1.6;white-space:pre-wrap}.customer-admin-note b{display:block;margin-bottom:5px;color:#071b3b}.customer-admin-note small{display:block;color:#718096;margin-top:7px;font-size:10px}
 </style><link rel="stylesheet" href="marketplace.css?v=1"></head><body>
-<div class="top"><a href="index.html">← Back to S I A TECH PRINT MEDIA</a></div>
+<div class="top"><a href="index.html">Visit website ↗</a></div>
 <main class="shell">
-
-<section class="main"><div class="main-head"><strong>S I A <span style="color:#f28a22">TECH</span> PRINT MEDIA</strong><a href="index.html">Visit website ↗</a></div>
+<section class="main">
 <div id="authArea" class="social-auth-area">
-<div class="signin-mark"><span class="signin-mark-icon">S</span><span>YOUR CUSTOMER ACCOUNT</span></div>
-<h1 class="form-title">Welcome back.</h1>
-<p class="muted">Sign in to manage your orders, follow service updates and view your invoices. New customers can get started with Google.</p>
+<h1 class="form-title">Sign in or create account</h1>
 <div id="notice" class="message" role="status" aria-live="polite"></div>
-<button class="social-button google-button" id="googleSignInBtn" type="button"><span class="social-icon google-icon">G</span><span>Continue with Google</span></button>
-<button class="email-fallback-toggle" id="emailFallbackToggle" type="button">Use email and password instead</button>
+<button class="social-button google-button" id="googleSignInBtn" type="button"><span class="social-icon google-icon" aria-hidden="true">G</span><span>Continue with Google</span></button>
+<div class="signin-divider"><span>OR</span></div>
+<form id="emailContinueForm" class="email-continue-form"><input id="emailContinueInput" type="email" autocomplete="email" placeholder="Enter your email address" aria-label="Enter your email address" required><button class="submit" id="emailContinueBtn" type="submit">Continue</button></form>
 <div id="emailFallback" class="email-fallback hidden">
-<form id="loginForm"><h2 class="form-title">Sign in with email</h2><p class="muted">For customers who already have an email-and-password account.</p><div class="field"><label for="loginEmail">Email address</label><input id="loginEmail" type="email" autocomplete="email" required placeholder="you@example.com"></div><div class="field"><label for="loginPassword">Password</label><input id="loginPassword" type="password" autocomplete="current-password" required placeholder="Your password"></div><button class="submit" type="submit">Sign in securely</button><button class="linkbtn" id="forgotBtn" type="button">Forgot your password?</button></form>
+<form id="loginForm"><h2 class="form-title">Enter your password</h2><p class="muted">Sign in with your existing email-and-password account.</p><div class="field"><label for="loginEmail">Email address</label><input id="loginEmail" type="email" autocomplete="email" required placeholder="you@example.com"></div><div class="field"><label for="loginPassword">Password</label><input id="loginPassword" type="password" autocomplete="current-password" required placeholder="Your password"></div><button class="submit" type="submit">Sign in securely</button><button class="linkbtn" id="forgotBtn" type="button">Forgot your password?</button></form>
 </div>
 <p class="social-footnote">By continuing, you agree to use your account for S I A TECH PRINT MEDIA customer services.</p>
 </div>
@@ -90,7 +88,8 @@ function friendlyError(e){const map={'auth/invalid-email':'Please enter a valid 
 
 const googleProvider=new GoogleAuthProvider();googleProvider.setCustomParameters({prompt:'select_account'});
 $('googleSignInBtn').addEventListener('click',async()=>startSocialSignIn(googleProvider,'Google'));
-$('emailFallbackToggle').addEventListener('click',()=>{$('emailFallback').classList.toggle('hidden');$('emailFallbackToggle').textContent=$('emailFallback').classList.contains('hidden')?'Use email and password instead':'Hide email sign-in';});
+$('emailContinueForm').addEventListener('submit',e=>{e.preventDefault();const email=$('emailContinueInput').value.trim();if(!email){$('emailContinueInput').focus();return}$('loginEmail').value=email;$('emailFallback').classList.remove('hidden');$('emailContinueBtn').textContent='Continue with email';$('loginPassword').focus();});
+
 async function startSocialSignIn(provider,label){
  const buttons=[$('googleSignInBtn')];buttons.forEach(b=>b.disabled=true);clearMessage();showMessage('Connecting to '+label+'…','ok');
  try{await authReady;await signInWithRedirect(auth,provider)}
@@ -276,6 +275,35 @@ body{background:radial-gradient(ellipse at 12% 12%,#1c5b94 0,transparent 34%),ra
 .social-footnote{margin:25px 0 0;padding-top:17px;border-top:1px solid #edf0f4;color:#8491a2;font-size:10px;line-height:1.7;text-align:center}
 .legal{max-width:400px;margin:20px auto 0;text-align:center;font-size:10px;color:#9baabd}
 @media(max-width:560px){.shell{width:calc(100% - 22px);margin:22px auto 28px}.main{padding:25px 21px}.main-head{margin-bottom:25px}.social-auth-area>.form-title{font-size:30px}}
+
+/* Clean, reference-matched customer sign-in page */
+body{min-height:100vh;background:#fff;color:#171717}
+.top{width:min(650px,calc(100% - 36px));margin:0 auto;padding:24px 0 0;text-align:right;color:#777}
+.top a{font-size:12px;color:#777;font-weight:600}
+.shell{width:min(650px,calc(100% - 32px));margin:clamp(34px,8vh,78px) auto 50px;display:block;min-height:0;border:0;border-radius:0;box-shadow:none;background:#fff;overflow:visible}
+.main{padding:0 0 25px}
+.social-auth-area{width:100%;max-width:584px;margin:0 auto;padding:0;text-align:center}
+.social-auth-area>.form-title{font-size:clamp(25px,5vw,34px);font-weight:750;letter-spacing:-.7px;line-height:1.2;color:#202124;margin:0 0 46px}
+.social-button{width:100%;min-height:76px;margin:0;padding:15px 22px;justify-content:center;gap:18px;border:1px solid #bfc3c8;border-radius:13px;background:#fff;color:#171717;font-size:18px;font-weight:700;box-shadow:none}
+.social-button:hover{background:#fafafa;border-color:#999;box-shadow:none;transform:none}
+.social-button:disabled{opacity:.6}
+.social-icon{width:30px;height:30px;font-size:27px}
+.google-icon{font-weight:900;background:conic-gradient(from -45deg,#4285f4 0 25%,#34a853 25% 48%,#fbbc05 48% 72%,#ea4335 72% 88%,#4285f4 88%);background-clip:text;-webkit-background-clip:text;color:transparent}
+.signin-divider{display:flex;align-items:center;gap:14px;margin:29px 0 27px;color:#888;font-size:20px;font-weight:400}
+.signin-divider:before,.signin-divider:after{content:"";height:1px;flex:1;background:#e5e5e5}
+.email-continue-form{display:grid;gap:17px}
+.email-continue-form input{width:100%;height:78px;padding:0 19px;border:1px solid #dedede;border-radius:13px;background:#fff;color:#202124;font:17px Arial,sans-serif;outline:none}
+.email-continue-form input:focus{border-color:#999;box-shadow:0 0 0 3px #0000000a}
+.email-continue-form input::placeholder{color:#888}
+.email-continue-form .submit{height:76px;margin:0;border:0;border-radius:40px;background:#df3d00;color:#fff;font-size:20px;font-weight:700}
+.email-continue-form .submit:hover{background:#c93600}
+.email-fallback{margin-top:18px;padding:20px;text-align:left;border:1px solid #e5e5e5;border-radius:12px;background:#fff}
+.email-fallback .form-title{font-size:20px;color:#202124}
+.email-fallback .muted{font-size:13px}
+.email-fallback .submit{background:#df3d00;border-radius:9px}
+.social-footnote{margin:27px 0 0;padding:0;border:0;color:#888;font-size:11px;text-align:center}
+.legal{display:none}
+@media(max-width:560px){.top{padding-top:16px}.shell{width:calc(100% - 36px);margin:45px auto 35px}.main{padding:0}.social-auth-area>.form-title{font-size:27px;margin-bottom:36px}.social-button{min-height:65px;font-size:16px}.signin-divider{margin:25px 0 22px}.email-continue-form input{height:66px;font-size:16px}.email-continue-form .submit{height:66px;font-size:18px}}
 </style></head><body><button class="print" onclick="window.print()">Save as PDF / Print</button><main class="sheet"><div class="head"><div><div class="brand">S I A TECH PRINT MEDIA</div><div class="tag">HOME OF PRINTING &amp; COMPUTING</div><p class="muted">Matindi Trading Centre, Blantyre, Malawi<br>WhatsApp: 0999 290 495 · Calls: 0888 290 495</p></div><div><div class="inv">INVOICE</div><div class="muted">Invoice No: '+pdfEsc(inv.invoiceNumber||'—')+'<br>Date: '+pdfEsc(invoiceDate)+'<br>Status: '+pdfEsc(balance===0?'Paid':paid>0?'Advance paid':'Unpaid')+'</div></div></div><div class="cols"><section><div class="label">Bill to</div><div class="value"><b>'+pdfEsc(customerName)+'</b><br>'+pdfEsc(inv.customerEmail||user.email||'—')+'<br>'+pdfEsc(customerPhone)+'<br>'+pdfEsc(customerAddress)+'</div></section><section><div class="label">Payment summary</div><div class="value">Currency: '+pdfEsc(currency)+'<br>Due date: '+pdfEsc(inv.dueDate||'—')+'</div><span class="status">'+pdfEsc(balance===0?'PAID':paid>0?'ADVANCE PAID':'UNPAID')+'</span></section></div><div class="desc"><b>Description</b><br>'+pdfEsc(inv.description||'Invoice')+'</div><table><thead><tr><th>Date</th><th>Payment method</th><th>Reference</th><th class="num">Amount</th></tr></thead><tbody>'+paymentRows+'</tbody></table><div class="totals"><div><span>Invoice total</span><b>'+currency+' '+total.toLocaleString()+'</b></div><div><span>Paid</span><b>'+currency+' '+paid.toLocaleString()+'</b></div><div class="balance"><span>Balance due</span><b>'+currency+' '+balance.toLocaleString()+'</b></div></div><div class="foot"><b>Thank You For Your Support</b><br>S I A TECH PRINT MEDIA · Matindi Trading Centre, Blantyre</div></main></body></html>';
     printable.document.open();printable.document.write(html);printable.document.close();
    });
