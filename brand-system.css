@@ -76,3 +76,36 @@ hr{border-color:var(--sia-line)!important}
  .sia-banner-copy{width:100%!important;max-width:100%!important;padding-right:3%!important}
  .sia-banner-copy h1 em{font-size:clamp(15px,4.8vw,28px)!important;letter-spacing:-.055em}
 }
+
+
+/* Mobile homepage hero: give the tagline a dedicated full-width text area.
+   The reference layout reserves only 64% for copy, which clips long headings. */
+@media(max-width:600px){
+ .sia-market-banner{
+  height:auto!important;min-height:0!important;display:flex!important;
+  flex-direction:column!important;overflow:hidden!important;
+ }
+ .sia-market-banner .sia-banner-slideshow{
+  position:relative!important;left:auto!important;right:auto!important;top:auto!important;
+  bottom:auto!important;width:100%!important;height:150px!important;opacity:1!important;
+  order:2!important;
+ }
+ .sia-market-banner .sia-banner-copy{
+  position:relative!important;inset:auto!important;display:block!important;
+  width:100%!important;max-width:none!important;min-width:0!important;
+  padding:20px 14px 18px!important;order:1!important;
+ }
+ .sia-market-banner .sia-banner-copy h1{
+  width:100%!important;max-width:none!important;white-space:nowrap!important;
+  margin:9px 0!important;line-height:1.15!important;
+ }
+ .sia-market-banner .sia-banner-copy h1 em{
+  display:inline-block!important;white-space:nowrap!important;
+  font-size:clamp(16px,5.1vw,23px)!important;letter-spacing:-.055em!important;
+ }
+ .sia-market-banner .sia-banner-copy>span{font-size:9px!important;letter-spacing:1px!important}
+ .sia-market-banner .sia-banner-copy p{font-size:11px!important}
+ .sia-market-banner .sia-banner-copy .sia-hero-checks{font-size:10px!important;gap:5px!important}
+ .sia-market-banner .sia-banner-copy>a{margin-top:11px!important}
+ .sia-market-banner .sia-banner-arrow{top:auto!important;bottom:55px!important}
+}
