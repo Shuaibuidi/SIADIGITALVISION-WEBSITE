@@ -146,3 +146,12 @@ footer .copyright{border-top:1px solid #ffffff30;margin-top:22px;padding-top:13p
 .sia-topline .sia-brand-wordmark .brand-name{display:block;font-size:17px;line-height:1.15;font-weight:850;letter-spacing:0;color:#092d69!important;white-space:nowrap}
 @media(max-width:1120px){.sia-topline .brand.sia-brand-logo{flex-basis:285px}.sia-brand-image{width:54px;height:54px;flex-basis:54px}.sia-topline .sia-brand-wordmark .brand-name{font-size:15px}}
 @media(max-width:600px){.sia-topline .brand.sia-brand-logo{flex:1 1 auto;gap:6px;padding-right:95px}.sia-brand-image{width:42px;height:42px;flex-basis:42px}.sia-topline .sia-brand-wordmark .brand-name{font-size:13px;white-space:normal;line-height:1.15}}
+
+/* Header account actions: keep only Sign In and Create Account */
+.sia-top-actions.sia-auth-actions{display:flex;align-items:center;justify-content:flex-end;gap:9px;flex:0 0 auto;white-space:nowrap}
+.sia-auth-actions .sia-auth-button{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 16px;border:1px solid #0b4fa8;border-radius:8px;text-decoration:none;font-size:13px;font-weight:750;line-height:1.1;transition:background .18s ease,color .18s ease}
+.sia-auth-actions .sia-signin-button{color:#0b3b83;background:#fff}
+.sia-auth-actions .sia-create-button{color:#fff;background:#075bc5;border-color:#075bc5}
+.sia-auth-actions .sia-signin-button:hover{background:#eef5ff}
+.sia-auth-actions .sia-create-button:hover{background:#06499d}
+@media(max-width:600px){.sia-top-actions.sia-auth-actions{gap:5px}.sia-auth-actions .sia-auth-button{min-height:34px;padding:0 9px;font-size:11px;border-radius:7px}}
