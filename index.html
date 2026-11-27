@@ -100,11 +100,37 @@ footer{background:#04152f;color:#d5e2f1;padding:34px 0 16px}.footer-grid{display
 .item-detail-order{display:inline-block;background:#ff6a00;color:#fff!important;padding:13px 20px;border-radius:5px;font-size:13px;font-weight:800;margin-top:20px}
 @media(max-width:620px){.item-detail-layout{grid-template-columns:1fr;gap:12px;padding:14px}.item-detail-photo{min-height:210px;height:230px}.item-detail-copy{padding:4px 3px 10px}.item-detail-copy h2{font-size:21px}}
 </style><link rel="stylesheet" href="marketplace.css?v=1">
+<style id="sia-homepage-refresh">
+.sia-home-hero{position:relative;overflow:hidden;background:radial-gradient(circle at 82% 15%,#1b5d91 0,transparent 34%),linear-gradient(115deg,#06172f 0%,#0b2d58 58%,#10477a 100%);color:#fff;padding:58px 0 54px}
+.sia-home-hero:after{content:"";position:absolute;width:390px;height:390px;border:1px solid #ffffff18;border-radius:50%;right:-110px;bottom:-245px;box-shadow:0 0 0 35px #ffffff08,0 0 0 75px #ffffff05;pointer-events:none}
+.sia-home-hero-in{position:relative;z-index:1;display:grid;grid-template-columns:1.12fr .88fr;gap:42px;align-items:center}
+.sia-home-eyebrow{display:inline-flex;align-items:center;gap:8px;color:#9ce7f2;font-size:11px;font-weight:900;letter-spacing:1.8px;text-transform:uppercase}
+.sia-home-eyebrow:before{content:"";width:24px;height:2px;background:#ffca28}
+.sia-home-title{max-width:720px;font-size:clamp(36px,5vw,61px);line-height:1.04;letter-spacing:-1.8px;margin:17px 0 15px;color:#fff}
+.sia-home-title span{color:#ffca28}
+.sia-home-copy{max-width:590px;color:#d6e4f3;font-size:15px;line-height:1.8;margin:0}
+.sia-home-actions{display:flex;gap:11px;flex-wrap:wrap;margin-top:25px}
+.sia-home-actions a{display:inline-flex;align-items:center;justify-content:center;min-height:47px;padding:0 20px;border-radius:7px;font-size:13px;font-weight:850}
+.sia-home-primary{background:#ffca28;color:#172b49!important;box-shadow:0 8px 22px #0003}
+.sia-home-secondary{border:1px solid #ffffff66;color:#fff!important;background:#ffffff0c}
+.sia-home-meta{display:flex;gap:18px;flex-wrap:wrap;margin-top:25px;color:#d6e4f3;font-size:11px;font-weight:750}
+.sia-home-meta span:before{content:"✓";color:#ffca28;margin-right:7px;font-weight:900}
+.sia-home-showcase{background:#ffffff12;border:1px solid #ffffff2c;border-radius:17px;padding:19px;backdrop-filter:blur(8px);box-shadow:0 22px 55px #00102745}
+.sia-showcase-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:15px}
+.sia-showcase-top strong{font-size:14px;color:#fff}.sia-showcase-top small{font-size:10px;color:#aee9d2;background:#0b9d6840;border:1px solid #ffffff20;padding:6px 9px;border-radius:20px}
+.sia-showcase-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sia-showcase-item{min-height:112px;border:1px solid #ffffff20;background:#ffffff0d;border-radius:11px;padding:14px;display:flex;flex-direction:column;justify-content:space-between}
+.sia-showcase-icon{font-size:25px}.sia-showcase-item b{display:block;font-size:12px;color:#fff;margin-top:9px}.sia-showcase-item small{display:block;color:#c4d6e9;font-size:10px;margin-top:4px}
+.sia-showcase-foot{border-top:1px solid #ffffff25;margin-top:14px;padding-top:13px;display:flex;justify-content:space-between;gap:10px;color:#d6e4f3;font-size:10px}.sia-showcase-foot b{color:#ffca28}
+.sia-home-trust{background:#fff;border-bottom:1px solid #e8edf3}.sia-home-trust-in{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:16px 0}.sia-home-trust-item{display:flex;align-items:center;justify-content:center;gap:10px}.sia-home-trust-item>span{width:35px;height:35px;border-radius:10px;background:#edf5ff;display:grid;place-items:center;font-size:17px}.sia-home-trust-item b{display:block;color:#102b4d;font-size:11px}.sia-home-trust-item small{display:block;color:#718096;font-size:10px;margin-top:3px}
+@media(max-width:700px){.sia-home-hero{padding:37px 0 32px}.sia-home-hero-in{grid-template-columns:1fr;gap:24px}.sia-home-title{font-size:39px;letter-spacing:-1.1px}.sia-home-copy{font-size:13px}.sia-home-actions a{min-height:44px;padding:0 15px;font-size:12px}.sia-home-meta{gap:11px;font-size:10px}.sia-home-showcase{padding:14px}.sia-showcase-item{min-height:96px;padding:11px}.sia-home-trust-in{grid-template-columns:1fr 1fr;gap:14px}.sia-home-trust-item{justify-content:flex-start}}
+</style>
+
 </head>
 <body>
 <header class="header sia-market-header" id="home">
  <div class="container sia-topline">
-  <a class="brand" href="#home"><span class="brand-mark">SIA</span><span><span class="brand-name">S I A TECH PRINT MEDIA</span><span class="brand-tag">HOME OF PRINTING &amp; COMPUTING</span></span></a>
+  <a class="brand" href="#home"><span class="brand-mark">SIA</span><span><span class="brand-name">S I A TECH PRINT MEDIA</span></span></a>
   <div class="sia-top-actions">
    <span class="sia-country" title="Serving Malawi">◎ <small>Malawi</small></span>
    <a class="sia-icon-link" id="marketCartLink" href="account.html?cart=1#place-order" aria-label="Shopping cart" title="Shopping cart">🛒 <span id="marketCartCount" style="font-size:11px;font-weight:900;color:#e85f00">0</span></a>
@@ -139,6 +165,35 @@ footer{background:#04152f;color:#d5e2f1;padding:34px 0 16px}.footer-grid{display
 </section>
 </header>
 <main>
+<section class="sia-home-hero" aria-labelledby="siaHomeTitle">
+ <div class="container sia-home-hero-in">
+  <div>
+   <div class="sia-home-eyebrow">Your trusted local technology &amp; print partner</div>
+   <h1 class="sia-home-title" id="siaHomeTitle">Printing, technology &amp; digital services <span>made simple.</span></h1>
+   <p class="sia-home-copy">From professional printing and graphic design to phone repairs, unlocking, computer support and accessories — find the services and products offered by S I A TECH PRINT MEDIA.</p>
+   <div class="sia-home-actions"><a class="sia-home-primary" href="#products">Explore products &amp; services&nbsp; →</a><a class="sia-home-secondary" href="https://wa.me/265999290495?text=Hello%20S%20I%20A%20TECH%20PRINT%20MEDIA%2C%20I%20need%20assistance." target="_blank" rel="noopener">Chat with our team</a></div>
+   <div class="sia-home-meta"><span>Matindi Trading Centre, Blantyre</span><span>Friendly local support</span></div>
+  </div>
+  <aside class="sia-home-showcase" aria-label="Our main services">
+   <div class="sia-showcase-top"><strong>What can we help you with?</strong><small> SIA SERVICES </small></div>
+   <div class="sia-showcase-grid">
+    <div class="sia-showcase-item"><div class="sia-showcase-icon">🖨️</div><div><b>Printing &amp; Media</b><small>Print, copy, design &amp; finishing</small></div></div>
+    <div class="sia-showcase-item"><div class="sia-showcase-icon">📱</div><div><b>Phone Services</b><small>Repair, maintenance &amp; unlocking</small></div></div>
+    <div class="sia-showcase-item"><div class="sia-showcase-icon">💻</div><div><b>Computer Support</b><small>Computing &amp; ICT assistance</small></div></div>
+    <div class="sia-showcase-item"><div class="sia-showcase-icon">🎧</div><div><b>Accessories</b><small>Useful tech products &amp; supplies</small></div></div>
+   </div>
+   <div class="sia-showcase-foot"><span>Browse our published catalogue</span><b>Explore below ↓</b></div>
+  </aside>
+ </div>
+</section>
+<section class="sia-home-trust" aria-label="Why choose SIA">
+ <div class="container sia-home-trust-in">
+  <div class="sia-home-trust-item"><span>📍</span><div><b>Convenient location</b><small>Matindi Trading Centre</small></div></div>
+  <div class="sia-home-trust-item"><span>🛠️</span><div><b>Practical expertise</b><small>Print &amp; mobile technology</small></div></div>
+  <div class="sia-home-trust-item"><span>💬</span><div><b>Direct assistance</b><small>Talk to our team</small></div></div>
+  <div class="sia-home-trust-item"><span>🛍️</span><div><b>Browse with ease</b><small>Products &amp; services</small></div></div>
+ </div>
+</section>
 <section class="section live-catalogue" id="products">
  <div class="container">
   <div class="section-head"><div><div class="kicker">S I A TECH PRINT MEDIA</div><h2>Products &amp; Services</h2></div><p>Browse the products and services currently published by our shop.</p></div>
