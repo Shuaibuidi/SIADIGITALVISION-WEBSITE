@@ -75,34 +75,63 @@ body{margin:0;color:#171717;font-family:Arial,Helvetica,sans-serif}
   const button = document.getElementById('googleSignInBtn');
   const notice = document.getElementById('notice');
   if (!button) return;
+  let context = null;
+  let initError = null;
+  button.disabled = true;
+  button.textContent = 'Preparing Google sign-in…';
+
+  // Load and initialize Firebase before the customer taps, so the popup opens
+  // directly inside the original click gesture (without an awaited import).
+  Promise.all([
+    import('https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js'),
+    import('https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js')
+  ]).then(([appSdk, authSdk]) => {
+    const firebaseConfig = {
+      apiKey: 'AIzaSyAFP-RfZWPKPcHU9NqtTzX1b8HvVVzkb3Y',
+      authDomain: 'mobile-tech-room.firebaseapp.com',
+      projectId: 'mobile-tech-room',
+      storageBucket: 'mobile-tech-room.firebasestorage.app',
+      messagingSenderId: '620229324084',
+      appId: '1:620229324084:web:7e2ae7a2550228a4dfc961',
+      measurementId: 'G-GPJM1C83TT'
+    };
+    const app = appSdk.getApps().length ? appSdk.getApp() : appSdk.initializeApp(firebaseConfig);
+    const auth = authSdk.getAuth(app);
+    const provider = new authSdk.GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+    context = { authSdk, auth, provider };
+    button.disabled = false;
+    button.innerHTML = '<span class="social-icon google-icon" aria-hidden="true">G</span><span>Continue with Google</span>';
+  }).catch(error => {
+    initError = error;
+    button.disabled = false;
+    button.innerHTML = '<span class="social-icon google-icon" aria-hidden="true">G</span><span>Continue with Google</span>';
+    if (notice) {
+      notice.textContent = 'Google sign-in could not load: ' + (error.message || 'Check your internet connection and reload the page.');
+      notice.className = 'message error';
+    }
+  });
+
   button.addEventListener('click', async function () {
+    if (!context) {
+      if (notice) {
+        notice.textContent = initError ? ('Google sign-in could not load: ' + (initError.message || 'Please reload the page.')) : 'Google sign-in is still preparing. Please wait a moment and tap again.';
+        notice.className = 'message error';
+      }
+      return;
+    }
     if (button.dataset.googleBusy === '1') return;
     button.dataset.googleBusy = '1';
     button.disabled = true;
     button.textContent = 'Opening Google…';
     if (notice) {
-      notice.textContent = 'Connecting to Google sign-in…';
+      notice.textContent = 'Opening Google account selection…';
       notice.className = 'message ok';
     }
     try {
-      const [appSdk, authSdk] = await Promise.all([
-        import('https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js'),
-        import('https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js')
-      ]);
-      const firebaseConfig = {
-        apiKey: 'AIzaSyAFP-RfZWPKPcHU9NqtTzX1b8HvVVzkb3Y',
-        authDomain: 'mobile-tech-room.firebaseapp.com',
-        projectId: 'mobile-tech-room',
-        storageBucket: 'mobile-tech-room.firebasestorage.app',
-        messagingSenderId: '620229324084',
-        appId: '1:620229324084:web:7e2ae7a2550228a4dfc961',
-        measurementId: 'G-GPJM1C83TT'
-      };
-      const app = appSdk.getApps().length ? appSdk.getApp() : appSdk.initializeApp(firebaseConfig);
-      const auth = authSdk.getAuth(app);
-      const provider = new authSdk.GoogleAuthProvider();
-      provider.setCustomParameters({ prompt: 'select_account' });
-      const credential = await authSdk.signInWithPopup(auth, provider);
+      // Start the popup synchronously in the click handler; do not await setup first.
+      const popupPromise = context.authSdk.signInWithPopup(context.auth, context.provider);
+      const credential = await popupPromise;
       if (credential && credential.user) {
         location.replace('index.html');
       } else {
@@ -129,11 +158,11 @@ body{margin:0;color:#171717;font-family:Arial,Helvetica,sans-serif}
 })();
 </script>
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+import { initializeApp, getApp, getApps } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, sendEmailVerification, updateProfile, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence, browserSessionPersistence, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc, updateDoc, addDoc, collection, query, where, getDocs, serverTimestamp, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 const firebaseConfig={apiKey:"AIzaSyAFP-RfZWPKPcHU9NqtTzX1b8HvVVzkb3Y",authDomain:"mobile-tech-room.firebaseapp.com",projectId:"mobile-tech-room",storageBucket:"mobile-tech-room.firebasestorage.app",messagingSenderId:"620229324084",appId:"1:620229324084:web:7e2ae7a2550228a4dfc961",measurementId:"G-GPJM1C83TT"};
-const app=initializeApp(firebaseConfig);const auth=getAuth(app);const db=getFirestore(app);
+const app=getApps().length?getApp():initializeApp(firebaseConfig);const auth=getAuth(app);const db=getFirestore(app);
 // Keep the customer signed in on this phone. If local browser storage is unavailable, use session storage.
 const authReady=setPersistence(auth,browserLocalPersistence).catch(()=>setPersistence(auth,browserSessionPersistence));
 const $=id=>document.getElementById(id);const loginForm=$('loginForm'),notice=$('notice');
