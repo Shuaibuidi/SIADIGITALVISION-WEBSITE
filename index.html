@@ -178,6 +178,7 @@ footer{background:#04152f;color:#d5e2f1;padding:34px 0 16px}.footer-grid{display
 @media(max-width:700px){.sia-home-hero{padding:37px 0 32px}.sia-home-hero-in{grid-template-columns:1fr;gap:24px}.sia-home-title{font-size:39px;letter-spacing:-1.1px}.sia-home-copy{font-size:13px}.sia-home-actions a{min-height:44px;padding:0 15px;font-size:12px}.sia-home-meta{gap:11px;font-size:10px}.sia-home-showcase{padding:14px}.sia-showcase-item{min-height:96px;padding:11px}.sia-home-trust-in{grid-template-columns:1fr 1fr;gap:14px}.sia-home-trust-item{justify-content:flex-start}}
 </style>
 
+<link rel="stylesheet" href="marketplace-reference.css?v=20261127">
 </head>
 <body>
 <div class="sia-announcement"><div class="container"><span>📍 Serving customers in Matindi Trading Centre, Blantyre</span><span>WhatsApp support <a href="https://wa.me/265999290495">0999 290 495</a> <b>·</b> Malawi</span></div></div>
@@ -381,7 +382,7 @@ $("marketSearchForm").addEventListener("submit",e=>{e.preventDefault();renderCat
 $("clearSearch").addEventListener("click",()=>{search.value="";$("catalogueTypeFilter").value="all";$("catalogueCategoryFilter").value="all";$("catalogueSort").value="name";renderCatalogue()});
 const allCategoriesTrigger=document.getElementById("allCategoriesTrigger"),allCategoriesPanel=document.getElementById("allCategoriesPanel"),allCategoriesBackdrop=document.getElementById("allCategoriesBackdrop");
 function setAllCategoriesOpen(open){allCategoriesPanel.hidden=!open;allCategoriesBackdrop.hidden=!open;allCategoriesTrigger.setAttribute("aria-expanded",String(open))}
-allCategoriesTrigger.addEventListener("click",()=>setAllCategoriesOpen(allCategoriesPanel.hidden));allCategoriesBackdrop.addEventListener("click",()=>setAllCategoriesOpen(false));document.getElementById("allCategoriesClose").addEventListener("click",()=>setAllCategoriesOpen(false));document.addEventListener("keydown",e=>{if(e.key==="Escape")setAllCategoriesOpen(false)});
+allCategoriesTrigger.addEventListener("click",()=>setAllCategoriesOpen(allCategoriesPanel.hidden));document.getElementById("stageAllCategories").addEventListener("click",()=>{setAllCategoriesOpen(true);allCategoriesPanel.scrollIntoView({block:"nearest"})});allCategoriesBackdrop.addEventListener("click",()=>setAllCategoriesOpen(false));document.getElementById("allCategoriesClose").addEventListener("click",()=>setAllCategoriesOpen(false));document.addEventListener("keydown",e=>{if(e.key==="Escape")setAllCategoriesOpen(false)});
 document.querySelectorAll("[data-department]").forEach(card=>card.addEventListener("click",()=>{const category=card.getAttribute("data-department"),filter=$("catalogueCategoryFilter");search.value="";$("catalogueTypeFilter").value="all";if([...filter.options].some(option=>option.value===category)){filter.value=category}else{filter.value="all";search.value=category}renderCatalogue();document.getElementById("products").scrollIntoView({behavior:"smooth"})}));
 updateCartCount();loadCatalogue();
 </script>
