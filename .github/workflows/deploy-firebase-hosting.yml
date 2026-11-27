@@ -39,5 +39,5 @@ jobs:
       - name: Deploy SIA website
         run: firebase deploy --only hosting --project mobile-tech-room --non-interactive
 
-      - name: Deploy Firestore security rules
-        run: firebase deploy --only firestore:rules --project mobile-tech-room --non-interactive
+      # Firestore rules are intentionally not deployed by the website workflow.
+      # This Firebase project is shared with other applications; website releases must affect Hosting only.
