@@ -234,7 +234,8 @@ $('refreshInvoicesBtn').addEventListener('click',loadCustomerInvoices);
 async function loadOrderCatalogue(){
  const type=$('orderType').value,select=$('orderName');select.innerHTML='<option value="">Loading catalogue items…</option>';
  try{
-  const snap=await getDocs(query(collection(db,'catalogueItems'),where('active','==',true)));
+  const [snap,profileSnap]=await Promise.all([getDocs(query(collection(db,'catalogueItems'),where('active','==',true))),getDoc(doc(db,'platformCustomers',auth.currentUser.uid))]);
+  const profile=profileSnap.exists()?profileSnap.data():{};const isReseller=profile.accountType==='reseller';
   const items=snap.docs.map(d=>({id:d.id,...d.data()})).filter(x=>x.active!==false&&x.type===(type==='Product'?'product':'service')).sort((a,b)=>String(a.name||'').localeCompare(String(b.name||'')));
   select.replaceChildren();const first=document.createElement('option');first.value='';first.textContent=items.length?'Choose an item':'No '+(type==='Product'?'products':'services')+' currently available';select.append(first);
   items.forEach(item=>{const option=document.createElement('option');option.value=item.id;const price=orderUnitPrice(item,profile);option.textContent=item.name+(price==null?' · Quote': ' · '+(isReseller&&item.resellerPrice!=null?'Reseller ':'')+'MK '+Number(price).toLocaleString('en-US'));option.dataset.stock=String(item.stockQuantity??'');option.dataset.tracked=String(item.stockTracked===true);option.dataset.availability=String(item.availability||'Available');if(item.type==='product'&&item.stockTracked===true&&Number(item.stockQuantity||0)<=0)option.disabled=true;select.append(option)});
