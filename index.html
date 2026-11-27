@@ -153,7 +153,7 @@ footer{background:#04152f;color:#d5e2f1;padding:34px 0 16px}.footer-grid{display
 @media(max-width:700px){.sia-home-hero{padding:37px 0 32px}.sia-home-hero-in{grid-template-columns:1fr;gap:24px}.sia-home-title{font-size:39px;letter-spacing:-1.1px}.sia-home-copy{font-size:13px}.sia-home-actions a{min-height:44px;padding:0 15px;font-size:12px}.sia-home-meta{gap:11px;font-size:10px}.sia-home-showcase{padding:14px}.sia-showcase-item{min-height:96px;padding:11px}.sia-home-trust-in{grid-template-columns:1fr 1fr;gap:14px}.sia-home-trust-item{justify-content:flex-start}}
 </style>
 
-</head>
+<link rel="stylesheet" href="homepage-finish.css?v=20261127"></head>
 <body>
 <header class="header sia-market-header" id="home">
  <div class="container sia-topline">
@@ -219,6 +219,19 @@ footer{background:#04152f;color:#d5e2f1;padding:34px 0 16px}.footer-grid{display
   <div class="sia-home-trust-item"><span>🛠️</span><div><b>Practical expertise</b><small>Print &amp; mobile technology</small></div></div>
   <div class="sia-home-trust-item"><span>💬</span><div><b>Direct assistance</b><small>Talk to our team</small></div></div>
   <div class="sia-home-trust-item"><span>🛍️</span><div><b>Browse with ease</b><small>Products &amp; services</small></div></div>
+ </div>
+</section>
+<section class="sia-departments" id="departments" aria-labelledby="departmentTitle">
+ <div class="container">
+  <div class="sia-departments-head"><div><small>SHOP BY DEPARTMENT</small><h2 id="departmentTitle">What are you looking for?</h2></div><p>Explore the main services and product departments at S I A TECH PRINT MEDIA.</p></div>
+  <div class="sia-department-grid">
+   <a class="sia-department-card" href="#products" data-department="Printing & Media Services"><span class="sia-department-icon">🖨️</span><b>Printing &amp; Media Services</b><span>Explore department →</span></a>
+   <a class="sia-department-card" href="#products" data-department="Phone Repair & Maintenance"><span class="sia-department-icon">📱</span><b>Phone Repair &amp; Maintenance</b><span>Explore department →</span></a>
+   <a class="sia-department-card" href="#products" data-department="Unlocking & Security Solutions"><span class="sia-department-icon">🔓</span><b>Unlocking &amp; Security</b><span>Explore department →</span></a>
+   <a class="sia-department-card" href="#products" data-department="Digital & Account Solutions"><span class="sia-department-icon">💻</span><b>Digital &amp; Account Solutions</b><span>Explore department →</span></a>
+   <a class="sia-department-card" href="#products" data-department="GSM Tools & Technical Services"><span class="sia-department-icon">🧰</span><b>GSM Tools &amp; Technical</b><span>Explore department →</span></a>
+   <a class="sia-department-card" href="#products" data-department="Accessories & Sales"><span class="sia-department-icon">🎧</span><b>Accessories &amp; Sales</b><span>Explore department →</span></a>
+  </div>
  </div>
 </section>
 <section class="section live-catalogue" id="products">
@@ -356,6 +369,7 @@ $("clearSearch").addEventListener("click",()=>{search.value="";$("catalogueTypeF
 const allCategoriesTrigger=document.getElementById("allCategoriesTrigger"),allCategoriesPanel=document.getElementById("allCategoriesPanel"),allCategoriesBackdrop=document.getElementById("allCategoriesBackdrop");
 function setAllCategoriesOpen(open){allCategoriesPanel.hidden=!open;allCategoriesBackdrop.hidden=!open;allCategoriesTrigger.setAttribute("aria-expanded",String(open))}
 allCategoriesTrigger.addEventListener("click",()=>setAllCategoriesOpen(allCategoriesPanel.hidden));allCategoriesBackdrop.addEventListener("click",()=>setAllCategoriesOpen(false));document.getElementById("allCategoriesClose").addEventListener("click",()=>setAllCategoriesOpen(false));document.addEventListener("keydown",e=>{if(e.key==="Escape")setAllCategoriesOpen(false)});
+document.querySelectorAll("[data-department]").forEach(card=>card.addEventListener("click",()=>{const category=card.getAttribute("data-department");search.value="";$("catalogueTypeFilter").value="all";$("catalogueCategoryFilter").value=category;renderCatalogue()}));
 updateCartCount();loadCatalogue();
 </script>
 </body></html>
