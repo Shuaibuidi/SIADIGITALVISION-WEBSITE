@@ -229,7 +229,7 @@ footer{background:#04152f;color:#d5e2f1;padding:34px 0 16px}.footer-grid{display
 <footer><div class="container"><div class="footer-grid"><div><div class="footer-brand">S I A TECH <span>PRINT MEDIA</span></div><p>HOME OF PRINTING &amp; COMPUTING<br>Professional printing, computing, mobile technology and digital support in Matindi, Blantyre.</p></div><div><h3>Explore</h3><a href="#products">Our services</a><br><a href="#products">Products</a><br><a href="account.html">Customer portal</a></div><div><h3>Customer support</h3><a href="https://wa.me/265999290495">WhatsApp support</a><br><a href="tel:+265888290495">Call 0888 290 495</a><br><a href="https://wa.me/265999290495">Visit our shop</a></div><div><h3>Other platform</h3><a href="https://shuaibuidi.github.io/MOBILE-TECH-ROOM/">Mobile Tech Room</a><br><a href="https://www.facebook.com/">Facebook</a></div></div><div class="copyright"><span>© 2026 S I A TECH PRINT MEDIA. All rights reserved.</span><span>siadigitalvision.com</span><span>Powered by S I A Tech Print Media</span></div></div></footer>
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-import {getFirestore,collection,getDocs} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+import {getFirestore,collection,getDocs,query,where} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 const firebaseConfig={apiKey:"AIzaSyAFP-RfZWPKPcHU9NqtTzX1b8HvVVzkb3Y",authDomain:"mobile-tech-room.firebaseapp.com",projectId:"mobile-tech-room",storageBucket:"mobile-tech-room.firebasestorage.app",messagingSenderId:"620229324084",appId:"1:620229324084:web:7e2ae7a2550228a4dfc961",measurementId:"G-GPJM1C83TT"};
 const app=initializeApp(firebaseConfig);const db=getFirestore(app);
 const $=id=>document.getElementById(id);let catalogueItems=[];
@@ -308,7 +308,7 @@ function renderCatalogue(){
  });
 }
 async function loadCatalogue(){
- try{const snap=await getDocs(collection(db,"catalogueItems"));catalogueItems=snap.docs.map(d=>({id:d.id,...d.data()})).filter(x=>x.active!==false).sort((a,b)=>String(a.name||"").localeCompare(String(b.name||"")));renderCatalogue();buildCategoryMenu()}
+ try{const snap=await getDocs(query(collection(db,"catalogueItems"),where("active","==",true)));catalogueItems=snap.docs.map(d=>({id:d.id,...d.data()})).filter(x=>x.active!==false).sort((a,b)=>String(a.name||"").localeCompare(String(b.name||"")));renderCatalogue();buildCategoryMenu()}
  catch(e){grid.innerHTML='<div class="catalogue-message">We could not load the published catalogue. Please refresh the page.</div>';count.textContent="Catalogue temporarily unavailable"}
 }
 function buildCategoryMenu(){

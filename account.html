@@ -234,7 +234,7 @@ $('refreshInvoicesBtn').addEventListener('click',loadCustomerInvoices);
 async function loadOrderCatalogue(){
  const type=$('orderType').value,select=$('orderName');select.innerHTML='<option value="">Loading catalogue items…</option>';
  try{
-  const snap=await getDocs(collection(db,'catalogueItems'));
+  const snap=await getDocs(query(collection(db,'catalogueItems'),where('active','==',true)));
   const items=snap.docs.map(d=>({id:d.id,...d.data()})).filter(x=>x.active!==false&&x.type===(type==='Product'?'product':'service')).sort((a,b)=>String(a.name||'').localeCompare(String(b.name||'')));
   select.replaceChildren();const first=document.createElement('option');first.value='';first.textContent=items.length?'Choose an item':'No '+(type==='Product'?'products':'services')+' currently available';select.append(first);
   items.forEach(item=>{const option=document.createElement('option');option.value=item.id;option.textContent=item.name+(item.price==null?' · Quote': ' · MK '+Number(item.price).toLocaleString('en-US'));option.dataset.stock=String(item.stockQuantity??'');option.dataset.tracked=String(item.stockTracked===true);option.dataset.availability=String(item.availability||'Available');if(item.type==='product'&&item.stockTracked===true&&Number(item.stockQuantity||0)<=0)option.disabled=true;select.append(option)});
@@ -312,7 +312,7 @@ $('customerOrderSearch').addEventListener('input',applyCustomerOrderFilters);
 $('customerOrderStatus').addEventListener('change',applyCustomerOrderFilters);
 $('customerOrderSort').addEventListener('change',sortCustomerOrders);
 $('signOutBtn').addEventListener('click',async()=>{try{await signOut(auth)}catch(e){showMessage(friendlyError(e))}});
-if(cartMode){setCartOrderMode();const currentCart=readShoppingCart();if(currentCart.length){(async()=>{try{const snap=await getDocs(collection(db,"catalogueItems"));const byId=new Map(snap.docs.map(d=>[d.id,{id:d.id,...d.data()}]));const lines=currentCart.map(x=>({...x,name:byId.get(x.id)?.name||"Unavailable item",type:byId.get(x.id)?.type==="product"?"Product":"Service"}));showCartSummary(lines)}catch(e){showCartSummary(currentCart.map(x=>({...x,name:"Catalogue item",type:"Item"})))}})()}else showCartSummary([])}
+if(cartMode){setCartOrderMode();const currentCart=readShoppingCart();if(currentCart.length){(async()=>{try{const entries=await Promise.all(currentCart.map(async x=>{const snap=await getDoc(doc(db,"catalogueItems",x.id));return [x.id,snap.exists()&&snap.data().active===true?{id:snap.id,...snap.data()}:null]}));const byId=new Map(entries);const lines=currentCart.map(x=>({...x,name:byId.get(x.id)?.name||"Unavailable item",type:byId.get(x.id)?.type==="product"?"Product":"Service"}));showCartSummary(lines)}catch(e){showCartSummary(currentCart.map(x=>({...x,name:"Catalogue item",type:"Item"})))}})()}else showCartSummary([])}
 onAuthStateChanged(auth,user=>{if(user){$('authArea').classList.add('hidden');$('dashboard').classList.remove('hidden');updateEmailVerification(user);$('dashName').textContent=user.displayName||'Customer';$('dashEmail').textContent=user.email||'—';$('dashUid').textContent=user.uid||'Unavailable';ensureCustomerProfile(user);loadCustomerOrders();loadCustomerInvoices();loadOrderCatalogue()}else{$('authArea').classList.remove('hidden');$('dashboard').classList.add('hidden')}});
 if(location.hash==='#register')setTab('register');
 </script></body></html>
