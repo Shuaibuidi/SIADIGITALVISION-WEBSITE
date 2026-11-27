@@ -1,0 +1,63 @@
+/* S I A Tech Print Media — unified full-site brand system */
+:root{
+ --sia-navy:#102A43;--sia-navy-deep:#0B1F33;--sia-blue:#2563EB;--sia-blue-dark:#1D4ED8;
+ --sia-sky:#38BDF8;--sia-ink:#172B49;--sia-muted:#64748B;--sia-line:#DCE5EF;
+ --sia-bg:#F1F5F9;--sia-surface:#FFFFFF;--sia-soft:#EFF6FF;
+ --sia-success:#16845B;--sia-danger:#DC2626;
+ --navy:var(--sia-navy);--navy2:#1E4265;--blue:var(--sia-blue);--cyan:var(--sia-sky);
+ --gold:var(--sia-sky);--orange:var(--sia-blue);--ink:var(--sia-ink);--muted:var(--sia-muted);
+ --line:var(--sia-line);--bg:var(--sia-bg);--green:var(--sia-success);
+}
+html{scroll-behavior:smooth}
+body{background:var(--sia-bg)!important;color:var(--sia-ink)!important;font-family:Inter,Arial,Helvetica,sans-serif}
+a{color:var(--sia-blue)}
+a:hover{color:var(--sia-blue-dark)}
+header,.header,.sia-market-header{background:var(--sia-surface)!important;color:var(--sia-ink)}
+.sia-announcement,.announcement{background:var(--sia-navy)!important;color:#fff!important;border-color:#23435f!important}
+.sia-announcement a,.announcement a,.sia-announcement b,.announcement b{color:#BAE6FD!important}
+.sia-secondary,.sia-main-nav,.navbar{background:var(--sia-navy)!important;color:#fff!important;border-color:#24445f!important}
+.sia-secondary a,.sia-main-nav a,.navbar a,.nav-in a{color:inherit}
+.sia-secondary a:hover,.sia-main-nav a:hover,.navbar a:hover,.nav-in a:hover,.nav-in a.selected{background:#1E4265!important;color:#BAE6FD!important}
+.brand-mark,.sia-topline .brand-mark{background:var(--sia-blue)!important;color:#fff!important;border-color:#BFDBFE!important;box-shadow:none}
+.brand-name,.sia-topline .brand-name{color:var(--sia-navy)!important}
+.sia-create,.sia-search-tools .sia-search-submit,.sia-inline-search button,.search button,
+.btn-blue,.btn:not(.btn-outline):not(.btn-dark):not(.btn-green):not(.secondary):not(.danger),
+button.primary,.primary-button{background:var(--sia-blue)!important;color:#fff!important;border-color:var(--sia-blue)!important}
+.sia-create:hover,.sia-search-tools .sia-search-submit:hover,.sia-inline-search button:hover,
+.btn-blue:hover,.btn:not(.btn-outline):not(.btn-dark):not(.btn-green):not(.secondary):not(.danger):hover,
+button.primary:hover,.primary-button:hover{background:var(--sia-blue-dark)!important}
+.btn-gold,.gold,.highlight-gold{background:var(--sia-sky)!important;color:var(--sia-navy)!important;border-color:var(--sia-sky)!important}
+.btn-green,.success{background:var(--sia-success)!important;color:#fff!important}
+.btn-outline,.btn.secondary,.secondary{background:#fff!important;color:var(--sia-navy)!important;border:1px solid var(--sia-line)!important}
+.btn-outline:hover,.btn.secondary:hover,.secondary:hover{border-color:var(--sia-blue)!important;color:var(--sia-blue)!important}
+.search,.sia-inline-search,.sia-big-search{border-color:#93C5FD!important}
+.sia-big-search{background:#fff!important;box-shadow:0 5px 22px #102a4310!important}
+.sia-home-hero,.hero{background:linear-gradient(115deg,#fff 0%,#EFF6FF 100%)!important;color:var(--sia-ink)!important;border-color:var(--sia-line)!important}
+.sia-home-title,.hero h1,.sia-home-title strong{color:var(--sia-navy)!important}
+.sia-home-eyebrow,.service-foot a,.product-info a{color:var(--sia-blue)!important}
+.sia-home-eyebrow:before{background:var(--sia-sky)!important}
+.sia-home-hero:after{border-color:#2563EB18!important;box-shadow:0 0 0 35px #2563EB0A,0 0 0 75px #2563EB06!important}
+.sia-home-hero .btn-gold,.hero .btn-gold{background:var(--sia-blue)!important;color:#fff!important}
+.sia-secondary,.sia-secondary-in{border-color:#24445f!important}
+.panel,.card,.category,.service-card,.product,.contact-card,.account-in,.hero-panel,
+.sia-feature-card,.sia-service-card,.sia-product-card,.sia-info-card{
+ background:var(--sia-surface)!important;border-color:var(--sia-line)!important;
+ box-shadow:0 5px 20px #102A430A!important;border-radius:12px
+}
+.category:hover,.product:hover,.service-card:hover{border-color:#93C5FD!important}
+.product-art,.category-icon,.sia-product-art{background:var(--sia-soft)!important}
+.filter.active,.filter:hover{background:var(--sia-blue)!important;border-color:var(--sia-blue)!important;color:#fff!important}
+input,select,textarea{border-color:#CBD5E1!important;color:var(--sia-ink)!important}
+input:focus,select:focus,textarea:focus{outline:0;border-color:var(--sia-blue)!important;box-shadow:0 0 0 3px #2563EB18!important}
+table th{background:#EFF6FF!important;color:var(--sia-navy)!important}
+table td,table th{border-color:var(--sia-line)!important}
+footer,.footer{background:var(--sia-navy)!important;color:#E2E8F0!important}
+footer a,.footer a{color:#BAE6FD!important}
+hr{border-color:var(--sia-line)!important}
+.badge,.tag,.pill{border-color:#BFDBFE}
+@media(max-width:700px){
+ .sia-topline{gap:12px}
+ .sia-topline .brand-name{font-size:16px}
+ .sia-home-hero{padding-top:30px!important}
+ .sia-home-title{font-size:clamp(32px,9vw,46px)!important}
+}
