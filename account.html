@@ -79,6 +79,8 @@ const app=initializeApp(firebaseConfig);const auth=getAuth(app);const db=getFire
 // Keep the customer signed in on this phone. If local browser storage is unavailable, use session storage.
 const authReady=setPersistence(auth,browserLocalPersistence).catch(()=>setPersistence(auth,browserSessionPersistence));
 const $=id=>document.getElementById(id);const loginForm=$('loginForm'),notice=$('notice');
+// Attach the Google action immediately so unrelated page setup cannot prevent the button from responding.
+$('googleSignInBtn')?.addEventListener('click',()=>startSocialSignIn(googleProvider,'Google'));
 const orderParams=new URLSearchParams(location.search);
 const CART_KEY="sia_market_cart_v1";
 const cartMode=orderParams.get("cart")==="1";
@@ -121,13 +123,20 @@ $('forgotBtn').addEventListener('click',async()=>{clearMessage();const email=$('
 function friendlyError(e){const map={'auth/invalid-email':'Please enter a valid email address.','auth/user-not-found':'No account was found for this email address.','auth/wrong-password':'The password is incorrect.','auth/invalid-credential':'Email or password is incorrect.','auth/email-already-in-use':'An account already exists with this email. Try signing in.','auth/weak-password':'Choose a stronger password with at least 8 characters.','auth/network-request-failed':'Network error. Check your internet connection and try again.','auth/too-many-requests':'Too many attempts. Please wait and try again.','auth/operation-not-allowed':'Email/password sign-in is not enabled for this Firebase project.','auth/account-exists-with-different-credential':'An account already exists with this email using a different sign-in method. Try the original method or contact us for help.','auth/unauthorized-domain':'This website domain is not yet authorized for Firebase sign-in. Please contact the website administrator.','auth/invalid-oauth-client-id':'The social sign-in provider is not fully configured in Firebase.'};return map[e.code]||('Could not complete the request: '+(e.message||'Please try again.'))}
 
 const googleProvider=new GoogleAuthProvider();googleProvider.setCustomParameters({prompt:'select_account'});
-$('googleSignInBtn').addEventListener('click',async()=>startSocialSignIn(googleProvider,'Google'));
+
 $('emailContinueForm').addEventListener('submit',e=>{e.preventDefault();const email=$('emailContinueInput').value.trim();if(!email){$('emailContinueInput').focus();return}$('loginEmail').value=email;$('emailFallback').classList.remove('hidden');$('emailContinueBtn').textContent='Continue with email';$('loginPassword').focus();});
 
 async function startSocialSignIn(provider,label){
- const buttons=[$('googleSignInBtn')];buttons.forEach(b=>b.disabled=true);clearMessage();showMessage('Connecting to '+label+'…','ok');
- try{await authReady;await signInWithRedirect(auth,provider)}
- catch(error){showMessage(friendlyError(error));buttons.forEach(b=>b.disabled=false)}
+ const button=$('googleSignInBtn');
+ if(button){button.disabled=true;button.textContent='Opening Google…'}
+ clearMessage();showMessage('Opening Google account selection…','ok');
+ try{
+  await authReady;
+  await signInWithRedirect(auth,provider);
+ }catch(error){
+  showMessage(friendlyError(error));
+  if(button){button.disabled=false;button.innerHTML='<span class="social-icon google-icon" aria-hidden="true">G</span><span>Continue with Google</span>'}
+ }
 }
 getRedirectResult(auth).then(result=>{
  if(result&&result.user){location.replace('index.html')}
