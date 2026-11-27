@@ -221,6 +221,7 @@ footer{background:#04152f;color:#d5e2f1;padding:34px 0 16px}.footer-grid{display
     <div class="sia-banner-slide"><img src="https://jobs.assurant.com/media/wesjihcv/shutterstock_1406773574.jpg?center=0.854977789391168%2C0.73164409486567017&height=630&mode=crop&quality=75&width=1200" alt="Smartphone being repaired by a technician" loading="lazy"><span>Phone Repair</span></div>
     <div class="sia-banner-slide"><img src="https://koala.sh/api/image/v2-15soa0-4ecrf.jpg?dream=&height=768&width=1344" alt="Laptop and digital workspace" loading="lazy"><span>Digital Solutions</span></div>
     <div class="sia-banner-slide"><img src="https://mindarena.in/demo/mobile-shop/1/mobile5.jpeg" alt="Mobile phone and electronic accessories" loading="lazy"><span>Accessories</span></div>
+    <button class="sia-banner-arrow sia-banner-prev" type="button" aria-label="Previous promotion">‹</button><button class="sia-banner-arrow sia-banner-next" type="button" aria-label="Next promotion">›</button>
    </div>
    </div>
    <div class="sia-banner-dots" id="siaBannerDots" aria-label="Choose promotional image"><button type="button" class="active" aria-label="Show printing image" aria-current="true"></button><button type="button" aria-label="Show phone repair image"></button><button type="button" aria-label="Show digital services image"></button><button type="button" aria-label="Show accessories image"></button></div>
@@ -385,11 +386,20 @@ search.addEventListener("input",renderCatalogue);
 $("catalogueTypeFilter").addEventListener("change",renderCatalogue);$("catalogueCategoryFilter").addEventListener("change",renderCatalogue);$("catalogueSort").addEventListener("change",renderCatalogue);
 $("marketSearchForm").addEventListener("submit",e=>{e.preventDefault();renderCatalogue();document.getElementById("products").scrollIntoView({behavior:"smooth"})});
 $("clearSearch").addEventListener("click",()=>{search.value="";$("catalogueTypeFilter").value="all";$("catalogueCategoryFilter").value="all";$("catalogueSort").value="name";renderCatalogue()});
-const bannerSlides=[...document.querySelectorAll(".sia-banner-slide")],bannerDots=[...document.querySelectorAll("#siaBannerDots button")];let bannerSlideIndex=0,bannerTimer;
-function showBannerSlide(index){bannerSlideIndex=(index+bannerSlides.length)%bannerSlides.length;bannerSlides.forEach((slide,i)=>slide.classList.toggle("is-active",i===bannerSlideIndex));bannerDots.forEach((dot,i)=>{dot.classList.toggle("active",i===bannerSlideIndex);if(i===bannerSlideIndex)dot.setAttribute("aria-current","true");else dot.removeAttribute("aria-current")})}
-function startBannerSlideshow(){clearInterval(bannerTimer);bannerTimer=setInterval(()=>showBannerSlide(bannerSlideIndex+1),4800)}
-bannerDots.forEach((dot,i)=>dot.addEventListener("click",()=>{showBannerSlide(i);startBannerSlideshow()}));
-const bannerBox=document.getElementById("siaBannerSlideshow");bannerBox.addEventListener("mouseenter",()=>clearInterval(bannerTimer));bannerBox.addEventListener("mouseleave",startBannerSlideshow);startBannerSlideshow();
+const bannerBox=document.getElementById("siaBannerSlideshow"),bannerSlides=[...bannerBox.querySelectorAll(".sia-banner-slide")],bannerDots=[...document.querySelectorAll("#siaBannerDots button")],bannerPrev=bannerBox.querySelector(".sia-banner-prev"),bannerNext=bannerBox.querySelector(".sia-banner-next");let bannerSlideIndex=0,bannerTimer=null,bannerStartX=0,bannerStartY=0,bannerDragging=false;
+function showBannerSlide(index){bannerSlideIndex=(index+bannerSlides.length)%bannerSlides.length;bannerSlides.forEach((slide,i)=>{slide.classList.toggle("is-active",i===bannerSlideIndex);slide.setAttribute("aria-hidden",String(i!==bannerSlideIndex))});bannerDots.forEach((dot,i)=>{dot.classList.toggle("active",i===bannerSlideIndex);dot.setAttribute("aria-current",i===bannerSlideIndex?"true":"false")})}
+function stopBannerSlideshow(){if(bannerTimer){clearInterval(bannerTimer);bannerTimer=null}}
+function startBannerSlideshow(){stopBannerSlideshow();if(!window.matchMedia("(prefers-reduced-motion: reduce)").matches&&!document.hidden)bannerTimer=setInterval(()=>showBannerSlide(bannerSlideIndex+1),5200)}
+function goToBannerSlide(index){showBannerSlide(index);startBannerSlideshow()}
+bannerDots.forEach((dot,i)=>dot.addEventListener("click",()=>goToBannerSlide(i)));
+bannerPrev.addEventListener("click",()=>goToBannerSlide(bannerSlideIndex-1));bannerNext.addEventListener("click",()=>goToBannerSlide(bannerSlideIndex+1));
+bannerBox.addEventListener("pointerdown",event=>{if(event.target.closest("button"))return;bannerStartX=event.clientX;bannerStartY=event.clientY;bannerDragging=true;stopBannerSlideshow()});
+bannerBox.addEventListener("pointerup",event=>{if(!bannerDragging)return;bannerDragging=false;const dx=event.clientX-bannerStartX,dy=event.clientY-bannerStartY;if(Math.abs(dx)>42&&Math.abs(dx)>Math.abs(dy)*1.25)showBannerSlide(bannerSlideIndex+(dx<0?1:-1));startBannerSlideshow()});
+bannerBox.addEventListener("pointercancel",()=>{bannerDragging=false;startBannerSlideshow()});
+bannerBox.addEventListener("mouseenter",stopBannerSlideshow);bannerBox.addEventListener("mouseleave",startBannerSlideshow);bannerBox.addEventListener("focusin",stopBannerSlideshow);bannerBox.addEventListener("focusout",startBannerSlideshow);
+document.addEventListener("visibilitychange",()=>document.hidden?stopBannerSlideshow():startBannerSlideshow());
+bannerBox.addEventListener("keydown",event=>{if(event.key==="ArrowLeft"){event.preventDefault();goToBannerSlide(bannerSlideIndex-1)}if(event.key==="ArrowRight"){event.preventDefault();goToBannerSlide(bannerSlideIndex+1)}});
+showBannerSlide(0);startBannerSlideshow();
 const allCategoriesTrigger=document.getElementById("allCategoriesTrigger"),allCategoriesPanel=document.getElementById("allCategoriesPanel"),allCategoriesBackdrop=document.getElementById("allCategoriesBackdrop");
 function setAllCategoriesOpen(open){allCategoriesPanel.hidden=!open;allCategoriesBackdrop.hidden=!open;allCategoriesTrigger.setAttribute("aria-expanded",String(open))}
 allCategoriesTrigger.addEventListener("click",()=>setAllCategoriesOpen(allCategoriesPanel.hidden));document.getElementById("stageAllCategories").addEventListener("click",()=>{setAllCategoriesOpen(true);allCategoriesPanel.scrollIntoView({block:"nearest"})});allCategoriesBackdrop.addEventListener("click",()=>setAllCategoriesOpen(false));document.getElementById("allCategoriesClose").addEventListener("click",()=>setAllCategoriesOpen(false));document.addEventListener("keydown",e=>{if(e.key==="Escape")setAllCategoriesOpen(false)});
