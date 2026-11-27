@@ -352,7 +352,7 @@ function renderCatalogue(){
 }
 async function loadCatalogue(){
  try{const snap=await getDocs(query(collection(db,"catalogueItems"),where("active","==",true)));catalogueItems=snap.docs.map(d=>({id:d.id,...d.data()})).filter(x=>x.active!==false).sort((a,b)=>String(a.name||"").localeCompare(String(b.name||"")));renderCatalogue();buildCategoryMenu()}
- catch(e){grid.innerHTML='<div class="catalogue-message">We could not load the published catalogue. Please refresh the page.</div>';count.textContent="Catalogue temporarily unavailable"}
+ catch(e){grid.innerHTML='<div class="catalogue-message">We could not load the published catalogue. Please refresh the page.</div>'}
 }
 function buildCategoryMenu(){
  const side=document.getElementById("dynamicCategoryLinks"),features=document.getElementById("dynamicCategoryFeatures");
