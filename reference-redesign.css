@@ -138,3 +138,11 @@ footer .copyright{border-top:1px solid #ffffff30;margin-top:22px;padding-top:13p
  footer .footer-brand{font-size:16px}footer p,footer a{font-size:10px}footer .copyright{font-size:9px;display:grid;gap:5px}
 }
 @media(prefers-reduced-motion:reduce){.sia-promo-card img{transition:none}}
+
+/* Official supplied SIA logo and compact shop wordmark */
+.sia-topline .brand.sia-brand-logo{flex:0 0 335px;display:flex;align-items:center;justify-content:flex-start;gap:9px;min-width:0}
+.sia-brand-image{display:block;flex:0 0 58px;width:58px;height:58px;object-fit:contain;border-radius:50%;background:#fff}
+.sia-brand-wordmark{display:block;min-width:0}
+.sia-topline .sia-brand-wordmark .brand-name{display:block;font-size:17px;line-height:1.15;font-weight:850;letter-spacing:0;color:#092d69!important;white-space:nowrap}
+@media(max-width:1120px){.sia-topline .brand.sia-brand-logo{flex-basis:285px}.sia-brand-image{width:54px;height:54px;flex-basis:54px}.sia-topline .sia-brand-wordmark .brand-name{font-size:15px}}
+@media(max-width:600px){.sia-topline .brand.sia-brand-logo{flex:1 1 auto;gap:6px;padding-right:95px}.sia-brand-image{width:42px;height:42px;flex-basis:42px}.sia-topline .sia-brand-wordmark .brand-name{font-size:13px;white-space:normal;line-height:1.15}}
