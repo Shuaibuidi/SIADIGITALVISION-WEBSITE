@@ -38,3 +38,6 @@ jobs:
 
       - name: Deploy SIA website
         run: firebase deploy --only hosting --project mobile-tech-room --non-interactive
+
+      - name: Deploy Firestore security rules
+        run: firebase deploy --only firestore:rules --project mobile-tech-room --non-interactive
