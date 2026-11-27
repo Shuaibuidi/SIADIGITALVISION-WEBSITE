@@ -72,7 +72,7 @@ body{margin:0;color:#171717;font-family:Arial,Helvetica,sans-serif}
 </section></main>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, sendEmailVerification, updateProfile, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence, browserSessionPersistence, GoogleAuthProvider, signInWithRedirect, getRedirectResult } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, sendEmailVerification, updateProfile, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence, browserSessionPersistence, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc, updateDoc, addDoc, collection, query, where, getDocs, serverTimestamp, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 const firebaseConfig={apiKey:"AIzaSyAFP-RfZWPKPcHU9NqtTzX1b8HvVVzkb3Y",authDomain:"mobile-tech-room.firebaseapp.com",projectId:"mobile-tech-room",storageBucket:"mobile-tech-room.firebasestorage.app",messagingSenderId:"620229324084",appId:"1:620229324084:web:7e2ae7a2550228a4dfc961",measurementId:"G-GPJM1C83TT"};
 const app=initializeApp(firebaseConfig);const auth=getAuth(app);const db=getFirestore(app);
@@ -132,15 +132,13 @@ async function startSocialSignIn(provider,label){
  clearMessage();showMessage('Opening Google account selection…','ok');
  try{
   await authReady;
-  await signInWithRedirect(auth,provider);
+  const credential=await signInWithPopup(auth,provider);
+  if(credential&&credential.user){location.replace('index.html')}
  }catch(error){
   showMessage(friendlyError(error));
   if(button){button.disabled=false;button.innerHTML='<span class="social-icon google-icon" aria-hidden="true">G</span><span>Continue with Google</span>'}
  }
 }
-getRedirectResult(auth).then(result=>{
- if(result&&result.user){location.replace('index.html')}
-}).catch(error=>{showMessage(friendlyError(error));});
 loginForm.addEventListener('submit',async e=>{e.preventDefault();clearMessage();const btn=loginForm.querySelector('button[type=submit]');btn.disabled=true;btn.textContent='Signing in…';try{await authReady;const credential=await signInWithEmailAndPassword(auth,$('loginEmail').value.trim(),$('loginPassword').value);$('authArea').classList.add('hidden');$('dashboard').classList.remove('hidden');$('dashName').textContent=credential.user.displayName||'Customer';$('dashEmail').textContent=credential.user.email||'—';$('dashUid').textContent=credential.user.uid||'Unavailable';await ensureCustomerProfile(credential.user);updateEmailVerification(credential.user)}catch(err){showMessage(friendlyError(err))}finally{btn.disabled=false;btn.textContent='Sign in securely'}});
 $('profileForm').addEventListener('submit',async e=>{e.preventDefault();const saveBtn=$('saveProfileBtn'),saveNotice=$('profileSaveNotice');saveBtn.disabled=true;saveNotice.className='message';saveNotice.textContent='';try{const user=auth.currentUser;if(!user)throw new Error('Please sign in again.');const fullName=$('profileFullName').value.trim();if(fullName.length<2)throw new Error('Please enter your full name.');await updateDoc(doc(db,'platformCustomers',user.uid),{fullName,phone:$('profilePhone').value.trim(),address:$('profileAddress').value.trim(),updatedAt:serverTimestamp()});if(user.displayName!==fullName)await updateProfile(user,{displayName:fullName});$('dashName').textContent=fullName;saveNotice.textContent='Your profile details have been saved successfully.';saveNotice.className='message ok'}catch(err){saveNotice.textContent=err.code?('Could not save your profile ('+err.code+'). Please try again.'):err.message;saveNotice.className='message error'}finally{saveBtn.disabled=false}});
 
