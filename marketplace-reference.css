@@ -88,3 +88,18 @@ footer{background:#263441!important}
  .sia-department-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
  .live-catalogue .section-head{padding:15px 12px}.live-catalogue .catalogue-filters{padding:0 12px 13px}.live-catalogue-meta{padding:0 12px 10px}.live-catalogue-grid{padding:0 12px 14px;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 }
+
+
+/* Automatic promotional image slideshow */
+.sia-market-banner{isolation:isolate}
+.sia-banner-slideshow{position:absolute;right:2%;top:8%;bottom:8%;width:47%;display:grid;place-items:center;overflow:hidden;border-radius:14px;z-index:1}
+.sia-banner-slide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;transform:translateX(32px) scale(.97);transition:opacity .75s ease,transform .85s cubic-bezier(.2,.7,.2,1);pointer-events:none}
+.sia-banner-slide.is-active{opacity:1;transform:translateX(0) scale(1)}
+.sia-banner-slide img{width:100%;height:100%;object-fit:cover;border-radius:14px;box-shadow:0 16px 35px #173c5c2b}
+.sia-banner-slide:after{content:"";position:absolute;inset:45% 0 0;border-radius:0 0 14px 14px;background:linear-gradient(transparent,#102c4d9c)}
+.sia-banner-slide>span{position:absolute;z-index:2;bottom:15px;left:17px;color:#fff;font-size:12px;font-weight:800;letter-spacing:.4px;text-shadow:0 1px 5px #0008}
+.sia-banner-dots{gap:8px}
+.sia-banner-dots button{width:9px;height:9px;padding:0;border:0;border-radius:50%;background:#c8d2dc;cursor:pointer;transition:all .25s}
+.sia-banner-dots button.active{width:25px;border-radius:8px;background:#f36b21}
+@media(max-width:760px){.sia-banner-slideshow{right:3%;top:12%;bottom:12%;width:43%;border-radius:10px}.sia-banner-slide img{border-radius:10px}.sia-banner-slide>span{font-size:9px;bottom:9px;left:9px}.sia-banner-slide:after{border-radius:0 0 10px 10px}}
+@media(prefers-reduced-motion:reduce){.sia-banner-slide{transition:none}.sia-banner-dots button{transition:none}}

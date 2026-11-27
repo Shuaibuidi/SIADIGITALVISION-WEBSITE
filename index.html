@@ -216,9 +216,14 @@ footer{background:#04152f;color:#d5e2f1;padding:34px 0 16px}.footer-grid{display
   <div class="sia-market-feature">
    <div class="sia-market-banner">
     <div class="sia-banner-copy"><span>YOUR LOCAL TECHNOLOGY PARTNER</span><h1>Smart solutions.<br><em>Quality service.</em></h1><p>Printing, phone repairs, digital services and accessories — all in one place.</p><a href="#products">Explore our products &amp; services&nbsp; →</a></div>
-    <div class="sia-banner-art" aria-hidden="true"><span class="art-phone">📱</span><span class="art-printer">🖨️</span><span class="art-laptop">💻</span><span class="art-tools">🧰</span></div>
+    <div class="sia-banner-slideshow" id="siaBannerSlideshow" aria-label="Featured SIA services">
+    <div class="sia-banner-slide is-active"><img src="https://www.iec-exp.co.jp/dcms_media/image/RevoriaPressPC11200.jpg" alt="Professional digital printing machine" loading="eager"><span>Printing &amp; Media</span></div>
+    <div class="sia-banner-slide"><img src="https://images.unsplash.com/photo-1576613109753-27804de2cba8?auto=format&amp;fit=crop&amp;fm=jpg&amp;ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8dGVsJUMzJUE5Zm9ubyUyMHJvdG98ZW58MHx8MHx8fDA%3D&amp;ixlib=rb-4.1.0&amp;q=60&amp;w=1400" alt="Smartphone being repaired by a technician" loading="lazy"><span>Phone Repair</span></div>
+    <div class="sia-banner-slide"><img src="https://cdn.prod.website-files.com/66d4ca8898912b9b735e0bdd/66d4ca8898912b9b735e0e09_66b7326026c580d8b86b00c7_66b6ef9402fecdf8d075ea2a_66b6ef7e4024fd093e9b2d99_fabian-irsara-67l-QujB14w-unsplash.jpeg" alt="Laptop and digital workspace" loading="lazy"><span>Digital Solutions</span></div>
+    <div class="sia-banner-slide"><img src="https://taramac.com/storage/2025/06/%D9%84%D9%88%D8%A7%D8%B2%D9%85-%D8%AC%D8%A7%D9%86%D8%A8%DB%8C-%D8%B6%D8%B1%D9%88%D8%B1%DB%8C-%DA%A9%D9%87-%D8%A8%D8%A7%DB%8C%D8%AF-%D9%87%D9%85%D8%B2%D9%85%D8%A7%D9%86-%D8%A8%D8%A7-%DA%AF%D9%88%D8%B4%DB%8C-%D9%85%D9%88%D8%A8%D8%A7%DB%8C%D9%84-%D8%AE%D8%B1%DB%8C%D8%AF%D8%A7%D8%B1%DB%8C-%DA%A9%D9%86%DB%8C%D8%AF.webp" alt="Mobile phone and electronic accessories" loading="lazy"><span>Accessories</span></div>
    </div>
-   <div class="sia-banner-dots"><i></i><i></i><i class="active"></i><i></i><i></i></div>
+   </div>
+   <div class="sia-banner-dots" id="siaBannerDots" aria-label="Choose promotional image"><button type="button" class="active" aria-label="Show printing image" aria-current="true"></button><button type="button" aria-label="Show phone repair image"></button><button type="button" aria-label="Show digital services image"></button><button type="button" aria-label="Show accessories image"></button></div>
    <div class="sia-feature-tiles">
     <a class="sia-feature-tile tile-primary" href="/printing-services.html"><b>Printing &amp; Media</b><span>Print, copy, design and finishing</span><strong>Explore now →</strong></a>
     <a class="sia-feature-tile" href="/phone-repair.html"><b>Phone Repairs</b><span>Repair &amp; maintenance</span><strong>Explore →</strong><span class="tile-art">📱</span></a>
@@ -380,6 +385,11 @@ search.addEventListener("input",renderCatalogue);
 $("catalogueTypeFilter").addEventListener("change",renderCatalogue);$("catalogueCategoryFilter").addEventListener("change",renderCatalogue);$("catalogueSort").addEventListener("change",renderCatalogue);
 $("marketSearchForm").addEventListener("submit",e=>{e.preventDefault();renderCatalogue();document.getElementById("products").scrollIntoView({behavior:"smooth"})});
 $("clearSearch").addEventListener("click",()=>{search.value="";$("catalogueTypeFilter").value="all";$("catalogueCategoryFilter").value="all";$("catalogueSort").value="name";renderCatalogue()});
+const bannerSlides=[...document.querySelectorAll(".sia-banner-slide")],bannerDots=[...document.querySelectorAll("#siaBannerDots button")];let bannerSlideIndex=0,bannerTimer;
+function showBannerSlide(index){bannerSlideIndex=(index+bannerSlides.length)%bannerSlides.length;bannerSlides.forEach((slide,i)=>slide.classList.toggle("is-active",i===bannerSlideIndex));bannerDots.forEach((dot,i)=>{dot.classList.toggle("active",i===bannerSlideIndex);if(i===bannerSlideIndex)dot.setAttribute("aria-current","true");else dot.removeAttribute("aria-current")})}
+function startBannerSlideshow(){clearInterval(bannerTimer);bannerTimer=setInterval(()=>showBannerSlide(bannerSlideIndex+1),4800)}
+bannerDots.forEach((dot,i)=>dot.addEventListener("click",()=>{showBannerSlide(i);startBannerSlideshow()}));
+const bannerBox=document.getElementById("siaBannerSlideshow");bannerBox.addEventListener("mouseenter",()=>clearInterval(bannerTimer));bannerBox.addEventListener("mouseleave",startBannerSlideshow);startBannerSlideshow();
 const allCategoriesTrigger=document.getElementById("allCategoriesTrigger"),allCategoriesPanel=document.getElementById("allCategoriesPanel"),allCategoriesBackdrop=document.getElementById("allCategoriesBackdrop");
 function setAllCategoriesOpen(open){allCategoriesPanel.hidden=!open;allCategoriesBackdrop.hidden=!open;allCategoriesTrigger.setAttribute("aria-expanded",String(open))}
 allCategoriesTrigger.addEventListener("click",()=>setAllCategoriesOpen(allCategoriesPanel.hidden));document.getElementById("stageAllCategories").addEventListener("click",()=>{setAllCategoriesOpen(true);allCategoriesPanel.scrollIntoView({block:"nearest"})});allCategoriesBackdrop.addEventListener("click",()=>setAllCategoriesOpen(false));document.getElementById("allCategoriesClose").addEventListener("click",()=>setAllCategoriesOpen(false));document.addEventListener("keydown",e=>{if(e.key==="Escape")setAllCategoriesOpen(false)});
