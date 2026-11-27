@@ -131,8 +131,10 @@ async function startSocialSignIn(provider,label){
  if(button){button.disabled=true;button.textContent='Opening Google…'}
  clearMessage();showMessage('Opening Google account selection…','ok');
  try{
-  await authReady;
-  const credential=await signInWithPopup(auth,provider);
+  // Open the OAuth popup synchronously in the original click gesture.
+  // Awaiting auth persistence first can cause Chrome to block the popup.
+  const popupPromise=signInWithPopup(auth,provider);
+  const credential=await popupPromise;
   if(credential&&credential.user){location.replace('index.html')}
  }catch(error){
   showMessage(friendlyError(error));
