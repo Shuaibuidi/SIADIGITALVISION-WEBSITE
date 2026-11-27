@@ -1,0 +1,369 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // SIA Digital Vision website administrator:
+    // the approved admin profile is stored at users/{uid}.
+    function websiteAdmin() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.status == 'approved';
+    }
+
+    function admin(bid) {
+      return signedIn()
+        && exists(/databases/$(database)/documents/businesses/$(bid))
+        && get(/databases/$(database)/documents/businesses/$(bid)).data.ownerUid == request.auth.uid;
+    }
+
+    function memberExists(bid) {
+      return signedIn()
+        && exists(/databases/$(database)/documents/businesses/$(bid)/members/$(request.auth.uid));
+    }
+
+    function activeMember(bid) {
+      return memberExists(bid)
+        && get(/databases/$(database)/documents/businesses/$(bid)/members/$(request.auth.uid)).data.active == true;
+    }
+
+    function worker(bid) {
+      return activeMember(bid)
+        && get(/databases/$(database)/documents/businesses/$(bid)/members/$(request.auth.uid)).data.role == 'worker';
+    }
+
+    function allowedMember(bid) {
+      return admin(bid) || activeMember(bid);
+    }
+
+    // Customer/admin profile document. Customers can read only their own
+    // profile; website administrators can read profiles individually.
+    match /users/{uid} {
+      allow get: if signedIn() && (request.auth.uid == uid || websiteAdmin());
+      allow list: if false;
+      allow create, update, delete: if false;
+
+      match /appData/{docId} {
+        allow read, write: if signedIn() && request.auth.uid == uid;
+      }
+    }
+
+    // PUBLIC CATALOGUE: public queries must include active == true.
+    // Administrators can read and manage active and hidden items.
+    match /catalogueItems/{itemId} {
+      allow read: if websiteAdmin() || resource.data.active == true;
+      allow create, update, delete: if websiteAdmin();
+    }
+
+    // CUSTOMER PROFILES: each customer owns the document at their Auth UID.
+    match /platformCustomers/{uid} {
+      allow read: if websiteAdmin() || (signedIn() && request.auth.uid == uid);
+
+      allow create: if signedIn()
+        && request.auth.uid == uid
+        && request.resource.data.uid == uid
+        && request.resource.data.fullName is string
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.keys().hasOnly(['uid', 'fullName', 'email', 'createdAt']);
+
+      allow update: if websiteAdmin()
+        || (signedIn()
+          && request.auth.uid == uid
+          && request.resource.data.uid == resource.data.uid
+          && request.resource.data.email == resource.data.email
+          && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['fullName', 'phone', 'address', 'updatedAt']));
+
+      allow delete: if websiteAdmin();
+    }
+
+    // ORDERS: customers create requests and read only their own orders.
+    // Only an approved website administrator can read all orders or update them.
+    match /serviceOrders/{orderId} {
+      allow read: if websiteAdmin()
+        || (signedIn() && resource.data.customerId == request.auth.uid);
+
+      allow create: if signedIn()
+        && request.resource.data.customerId == request.auth.uid
+        && request.resource.data.status == 'pending'
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.orderType in ['Product', 'Service']
+        && request.resource.data.catalogueItemId is string
+        && request.resource.data.catalogueItemName is string
+        && request.resource.data.serviceName is string
+        && request.resource.data.description is string
+        && request.resource.data.description.size() <= 1500
+        && request.resource.data.quantity is int
+        && request.resource.data.quantity > 0
+        && (request.resource.data.unitPrice == null || request.resource.data.unitPrice is number)
+        && request.resource.data.customerEmail == request.auth.token.email
+        && request.resource.data.keys().hasAll([
+          'customerId', 'catalogueItemId', 'catalogueItemName', 'orderType',
+          'unitPrice', 'serviceName', 'description', 'status', 'createdAt',
+          'customerName', 'customerEmail', 'customerPhone', 'quantity'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'customerId', 'catalogueItemId', 'catalogueItemName', 'orderType',
+          'unitPrice', 'serviceName', 'description', 'status', 'createdAt',
+          'customerName', 'customerEmail', 'customerPhone', 'quantity'
+        ])
+        && exists(/databases/$(database)/documents/catalogueItems/$(request.resource.data.catalogueItemId))
+        && get(/databases/$(database)/documents/catalogueItems/$(request.resource.data.catalogueItemId)).data.active == true
+        && get(/databases/$(database)/documents/catalogueItems/$(request.resource.data.catalogueItemId)).data.type
+          == (request.resource.data.orderType == 'Product' ? 'product' : 'service');
+
+      allow update: if websiteAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'status', 'statusUpdatedAt', 'statusHistory', 'stockDeducted',
+          'stockDeductedQuantity', 'stockDeductedAt', 'updatedAt',
+          'adminNote', 'adminNoteUpdatedAt'
+        ])
+        && (!('status' in request.resource.data)
+          || request.resource.data.status in [
+            'pending', 'approved', 'in progress',
+            'ready for collection', 'completed', 'rejected'
+          ]);
+
+      allow delete: if false;
+    }
+
+    // INVOICES: customers can read their own; only admins create or change.
+    match /invoices/{invoiceId} {
+      allow read: if websiteAdmin()
+        || (signedIn() && resource.data.customerId == request.auth.uid);
+
+      allow create: if websiteAdmin()
+        && request.resource.data.customerId is string
+        && request.resource.data.orderId is string
+        && request.resource.data.total is number
+        && request.resource.data.total > 0
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.createdAt == request.time;
+
+      allow update: if websiteAdmin();
+      allow delete: if false;
+    }
+
+    // PAYMENT HISTORY: immutable once recorded; visible only to owner/admin.
+    match /invoicePayments/{paymentId} {
+      allow read: if websiteAdmin()
+        || (signedIn() && resource.data.customerId == request.auth.uid);
+
+      allow create: if websiteAdmin()
+        && request.resource.data.customerId is string
+        && request.resource.data.invoiceId is string
+        && request.resource.data.amount is number
+        && request.resource.data.amount > 0
+        && request.resource.data.recordedBy == request.auth.uid
+        && request.resource.data.createdAt == request.time
+        && exists(/databases/$(database)/documents/invoices/$(request.resource.data.invoiceId))
+        && get(/databases/$(database)/documents/invoices/$(request.resource.data.invoiceId)).data.customerId
+          == request.resource.data.customerId;
+
+      allow update, delete: if false;
+    }
+
+    // Existing SIA BUSINESS application data and permissions.
+    match /businesses/{bid} {
+      allow read: if allowedMember(bid);
+      allow write: if admin(bid);
+
+      match /workerProfiles/{uid} {
+        allow read, create, update, delete: if admin(bid);
+      }
+
+      match /private/{id} {
+        allow read, write: if admin(bid);
+      }
+
+      match /members/{uid} {
+        allow read: if admin(bid) || (signedIn() && request.auth.uid == uid);
+
+        allow update: if admin(bid)
+          && resource.data.role == 'worker'
+          && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['name', 'role', 'active', 'updatedAt', 'updatedBy'])
+          && request.resource.data.name is string
+          && request.resource.data.name.size() > 0
+          && request.resource.data.role in ['worker', 'admin']
+          && request.resource.data.active is bool
+          && request.resource.data.updatedBy == request.auth.uid;
+
+        allow delete: if admin(bid) && resource.data.role == 'worker';
+        allow create: if false;
+      }
+
+      match /stock/{itemId} {
+        allow read: if allowedMember(bid);
+        allow create, delete: if admin(bid);
+
+        allow update: if admin(bid)
+          || (worker(bid)
+            && request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['quantity', 'lastSaleTxId', 'updatedAt', 'updatedBy'])
+            && request.resource.data.quantity is int
+            && request.resource.data.quantity >= 0
+            && request.resource.data.quantity < resource.data.quantity
+            && request.resource.data.updatedBy == request.auth.uid
+            && request.resource.data.updatedAt == request.time
+            && request.resource.data.lastSaleTxId is string
+            && getAfter(/databases/$(database)/documents/businesses/$(bid)/transactions/$(request.resource.data.lastSaleTxId)).data.workerUid == request.auth.uid
+            && getAfter(/databases/$(database)/documents/businesses/$(bid)/transactions/$(request.resource.data.lastSaleTxId)).data.itemId == itemId
+            && getAfter(/databases/$(database)/documents/businesses/$(bid)/transactions/$(request.resource.data.lastSaleTxId)).data.quantity == resource.data.quantity - request.resource.data.quantity);
+      }
+
+      match /spareParts/{itemId} {
+        allow read: if allowedMember(bid);
+        allow create, delete: if admin(bid);
+
+        allow update: if admin(bid)
+          || (worker(bid)
+            && request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['quantity', 'lastSaleTxId', 'updatedAt', 'updatedBy'])
+            && request.resource.data.quantity is int
+            && request.resource.data.quantity >= 0
+            && request.resource.data.quantity < resource.data.quantity
+            && request.resource.data.updatedBy == request.auth.uid
+            && request.resource.data.updatedAt == request.time
+            && request.resource.data.lastSaleTxId is string
+            && getAfter(/databases/$(database)/documents/businesses/$(bid)/spareSales/$(request.resource.data.lastSaleTxId)).data.workerUid == request.auth.uid
+            && getAfter(/databases/$(database)/documents/businesses/$(bid)/spareSales/$(request.resource.data.lastSaleTxId)).data.itemId == itemId
+            && getAfter(/databases/$(database)/documents/businesses/$(bid)/spareSales/$(request.resource.data.lastSaleTxId)).data.quantity == resource.data.quantity - request.resource.data.quantity);
+      }
+
+      match /transactions/{txId} {
+        allow read: if allowedMember(bid);
+        allow create: if allowedMember(bid)
+          && request.resource.data.type == 'sale'
+          && request.resource.data.itemId is string
+          && request.resource.data.quantity is int
+          && request.resource.data.quantity > 0
+          && request.resource.data.unitPrice is number
+          && request.resource.data.unitPrice >= 0
+          && request.resource.data.total == request.resource.data.quantity * request.resource.data.unitPrice
+          && request.resource.data.workerUid == request.auth.uid
+          && request.resource.data.createdAt == request.time
+          && getAfter(/databases/$(database)/documents/businesses/$(bid)/stock/$(request.resource.data.itemId)).data.lastSaleTxId == txId;
+        allow update: if false;
+        allow delete: if admin(bid);
+      }
+
+      match /spareSales/{saleId} {
+        allow read: if allowedMember(bid);
+        allow create: if allowedMember(bid)
+          && request.resource.data.type == 'spare_sale'
+          && request.resource.data.itemId is string
+          && request.resource.data.quantity is int
+          && request.resource.data.quantity > 0
+          && request.resource.data.unitPrice is number
+          && request.resource.data.unitPrice >= 0
+          && request.resource.data.total == request.resource.data.quantity * request.resource.data.unitPrice
+          && request.resource.data.workerUid == request.auth.uid
+          && request.resource.data.createdAt == request.time
+          && getAfter(/databases/$(database)/documents/businesses/$(bid)/spareParts/$(request.resource.data.itemId)).data.lastSaleTxId == saleId;
+        allow update: if false;
+        allow delete: if admin(bid);
+      }
+
+      match /services/{id} {
+        allow read: if allowedMember(bid);
+        allow create: if allowedMember(bid)
+          && request.resource.data.workerUid == request.auth.uid
+          && request.resource.data.createdBy == request.auth.uid;
+        allow update, delete: if admin(bid);
+      }
+
+      match /jobs/{id} {
+        allow read: if allowedMember(bid);
+        allow create: if allowedMember(bid)
+          && request.resource.data.workerUid == request.auth.uid
+          && request.resource.data.createdBy == request.auth.uid;
+        allow update: if admin(bid)
+          || (worker(bid)
+            && resource.data.workerUid == request.auth.uid
+            && request.resource.data.workerUid == resource.data.workerUid
+            && request.resource.data.createdBy == resource.data.createdBy);
+        allow delete: if admin(bid);
+      }
+
+      match /cashbook/{id} {
+        allow read, write: if admin(bid);
+      }
+
+      match /expenses/{id} {
+        allow read, write: if admin(bid);
+      }
+
+      match /purchases/{id} {
+        allow read, write: if admin(bid);
+      }
+
+      match /suppliers/{id} {
+        allow read, write: if admin(bid);
+      }
+
+      match /stockCosts/{id} {
+        allow read, write: if admin(bid);
+      }
+
+      match /sparePartCosts/{id} {
+        allow read, write: if admin(bid);
+      }
+
+      match /transactionFinancials/{id} {
+        allow read, write: if admin(bid);
+      }
+
+      match /spareSaleFinancials/{id} {
+        allow read, write: if admin(bid);
+      }
+
+      match /serviceFinancials/{id} {
+        allow read, write: if admin(bid);
+      }
+
+      match /jobFinancials/{id} {
+        allow read, write: if admin(bid);
+      }
+
+      match /payroll/{id} {
+        allow read, write: if admin(bid);
+      }
+
+      match /cloudBackups/{backupId} {
+        allow read, write: if admin(bid);
+
+        match /chunks/{chunkId} {
+          allow read, write: if admin(bid);
+        }
+      }
+
+      match /workerActivity/{id} {
+        allow read: if admin(bid);
+        allow create: if allowedMember(bid)
+          && request.resource.data.workerUid == request.auth.uid
+          && request.resource.data.createdBy == request.auth.uid;
+        allow update, delete: if admin(bid);
+      }
+
+      match /invoices/{id} {
+        allow read: if allowedMember(bid);
+        allow create: if allowedMember(bid)
+          && request.resource.data.createdBy == request.auth.uid;
+        allow update, delete: if admin(bid);
+      }
+
+      match /customers/{id} {
+        allow read: if allowedMember(bid);
+        allow create: if allowedMember(bid)
+          && request.resource.data.createdBy == request.auth.uid;
+        allow update, delete: if admin(bid);
+      }
+    }
+  }
+}
