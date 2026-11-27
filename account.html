@@ -16,10 +16,9 @@
 <section class="main"><div class="main-head"><strong>Customer Sign In</strong><a href="index.html">Visit website ↗</a></div>
 <div id="authArea" class="social-auth-area">
 <h1 class="form-title">Sign in or create account</h1>
-<p class="muted">Choose how you want to continue. New customers can create an account with Google or Facebook automatically.</p>
+<p class="muted">Choose how you want to continue. New customers can create an account with Google automatically.</p>
 <div id="notice" class="message" role="status" aria-live="polite"></div>
 <button class="social-button google-button" id="googleSignInBtn" type="button"><span class="social-icon google-icon">G</span><span>Continue with Google</span></button>
-<button class="social-button facebook-button" id="facebookSignInBtn" type="button"><span class="social-icon facebook-icon">f</span><span>Continue with Facebook</span></button>
 <button class="email-fallback-toggle" id="emailFallbackToggle" type="button">Use email and password instead</button>
 <div id="emailFallback" class="email-fallback hidden">
 <form id="loginForm"><h2 class="form-title">Sign in with email</h2><p class="muted">For customers who already have an email-and-password account.</p><div class="field"><label for="loginEmail">Email address</label><input id="loginEmail" type="email" autocomplete="email" required placeholder="you@example.com"></div><div class="field"><label for="loginPassword">Password</label><input id="loginPassword" type="password" autocomplete="current-password" required placeholder="Your password"></div><button class="submit" type="submit">Sign in securely</button><button class="linkbtn" id="forgotBtn" type="button">Forgot your password?</button></form>
@@ -40,7 +39,7 @@
 </section></main>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, sendEmailVerification, updateProfile, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence, browserSessionPersistence, GoogleAuthProvider, FacebookAuthProvider, signInWithRedirect, getRedirectResult } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, sendEmailVerification, updateProfile, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence, browserSessionPersistence, GoogleAuthProvider, signInWithRedirect, getRedirectResult } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc, updateDoc, addDoc, collection, query, where, getDocs, serverTimestamp, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 const firebaseConfig={apiKey:"AIzaSyAFP-RfZWPKPcHU9NqtTzX1b8HvVVzkb3Y",authDomain:"mobile-tech-room.firebaseapp.com",projectId:"mobile-tech-room",storageBucket:"mobile-tech-room.firebasestorage.app",messagingSenderId:"620229324084",appId:"1:620229324084:web:7e2ae7a2550228a4dfc961",measurementId:"G-GPJM1C83TT"};
 const app=initializeApp(firebaseConfig);const auth=getAuth(app);const db=getFirestore(app);
@@ -89,12 +88,10 @@ $('forgotBtn').addEventListener('click',async()=>{clearMessage();const email=$('
 function friendlyError(e){const map={'auth/invalid-email':'Please enter a valid email address.','auth/user-not-found':'No account was found for this email address.','auth/wrong-password':'The password is incorrect.','auth/invalid-credential':'Email or password is incorrect.','auth/email-already-in-use':'An account already exists with this email. Try signing in.','auth/weak-password':'Choose a stronger password with at least 8 characters.','auth/network-request-failed':'Network error. Check your internet connection and try again.','auth/too-many-requests':'Too many attempts. Please wait and try again.','auth/operation-not-allowed':'Email/password sign-in is not enabled for this Firebase project.','auth/account-exists-with-different-credential':'An account already exists with this email using a different sign-in method. Try the original method or contact us for help.','auth/unauthorized-domain':'This website domain is not yet authorized for Firebase sign-in. Please contact the website administrator.','auth/invalid-oauth-client-id':'The social sign-in provider is not fully configured in Firebase.'};return map[e.code]||('Could not complete the request: '+(e.message||'Please try again.'))}
 
 const googleProvider=new GoogleAuthProvider();googleProvider.setCustomParameters({prompt:'select_account'});
-const facebookProvider=new FacebookAuthProvider();facebookProvider.addScope('email');
 $('googleSignInBtn').addEventListener('click',async()=>startSocialSignIn(googleProvider,'Google'));
-$('facebookSignInBtn').addEventListener('click',async()=>startSocialSignIn(facebookProvider,'Facebook'));
 $('emailFallbackToggle').addEventListener('click',()=>{$('emailFallback').classList.toggle('hidden');$('emailFallbackToggle').textContent=$('emailFallback').classList.contains('hidden')?'Use email and password instead':'Hide email sign-in';});
 async function startSocialSignIn(provider,label){
- const buttons=[$('googleSignInBtn'),$('facebookSignInBtn')];buttons.forEach(b=>b.disabled=true);clearMessage();showMessage('Connecting to '+label+'…','ok');
+ const buttons=[$('googleSignInBtn')];buttons.forEach(b=>b.disabled=true);clearMessage();showMessage('Connecting to '+label+'…','ok');
  try{await authReady;await signInWithRedirect(auth,provider)}
  catch(error){showMessage(friendlyError(error));buttons.forEach(b=>b.disabled=false)}
 }
@@ -253,7 +250,6 @@ async function loadCustomerInvoices(){
 .social-button:disabled{opacity:.65;cursor:wait}
 .social-icon{width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;font-weight:900;font-size:22px}
 .google-icon{font-family:Arial,sans-serif;color:#4285f4}
-.facebook-icon{border-radius:50%;background:#1877f2;color:white;font-family:Arial,sans-serif;font-size:22px}
 .email-fallback-toggle{margin:20px 0 0;border:0;background:none;color:#075bc5;font-size:12px;font-weight:750;text-decoration:underline;cursor:pointer}
 .email-fallback{margin-top:14px;padding:18px;text-align:left;border:1px solid var(--line);border-radius:12px;background:#fbfdff}
 .social-footnote{margin:22px 0 0;color:#8491a2;font-size:10px;line-height:1.6}
