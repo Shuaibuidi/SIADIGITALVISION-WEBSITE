@@ -154,3 +154,15 @@ hr{border-color:var(--sia-line)!important}
  .sia-market-categories>a strong,.sia-market-categories>button strong{font-size:10px!important}
  .sia-market-categories>button{margin-top:0!important;border-top:1px solid transparent!important}
 }
+
+/* Homepage: hide only the Explore Services sidebar and let the existing hero fill its space */
+.sia-market-stage .sia-market-categories{
+ display:none!important;
+}
+.sia-market-stage .sia-market-stage-grid{
+ grid-template-columns:minmax(0,1fr)!important;
+}
+.sia-market-stage .sia-market-feature{
+ width:100%!important;
+ min-width:0!important;
+}
