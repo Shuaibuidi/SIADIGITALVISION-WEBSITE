@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Disallow: /account.html
+Disallow: /admin.html
+Disallow: /catalogue.html
+Disallow: /customers.html
+Disallow: /dashboard.html
+Disallow: /invoices.html
+Disallow: /business-manager.html
+Disallow: /business-manager-app.html
+Disallow: /sso-worker/
+
+Sitemap: https://sia-digital-vision.web.app/sitemap.xml
