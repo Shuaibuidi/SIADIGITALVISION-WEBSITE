@@ -61,3 +61,7 @@ hr{border-color:var(--sia-line)!important}
  .sia-home-hero{padding-top:30px!important}
  .sia-home-title{font-size:clamp(32px,9vw,46px)!important}
 }
+
+/* Homepage hero copy refinements */
+.sia-banner-copy h1 em{color:var(--sia-blue)!important;font-style:italic;font-weight:900}
+.sia-banner-copy .sia-hero-checks li:before{content:"–"!important;display:inline!important;width:auto!important;height:auto!important;margin-right:9px!important;border-radius:0!important;background:transparent!important;color:var(--sia-blue)!important;font-size:13px!important;font-weight:900}
