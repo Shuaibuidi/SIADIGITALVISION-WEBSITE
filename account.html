@@ -9,6 +9,40 @@
 
 .invoice-overview{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:14px 0}.invoice-stat{background:#f7f9fc;border:1px solid var(--line);border-radius:9px;padding:13px 11px;min-width:0}.invoice-stat strong{display:block;font-size:20px;color:var(--navy);line-height:1.25;overflow-wrap:anywhere}.invoice-stat span{display:block;margin-top:5px;font-size:10px;color:var(--muted)}.invoice-balance-stat{background:#fff8ef;border-color:#f3dfc8}.invoice-balance-stat strong{color:#a84b08}.invoice-balance-stat strong span{display:block;font-size:12px;margin-top:4px;color:#a84b08}@media(max-width:380px){.invoice-stat{padding:10px 8px}.invoice-stat strong{font-size:17px}}
 .customer-admin-note{margin-top:12px;padding:12px;border-left:3px solid #0877e8;border-radius:7px;background:#edf5ff;color:#183b63;font-size:12px;line-height:1.6;white-space:pre-wrap}.customer-admin-note b{display:block;margin-bottom:5px;color:#071b3b}.customer-admin-note small{display:block;color:#718096;margin-top:7px;font-size:10px}
+
+/* Exact clean white sign-in layout based on the supplied reference image */
+html,body{min-height:100%;background:#fff!important}
+body{margin:0;color:#171717;font-family:Arial,Helvetica,sans-serif}
+.top{display:none!important}
+.shell{display:block!important;width:min(584px,calc(100% - 36px))!important;min-height:0!important;margin:126px auto 40px!important;padding:0!important;border:0!important;border-radius:0!important;overflow:visible!important;background:#fff!important;box-shadow:none!important}
+.main{padding:0!important}
+.social-auth-area{display:block!important;width:100%!important;max-width:584px!important;margin:0 auto!important;padding:0!important;text-align:center!important}
+.social-auth-area>.form-title{margin:0 0 48px!important;padding:0!important;color:#202124!important;font-size:34px!important;line-height:1.2!important;font-weight:700!important;letter-spacing:0!important}
+#notice{margin:0 0 14px!important;text-align:left}
+.social-button.google-button{display:flex!important;align-items:center!important;justify-content:center!important;position:relative!important;width:100%!important;height:76px!important;min-height:76px!important;margin:0!important;padding:0 20px!important;border:1px solid #b9b9b9!important;border-radius:13px!important;background:#fff!important;color:#111!important;box-shadow:none!important;font-family:Arial,Helvetica,sans-serif!important;font-size:20px!important;font-weight:700!important;cursor:pointer!important}
+.social-button.google-button:hover{background:#fff!important;border-color:#999!important;transform:none!important;box-shadow:none!important}
+.social-button.google-button .social-icon{position:absolute!important;left:23px!important;top:50%!important;transform:translateY(-50%)!important;width:30px!important;height:30px!important;display:flex!important;align-items:center!important;justify-content:center!important;font-size:29px!important;font-weight:900!important}
+.google-icon{background:conic-gradient(from -45deg,#4285f4 0 25%,#34a853 25% 48%,#fbbc05 48% 72%,#ea4335 72% 88%,#4285f4 88%)!important;background-clip:text!important;-webkit-background-clip:text!important;color:transparent!important}
+.signin-divider{display:flex!important;align-items:center!important;gap:14px!important;margin:29px 0 27px!important;color:#888!important;font-size:20px!important;font-weight:400!important}
+.signin-divider:before,.signin-divider:after{content:""!important;display:block!important;height:1px!important;flex:1!important;background:#e5e5e5!important}
+.email-continue-form{display:grid!important;grid-template-columns:1fr!important;gap:17px!important;margin:0!important}
+.email-continue-form input{display:block!important;width:100%!important;height:78px!important;min-height:78px!important;padding:0 19px!important;border:1px solid #dedede!important;border-radius:13px!important;background:#fff!important;color:#202124!important;font:20px Arial,Helvetica,sans-serif!important;outline:none!important;box-shadow:none!important}
+.email-continue-form input::placeholder{color:#888!important;opacity:1!important}
+.email-continue-form input:focus{border-color:#aaa!important;box-shadow:0 0 0 2px #00000008!important}
+.email-continue-form .submit{display:block!important;width:100%!important;height:76px!important;min-height:76px!important;margin:0!important;padding:0 20px!important;border:0!important;border-radius:40px!important;background:#df3d00!important;color:#fff!important;font:700 22px Arial,Helvetica,sans-serif!important;box-shadow:none!important}
+.email-continue-form .submit:hover{background:#d23800!important}
+.social-footnote,.legal{display:none!important}
+.email-fallback{margin-top:22px!important;padding:22px!important;text-align:left!important;border:1px solid #e2e2e2!important;border-radius:12px!important;background:#fff!important}
+.email-fallback .form-title{font-size:22px!important;color:#202124!important}
+.email-fallback .submit{background:#df3d00!important}
+@media(max-width:700px){
+ .shell{width:calc(100% - 36px)!important;margin:100px auto 35px!important}
+ .social-auth-area>.form-title{font-size:27px!important;margin-bottom:38px!important}
+ .social-button.google-button{height:68px!important;min-height:68px!important;font-size:18px!important}
+ .email-continue-form input{height:68px!important;min-height:68px!important;font-size:17px!important}
+ .email-continue-form .submit{height:68px!important;min-height:68px!important;font-size:20px!important}
+}
+@media(max-width:380px){.shell{margin-top:76px!important}.social-auth-area>.form-title{font-size:25px!important}}
 </style><link rel="stylesheet" href="marketplace.css?v=1"></head><body>
 <div class="top"><a href="index.html">Visit website ↗</a></div>
 <main class="shell">
