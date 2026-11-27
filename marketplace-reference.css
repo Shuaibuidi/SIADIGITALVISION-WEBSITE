@@ -133,3 +133,29 @@ footer{background:#263441!important}
  .sia-banner-slide:after{background:linear-gradient(90deg,rgba(5,22,43,.92) 0%,rgba(7,31,55,.72) 50%,rgba(7,31,55,.18) 100%)}
  .sia-banner-slide>span{right:9px;bottom:9px;font-size:8px;padding:6px 9px}
 }
+
+
+/* Swipe-first premium promotional carousel */
+.sia-banner-slideshow{touch-action:pan-y;cursor:grab;user-select:none;-webkit-user-select:none}
+.sia-banner-slideshow:active{cursor:grabbing}
+.sia-banner-slide{will-change:transform,opacity}
+.sia-banner-slide:not(.is-active){visibility:hidden;transition:opacity .48s ease,transform .62s cubic-bezier(.22,.7,.2,1),visibility 0s linear .62s}
+.sia-banner-slide.is-active{visibility:visible}
+.sia-banner-slide img{pointer-events:none;-webkit-user-drag:none}
+.sia-banner-arrow{position:absolute;z-index:5;top:50%;transform:translateY(-50%);width:42px;height:42px;border:1px solid #ffffff75;border-radius:50%;background:#071b3bb8;color:#fff;font-size:29px;line-height:1;display:grid;place-items:center;cursor:pointer;backdrop-filter:blur(9px);box-shadow:0 5px 18px #00172c45;transition:background .2s,transform .2s,opacity .2s;opacity:.78}
+.sia-banner-arrow:hover{background:#f36b21;opacity:1;transform:translateY(-50%) scale(1.07)}
+.sia-banner-prev{left:17px}.sia-banner-next{right:17px}
+.sia-banner-dots{height:34px}
+.sia-banner-dots button{width:8px;height:8px;background:#b8c1ca;border:0}
+.sia-banner-dots button.active{width:28px;height:8px;border-radius:10px;background:#f36b21;box-shadow:0 2px 7px #f36b2150}
+.sia-banner-copy{pointer-events:none}
+.sia-banner-copy>a{pointer-events:auto}
+@media(max-width:760px){
+ .sia-banner-arrow{width:32px;height:32px;font-size:23px;opacity:.92;background:#071b3bbd}
+ .sia-banner-prev{left:8px}.sia-banner-next{right:8px}
+ .sia-banner-copy{max-width:83%;padding-left:6%}
+ .sia-banner-copy h1{font-size:clamp(27px,7vw,35px)}
+ .sia-banner-copy p{max-width:235px;font-size:10px}
+ .sia-banner-slide>span{right:8px;bottom:8px;font-size:8px}
+}
+@media(prefers-reduced-motion:reduce){.sia-banner-slide,.sia-banner-arrow,.sia-banner-dots button{transition:none!important}}
