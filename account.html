@@ -237,12 +237,13 @@ async function loadOrderCatalogue(){
   const snap=await getDocs(query(collection(db,'catalogueItems'),where('active','==',true)));
   const items=snap.docs.map(d=>({id:d.id,...d.data()})).filter(x=>x.active!==false&&x.type===(type==='Product'?'product':'service')).sort((a,b)=>String(a.name||'').localeCompare(String(b.name||'')));
   select.replaceChildren();const first=document.createElement('option');first.value='';first.textContent=items.length?'Choose an item':'No '+(type==='Product'?'products':'services')+' currently available';select.append(first);
-  items.forEach(item=>{const option=document.createElement('option');option.value=item.id;option.textContent=item.name+(item.price==null?' · Quote': ' · MK '+Number(item.price).toLocaleString('en-US'));option.dataset.stock=String(item.stockQuantity??'');option.dataset.tracked=String(item.stockTracked===true);option.dataset.availability=String(item.availability||'Available');if(item.type==='product'&&item.stockTracked===true&&Number(item.stockQuantity||0)<=0)option.disabled=true;select.append(option)});
+  items.forEach(item=>{const option=document.createElement('option');option.value=item.id;const price=orderUnitPrice(item,profile);option.textContent=item.name+(price==null?' · Quote': ' · '+(isReseller&&item.resellerPrice!=null?'Reseller ':'')+'MK '+Number(price).toLocaleString('en-US'));option.dataset.stock=String(item.stockQuantity??'');option.dataset.tracked=String(item.stockTracked===true);option.dataset.availability=String(item.availability||'Available');if(item.type==='product'&&item.stockTracked===true&&Number(item.stockQuantity||0)<=0)option.disabled=true;select.append(option)});
   const requestedItem=orderParams.get("item");
   if(requestedItem){select.value=requestedItem;if(select.value){const requestedQuantity=Number(orderParams.get("quantity")||1);$("orderQuantity").value=Number.isInteger(requestedQuantity)&&requestedQuantity>0?String(requestedQuantity):"1";updateOrderQuantityLimit();setTimeout(()=>{document.querySelector('[data-section="place-order"]')?.scrollIntoView({behavior:"smooth",block:"start"});$("orderDetails").focus({preventScroll:true})},250)}}
  }catch(err){select.innerHTML='<option value="">Catalogue could not be loaded</option>';$('orderNotice').textContent='Could not load catalogue ('+(err.code||'connection error')+'). Please refresh.';$('orderNotice').className='message error'}
 }
-function updateOrderQuantityLimit(){
+function orderUnitPrice(item,profile){const rp=item.resellerPrice;return profile?.accountType==="reseller"&&rp!==null&&rp!==undefined&&rp!==""?Number(rp):(item.price??item.pricePerPage??null)}
+ function updateOrderQuantityLimit(){
  const selected=$("orderName").selectedOptions[0],tracked=selected?.dataset.tracked==="true",stock=Number(selected?.dataset.stock||0),qty=$("orderQuantity");
  qty.max=tracked?String(stock):"";
  if(tracked&&stock>0&&Number(qty.value)>stock)qty.value=String(stock);
@@ -268,7 +269,7 @@ $('orderForm').addEventListener('submit',async e=>{
    }
    if(prepared.length>450)throw new Error("Your cart contains too many separate items. Please submit 450 items or fewer at a time.");
    const batch=writeBatch(db);
-   for(const entry of prepared){const {line,item,type,quantity}=entry;const orderRef=doc(collection(db,"serviceOrders"));batch.set(orderRef,{customerId:user.uid,catalogueItemId:line.id,catalogueItemName:item.name||"Catalogue item",orderType:type,unitPrice:item.price??item.pricePerPage??null,serviceName:(type==="Product"?"Product order — ":"Service request — ")+(item.name||"Catalogue item"),description:"Order type: "+type+"\nQuantity: "+quantity+"\nDetails: "+(details||"No additional details provided."),status:"pending",createdAt:serverTimestamp(),customerName:profile.fullName||user.displayName||"",customerEmail:user.email||"",customerPhone:profile.phone||"",quantity});}
+   for(const entry of prepared){const {line,item,type,quantity}=entry;const orderRef=doc(collection(db,"serviceOrders"));batch.set(orderRef,{customerId:user.uid,catalogueItemId:line.id,catalogueItemName:item.name||"Catalogue item",orderType:type,unitPrice:orderUnitPrice(item,profile),serviceName:(type==="Product"?"Product order — ":"Service request — ")+(item.name||"Catalogue item"),description:"Order type: "+type+"\nQuantity: "+quantity+"\nDetails: "+(details||"No additional details provided."),status:"pending",createdAt:serverTimestamp(),customerName:profile.fullName||user.displayName||"",customerEmail:user.email||"",customerPhone:profile.phone||"",quantity});}
    await batch.commit();
    clearShoppingCart();msg.textContent="All "+prepared.length+" cart item(s) were submitted successfully. You can track each item separately under My orders.";msg.className="message ok";showCartSummary([]);await loadCustomerOrders();
   }catch(err){msg.textContent="Could not submit the complete cart ("+(err.code||err.message||"error")+"). Your cart has been kept so you can review it and try again.";msg.className="message error"}
@@ -291,7 +292,7 @@ $('orderForm').addEventListener('submit',async e=>{
    catalogueItemId:itemId,
    catalogueItemName:itemData.name||name,
    orderType:type,
-   unitPrice:itemData.price??null,
+   unitPrice:orderUnitPrice(itemData,profile),
    serviceName:(type==='Product'?'Product order — ':'Service request — ')+name,
    description:'Order type: '+type+'\nQuantity: '+quantity+'\nDetails: '+details,
    status:'pending',
