@@ -38,7 +38,7 @@ h1{font-size:26px;margin:0 0 6px;color:#263238}.muted{font-size:12px;color:var(-
 <div class="row"><div><h1>Business Dashboard</h1><p class="muted">A live overview of your customers, orders, invoices and payments.</p></div><button class="btn secondary" id="refresh" type="button">Refresh figures</button></div>
 <div id="notice" class="notice"></div>
 <div class="grid">
-<div class="stat"><span class="label">REGISTERED CUSTOMERS</span><strong id="customers">—</strong><small>Customer accounts</small></div>
+<div class="stat"><span class="label">REGISTERED CUSTOMERS</span><strong id="customers">—</strong><small>Customer accounts</small></div><div class="stat"><span class="label">APPROVED RESELLERS</span><strong id="resellers">—</strong><small>Reseller accounts</small></div>
 <div class="stat"><span class="label">TOTAL ORDERS</span><strong id="orders">—</strong><small>All customer requests</small></div>
 <div class="stat"><span class="label">PENDING ORDERS</span><strong id="pending">—</strong><small>Waiting for review</small></div>
 <div class="stat"><span class="label">TOTAL INVOICES</span><strong id="invoices">—</strong><small>Invoices issued</small></div>
@@ -57,14 +57,14 @@ h1{font-size:26px;margin:0 0 6px;color:#263238}.muted{font-size:12px;color:var(-
 <a class="action" href="customers.html"><b>Customer Management ↗</b><span>Find customer accounts and view their orders and invoices.</span></a>\n<a class="action" href="business-manager.html"><b>Smart Business Manager ↗</b><span>Open your private shop records, stock, services, expenses and business operations.</span></a>
 <a class="action" href="catalogue.html"><b>Products & Services Catalogue ↗</b><span>Add, edit, hide or remove products and services offered to customers.</span></a>
 </div>
-<section class="panel"><div class="row"><div><b>Recent customer orders</b><p class="muted">The latest requests received by your platform.</p></div><a class="btn secondary" href="admin.html">View all orders</a></div><div id="recent"><p class="muted">Loading recent orders…</p></div></section>
+<section class="panel"><div class="row"><div><b>Recent customer orders</b><p class="muted">The latest requests received by your platform.</p></div><a class="btn secondary" href="admin.html">View all orders</a></div><div id="recent"><p class="muted">Loading recent orders…</p></div></section><section class="panel"><b>Recent administrator activity</b><p class="muted">A record of catalogue, order, customer and payment changes.</p><div id="activity"><p class="muted">Loading activity…</p></div></section>
 <button class="btn secondary" id="signOut" type="button">Sign out</button>
 </section>
 </main>
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
 import {getAuth,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
-import {getFirestore,doc,getDoc,collection,getDocs} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+import {getFirestore,doc,getDoc,collection,getDocs,query,orderBy,limit} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 const firebaseConfig={apiKey:"AIzaSyAFP-RfZWPKPcHU9NqtTzX1b8HvVVzkb3Y",authDomain:"mobile-tech-room.firebaseapp.com",projectId:"mobile-tech-room",storageBucket:"mobile-tech-room.firebasestorage.app",messagingSenderId:"620229324084",appId:"1:620229324084:web:7e2ae7a2550228a4dfc961",measurementId:"G-GPJM1C83TT"};
 const app=initializeApp(firebaseConfig);const auth=getAuth(app);const db=getFirestore(app);const $=id=>document.getElementById(id);
 function showDenied(message){$("checking").classList.add("hidden");$("dashboard").classList.add("hidden");$("denied").classList.remove("hidden");$("deniedText").textContent=message}
@@ -75,19 +75,19 @@ function errorNotice(message){$("notice").textContent=message;$("notice").classN
 async function loadDashboard(){
  $("refresh").disabled=true;$("refresh").textContent="Refreshing…";$("notice").className="notice";
  try{
-  const [cs,os,is,ps,cat]=await Promise.all([getDocs(collection(db,"platformCustomers")),getDocs(collection(db,"serviceOrders")),getDocs(collection(db,"invoices")),getDocs(collection(db,"invoicePayments")),getDocs(collection(db,"catalogueItems"))]);
-  const customers=cs.docs,orders=os.docs.map(d=>({id:d.id,...d.data()})),invoices=is.docs.map(d=>({id:d.id,...d.data()})),payments=ps.docs.map(d=>d.data()),catalogue=cat.docs.map(d=>d.data());
+  const [cs,os,is,ps,cat,logs]=await Promise.all([getDocs(collection(db,"platformCustomers")),getDocs(collection(db,"serviceOrders")),getDocs(collection(db,"invoices")),getDocs(collection(db,"invoicePayments")),getDocs(collection(db,"catalogueItems")),getDocs(query(collection(db,"adminAuditLogs"),orderBy("createdAt","desc"),limit(8)))]);
+  const customers=cs.docs,orders=os.docs.map(d=>({id:d.id,...d.data()})),invoices=is.docs.map(d=>({id:d.id,...d.data()})),payments=ps.docs.map(d=>d.data()),catalogue=cat.docs.map(d=>d.data()),activities=logs.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt?.toMillis?.()||0)-(a.createdAt?.toMillis?.()||0)).slice(0,8);
   const statusOf=o=>String(o.status||"pending").toLowerCase();
   const pending=orders.filter(o=>statusOf(o)==="pending").length;
   const inProgress=orders.filter(o=>statusOf(o)==="in progress").length;
   const readyOrders=orders.filter(o=>statusOf(o)==="ready for collection").length;
   const completedOrders=orders.filter(o=>statusOf(o)==="completed").length;
-  const unpaidInvoices=invoices.filter(inv=>Number(inv.balanceDue??Math.max(0,Number(inv.total||0)-Number(inv.amountPaid||0)))>0).length;
+  const paidByInvoice={};payments.forEach(p=>{if(p.invoiceId)paidByInvoice[p.invoiceId]=(paidByInvoice[p.invoiceId]||0)+Number(p.amount||0)});
+  const unpaidInvoices=invoices.filter(inv=>Math.max(0,Number(inv.total||0)-(paidByInvoice[inv.id]||0))>0).length;
   const lowStock=catalogue.filter(item=>item.active!==false&&item.type==="product"&&item.stockTracked===true&&Number(item.stockQuantity||0)<=Number(item.lowStockThreshold??3)).length;
   const received=payments.reduce((sum,p)=>sum+Number(p.amount||0),0);
-  const paidByInvoice={};payments.forEach(p=>{if(p.invoiceId)paidByInvoice[p.invoiceId]=(paidByInvoice[p.invoiceId]||0)+Number(p.amount||0)});
   const outstanding=invoices.reduce((sum,inv)=>sum+Math.max(0,Number(inv.total||0)-(paidByInvoice[inv.id]||0)),0);
-  $("customers").textContent=customers.length.toLocaleString();
+  $("customers").textContent=customers.length.toLocaleString();$("resellers").textContent=customers.filter(d=>(d.data().accountType||"customer")==="reseller").length.toLocaleString();
   $("orders").textContent=orders.length.toLocaleString();
   $("pending").textContent=pending.toLocaleString();
   $("invoices").textContent=invoices.length.toLocaleString();
@@ -102,6 +102,7 @@ async function loadDashboard(){
   const host=$("recent");host.replaceChildren();
   if(!recent.length){host.innerHTML='<p class="muted">No customer orders have been received yet.</p>'}
   else recent.forEach(o=>{const row=document.createElement("div");row.className="recent";const left=document.createElement("span");left.textContent=(o.serviceName||"Customer order")+" · "+(o.customerName||"Customer");const right=document.createElement("span");right.className="status";right.textContent=o.status||"pending";const when=document.createElement("span");when.className="muted";when.textContent=dateText(o.createdAt);row.append(left,right,when);host.append(row)});
+  const activityHost=$("activity");activityHost.replaceChildren();if(!activities.length){activityHost.textContent="No administrator activity has been recorded yet."}else activities.forEach(item=>{const row=document.createElement("div");row.className="recent";const action=document.createElement("span");action.textContent=String(item.action||"Admin action").replace(/[._]/g," ");const details=document.createElement("span");details.className="muted";details.textContent=(item.details||item.entityId||"")+" · "+dateText(item.createdAt);row.append(action,details);activityHost.append(row)});
  }catch(e){errorNotice("Dashboard figures could not be loaded ("+(e.code||e.message||"Firestore error")+"). Please check administrator read permissions.")}
  finally{$("refresh").disabled=false;$("refresh").textContent="Refresh figures"}
 }

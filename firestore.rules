@@ -214,6 +214,15 @@ service cloud.firestore {
       allow delete: if websiteAdmin();
     }
 
+    function expectedWebsiteOrderPrice(itemId, customerId) {
+      let item = get(/databases/$(database)/documents/catalogueItems/$(itemId)).data;
+      let customer = get(/databases/$(database)/documents/platformCustomers/$(customerId)).data;
+      return ('accountType' in customer && customer.accountType == 'reseller'
+        && 'resellerPrice' in item && item.resellerPrice != null)
+        ? item.resellerPrice
+        : (('price' in item && item.price != null) ? item.price : (('pricePerPage' in item) ? item.pricePerPage : null));
+    }
+
     // ORDERS: customers create requests and read only their own orders.
     // Only an approved website administrator can read all orders or update them.
     match /serviceOrders/{orderId} {
@@ -233,6 +242,8 @@ service cloud.firestore {
         && request.resource.data.quantity is int
         && request.resource.data.quantity > 0
         && (request.resource.data.unitPrice == null || request.resource.data.unitPrice is number)
+        && exists(/databases/$(database)/documents/platformCustomers/$(request.auth.uid))
+        && request.resource.data.unitPrice == expectedWebsiteOrderPrice(request.resource.data.catalogueItemId, request.auth.uid)
         && request.resource.data.customerEmail == request.auth.token.email
         && request.resource.data.keys().hasAll([
           'customerId', 'catalogueItemId', 'catalogueItemName', 'orderType',
@@ -297,6 +308,23 @@ service cloud.firestore {
         && get(/databases/$(database)/documents/invoices/$(request.resource.data.invoiceId)).data.customerId
           == request.resource.data.customerId;
 
+      allow update, delete: if false;
+    }
+
+    // Immutable administrator activity history for the SIA Digital Vision website.
+    match /adminAuditLogs/{logId} {
+      allow read: if websiteAdmin();
+      allow create: if websiteAdmin()
+        && request.resource.data.actorId == request.auth.uid
+        && request.resource.data.action is string
+        && request.resource.data.entityType is string
+        && request.resource.data.entityId is string
+        && request.resource.data.details is string
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.keys().hasOnly([
+          'actorId', 'actorEmail', 'action', 'entityType',
+          'entityId', 'details', 'createdAt'
+        ]);
       allow update, delete: if false;
     }
 

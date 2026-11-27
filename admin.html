@@ -49,10 +49,12 @@ label{display:block;font-size:11px;font-weight:800;margin:12px 0 6px}
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
 import {getAuth,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
-import {getFirestore,doc,getDoc,collection,getDocs,updateDoc,serverTimestamp,runTransaction,arrayUnion} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+import {getFirestore,doc,getDoc,collection,getDocs,addDoc,updateDoc,serverTimestamp,runTransaction,arrayUnion} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 const firebaseConfig={apiKey:"AIzaSyAFP-RfZWPKPcHU9NqtTzX1b8HvVVzkb3Y",authDomain:"mobile-tech-room.firebaseapp.com",projectId:"mobile-tech-room",storageBucket:"mobile-tech-room.firebasestorage.app",messagingSenderId:"620229324084",appId:"1:620229324084:web:7e2ae7a2550228a4dfc961",measurementId:"G-GPJM1C83TT"};
 const app=initializeApp(firebaseConfig);const auth=getAuth(app);const db=getFirestore(app);const $=id=>document.getElementById(id);
 const allowedStatuses=["pending","approved","in progress","ready for collection","completed","rejected"];
+async function audit(action,entityType,entityId,details){try{if(!auth.currentUser)return;await addDoc(collection(db,"adminAuditLogs"),{actorId:auth.currentUser.uid,actorEmail:auth.currentUser.email||"",action,entityType,entityId:String(entityId||""),details:String(details||"").slice(0,300),createdAt:serverTimestamp()})}catch(e){console.warn("Admin audit entry could not be saved",e)}}
+
 function notice(message,type="ok"){const n=$("notice");n.textContent=message;n.className="notice "+type}
 function showDenied(message){$("checking").classList.add("hidden");$("admin").classList.add("hidden");$("denied").classList.remove("hidden");$("deniedText").textContent=message}
 function esc(value){return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
@@ -74,7 +76,7 @@ async function loadOrders(){
    const top=document.createElement("div");top.className="order-head";
    const title=document.createElement("div");const h=document.createElement("h3");h.textContent=o.serviceName||"Customer order";const id=document.createElement("div");id.className="muted";id.textContent="Order ID: "+o.id;title.append(h,id);
    const pill=document.createElement("span");pill.className="pill";pill.textContent=o.status||"pending";top.append(title,pill);
-   const details=document.createElement("div");details.className="meta";details.textContent="Customer: "+(o.customerName||"Not provided")+"\nEmail: "+(o.customerEmail||"Not provided")+"\nPhone: "+(o.customerPhone||"Not provided")+"\nCustomer account ID: "+(o.customerId||"MISSING") +"\n"+(o.description||"No extra details") +"\nSubmitted: "+dateText(o.createdAt);
+   const details=document.createElement("div");details.className="meta";details.textContent="Customer: "+(o.customerName||"Not provided")+"\nEmail: "+(o.customerEmail||"Not provided")+"\nPhone: "+(o.customerPhone||"Not provided")+"\nCustomer account ID: "+(o.customerId||"MISSING") +"\nQuantity: "+Number(o.quantity||1)+" · Unit price: "+(o.unitPrice==null?"By quotation":"MK "+Number(o.unitPrice).toLocaleString("en-US"))+"\n"+(o.description||"No extra details") +"\nSubmitted: "+dateText(o.createdAt);
    const controls=document.createElement("div");controls.className="actions";
    const select=document.createElement("select");select.setAttribute("aria-label","Order status");
    allowedStatuses.forEach(s=>{const op=document.createElement("option");op.value=s;op.textContent=s.replace(/\b\w/g,c=>c.toUpperCase());select.append(op)});
@@ -97,12 +99,12 @@ async function loadOrders(){
    tx.update(orderRef,{status:nextStatus,statusUpdatedAt:serverTimestamp(),statusHistory:arrayUnion({status:nextStatus,updatedAt:new Date().toISOString()}),stockDeducted:true,stockDeductedQuantity:qty,stockDeductedAt:serverTimestamp(),updatedAt:serverTimestamp()});
   }else tx.update(orderRef,{status:nextStatus,statusUpdatedAt:serverTimestamp(),statusHistory:arrayUnion({status:nextStatus,updatedAt:new Date().toISOString()}),updatedAt:serverTimestamp()});
  }else tx.update(orderRef,{status:nextStatus,statusUpdatedAt:serverTimestamp(),statusHistory:arrayUnion({status:nextStatus,updatedAt:new Date().toISOString()}),updatedAt:serverTimestamp()});
-});pill.textContent=select.value;notice(select.value==="approved"&&o.orderType==="Product"&&o.catalogueItemId&&!o.stockDeducted?"Order approved and product stock deducted (once).":"Order "+o.id+" updated to "+select.value+".");await loadOrders()}catch(e){notice("Could not update order ("+(e.message||e.code||"error")+").","error")}finally{save.disabled=false;save.textContent="Save status"}});
+});await audit("order.status","serviceOrder",o.id,select.value);pill.textContent=select.value;notice(select.value==="approved"&&o.orderType==="Product"&&o.catalogueItemId&&!o.stockDeducted?"Order approved and product stock deducted (once).":"Order "+o.id+" updated to "+select.value+".");await loadOrders()}catch(e){notice("Could not update order ("+(e.message||e.code||"error")+").","error")}finally{save.disabled=false;save.textContent="Save status"}});
    const noteBox=document.createElement("section");noteBox.className="order-note";
    const noteLabel=document.createElement("label");noteLabel.className="note-label";noteLabel.textContent="Message for customer (visible in their account)";
    const noteInput=document.createElement("textarea");noteInput.maxLength=1200;noteInput.placeholder="Write an update, collection instruction or question for the customer…";noteInput.value=o.adminNote||"";
    const noteSave=document.createElement("button");noteSave.className="btn secondary";noteSave.type="button";noteSave.textContent="Save customer message";
-   noteSave.addEventListener("click",async()=>{noteSave.disabled=true;noteSave.textContent="Saving…";try{await updateDoc(doc(db,"serviceOrders",o.id),{adminNote:noteInput.value.trim(),adminNoteUpdatedAt:serverTimestamp(),updatedAt:serverTimestamp()});notice("Customer message saved for order "+o.id+".");noteSave.textContent="Saved";}catch(e){notice("Could not save customer message ("+(e.message||e.code||"error")+").","error");noteSave.textContent="Save customer message"}finally{noteSave.disabled=false}});
+   noteSave.addEventListener("click",async()=>{noteSave.disabled=true;noteSave.textContent="Saving…";try{await updateDoc(doc(db,"serviceOrders",o.id),{adminNote:noteInput.value.trim(),adminNoteUpdatedAt:serverTimestamp(),updatedAt:serverTimestamp()});await audit("order.customer_message","serviceOrder",o.id,"Customer message updated");notice("Customer message saved for order "+o.id+".");noteSave.textContent="Saved";}catch(e){notice("Could not save customer message ("+(e.message||e.code||"error")+").","error");noteSave.textContent="Save customer message"}finally{noteSave.disabled=false}});
    noteBox.append(noteLabel,noteInput,noteSave);
    controls.append(select,save);card.append(top,details,controls,noteBox);if(o.customerPhone){const contact=document.createElement("a");contact.className="order-contact";contact.target="_blank";contact.rel="noopener";contact.href="https://wa.me/"+String(o.customerPhone).replace(/\\D/g,"")+"?text="+encodeURIComponent("Hello "+(o.customerName||"")+" — regarding your SIA Digital Vision order "+o.id+".");contact.textContent="Message customer on WhatsApp";card.append(contact)}host.append(card);
   }
