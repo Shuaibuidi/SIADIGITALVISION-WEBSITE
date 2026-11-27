@@ -82,10 +82,10 @@ async function loadDashboard(){
   const inProgress=orders.filter(o=>statusOf(o)==="in progress").length;
   const readyOrders=orders.filter(o=>statusOf(o)==="ready for collection").length;
   const completedOrders=orders.filter(o=>statusOf(o)==="completed").length;
+  const paidByInvoice={};payments.forEach(p=>{if(p.invoiceId)paidByInvoice[p.invoiceId]=(paidByInvoice[p.invoiceId]||0)+Number(p.amount||0)});
   const unpaidInvoices=invoices.filter(inv=>Math.max(0,Number(inv.total||0)-(paidByInvoice[inv.id]||0))>0).length;
   const lowStock=catalogue.filter(item=>item.active!==false&&item.type==="product"&&item.stockTracked===true&&Number(item.stockQuantity||0)<=Number(item.lowStockThreshold??3)).length;
   const received=payments.reduce((sum,p)=>sum+Number(p.amount||0),0);
-  const paidByInvoice={};payments.forEach(p=>{if(p.invoiceId)paidByInvoice[p.invoiceId]=(paidByInvoice[p.invoiceId]||0)+Number(p.amount||0)});
   const outstanding=invoices.reduce((sum,inv)=>sum+Math.max(0,Number(inv.total||0)-(paidByInvoice[inv.id]||0)),0);
   $("customers").textContent=customers.length.toLocaleString();$("resellers").textContent=customers.filter(d=>(d.data().accountType||"customer")==="reseller").length.toLocaleString();
   $("orders").textContent=orders.length.toLocaleString();
