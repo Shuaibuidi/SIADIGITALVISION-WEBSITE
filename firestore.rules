@@ -220,7 +220,7 @@ service cloud.firestore {
       return ('accountType' in customer && customer.accountType == 'reseller'
         && 'resellerPrice' in item && item.resellerPrice != null)
         ? item.resellerPrice
-        : (('price' in item) ? item.price : item.pricePerPage);
+        : (('price' in item && item.price != null) ? item.price : (('pricePerPage' in item) ? item.pricePerPage : null));
     }
 
     // ORDERS: customers create requests and read only their own orders.
