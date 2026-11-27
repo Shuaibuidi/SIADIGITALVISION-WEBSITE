@@ -13,10 +13,11 @@
 <div class="top"><a href="index.html">← Back to S I A TECH PRINT MEDIA</a></div>
 <main class="shell">
 
-<section class="main"><div class="main-head"><strong>Customer Sign In</strong><a href="index.html">Visit website ↗</a></div>
+<section class="main"><div class="main-head"><strong>S I A <span style="color:#f28a22">TECH</span> PRINT MEDIA</strong><a href="index.html">Visit website ↗</a></div>
 <div id="authArea" class="social-auth-area">
-<h1 class="form-title">Sign in or create account</h1>
-<p class="muted">Choose how you want to continue. New customers can create an account with Google automatically.</p>
+<div class="signin-mark"><span class="signin-mark-icon">S</span><span>YOUR CUSTOMER ACCOUNT</span></div>
+<h1 class="form-title">Welcome back.</h1>
+<p class="muted">Sign in to manage your orders, follow service updates and view your invoices. New customers can get started with Google.</p>
 <div id="notice" class="message" role="status" aria-live="polite"></div>
 <button class="social-button google-button" id="googleSignInBtn" type="button"><span class="social-icon google-icon">G</span><span>Continue with Google</span></button>
 <button class="email-fallback-toggle" id="emailFallbackToggle" type="button">Use email and password instead</button>
@@ -254,6 +255,27 @@ async function loadCustomerInvoices(){
 .email-fallback{margin-top:14px;padding:18px;text-align:left;border:1px solid var(--line);border-radius:12px;background:#fbfdff}
 .social-footnote{margin:22px 0 0;color:#8491a2;font-size:10px;line-height:1.6}
 @media(max-width:560px){.shell{width:calc(100% - 20px);margin:12px auto 28px}.main{padding:25px 18px}.social-auth-area>.form-title{font-size:23px}.social-button{min-height:54px;font-size:14px}}
+
+/* Refined customer sign-in visual design */
+body{background:radial-gradient(ellipse at 12% 12%,#1c5b94 0,transparent 34%),radial-gradient(ellipse at 88% 86%,#b85d19 0,transparent 27%),linear-gradient(135deg,#061832 0%,#0a315b 54%,#071b3b 100%)}
+.shell{width:min(540px,calc(100% - 28px));margin:clamp(22px,7vh,76px) auto 45px;border:1px solid #ffffff30;border-radius:22px;box-shadow:0 30px 90px #00102780;position:relative}
+.main{padding:clamp(25px,6vw,44px)}
+.main-head{padding-bottom:17px;border-bottom:1px solid #e9edf3;margin-bottom:27px}
+.main-head strong{font-size:15px;letter-spacing:.35px}
+.main-head a{color:#d66d16;font-size:12px}
+.social-auth-area{text-align:left;max-width:100%;margin:0 auto;padding:3px 0 2px}
+.signin-mark{display:flex;align-items:center;gap:10px;margin:3px 0 22px;color:#d66d16;font-size:10px;font-weight:900;letter-spacing:1.8px}
+.signin-mark-icon{width:38px;height:38px;display:grid;place-items:center;border-radius:12px;background:linear-gradient(145deg,#ffb347,#ed7620);color:#fff;font-size:22px;font-weight:950;box-shadow:0 6px 15px #e9792638}
+.social-auth-area>.form-title{font-size:clamp(29px,6vw,36px);letter-spacing:-1.2px;line-height:1.08;margin:0 0 11px;color:#071b3b}
+.social-auth-area>.muted{font-size:13px;line-height:1.75;color:#64748b;margin:0 0 27px;max-width:390px}
+.social-button{min-height:58px;justify-content:center;border:1px solid #d9e1eb;border-radius:11px;background:#fff;color:#142c4c;font-size:14px;font-weight:800;box-shadow:0 5px 14px #0c27410b;transition:transform .15s ease,box-shadow .15s ease}
+.social-button:hover{background:#fff;border-color:#f0a45c;box-shadow:0 8px 20px #0c274118;transform:translateY(-1px)}
+.google-icon{font-size:24px}
+.email-fallback-toggle{display:block;margin:22px auto 0;color:#075bc5;font-size:12px;text-decoration:none}
+.email-fallback-toggle:hover{text-decoration:underline}
+.social-footnote{margin:25px 0 0;padding-top:17px;border-top:1px solid #edf0f4;color:#8491a2;font-size:10px;line-height:1.7;text-align:center}
+.legal{max-width:400px;margin:20px auto 0;text-align:center;font-size:10px;color:#9baabd}
+@media(max-width:560px){.shell{width:calc(100% - 22px);margin:22px auto 28px}.main{padding:25px 21px}.main-head{margin-bottom:25px}.social-auth-area>.form-title{font-size:30px}}
 </style></head><body><button class="print" onclick="window.print()">Save as PDF / Print</button><main class="sheet"><div class="head"><div><div class="brand">S I A TECH PRINT MEDIA</div><div class="tag">HOME OF PRINTING &amp; COMPUTING</div><p class="muted">Matindi Trading Centre, Blantyre, Malawi<br>WhatsApp: 0999 290 495 · Calls: 0888 290 495</p></div><div><div class="inv">INVOICE</div><div class="muted">Invoice No: '+pdfEsc(inv.invoiceNumber||'—')+'<br>Date: '+pdfEsc(invoiceDate)+'<br>Status: '+pdfEsc(balance===0?'Paid':paid>0?'Advance paid':'Unpaid')+'</div></div></div><div class="cols"><section><div class="label">Bill to</div><div class="value"><b>'+pdfEsc(customerName)+'</b><br>'+pdfEsc(inv.customerEmail||user.email||'—')+'<br>'+pdfEsc(customerPhone)+'<br>'+pdfEsc(customerAddress)+'</div></section><section><div class="label">Payment summary</div><div class="value">Currency: '+pdfEsc(currency)+'<br>Due date: '+pdfEsc(inv.dueDate||'—')+'</div><span class="status">'+pdfEsc(balance===0?'PAID':paid>0?'ADVANCE PAID':'UNPAID')+'</span></section></div><div class="desc"><b>Description</b><br>'+pdfEsc(inv.description||'Invoice')+'</div><table><thead><tr><th>Date</th><th>Payment method</th><th>Reference</th><th class="num">Amount</th></tr></thead><tbody>'+paymentRows+'</tbody></table><div class="totals"><div><span>Invoice total</span><b>'+currency+' '+total.toLocaleString()+'</b></div><div><span>Paid</span><b>'+currency+' '+paid.toLocaleString()+'</b></div><div class="balance"><span>Balance due</span><b>'+currency+' '+balance.toLocaleString()+'</b></div></div><div class="foot"><b>Thank You For Your Support</b><br>S I A TECH PRINT MEDIA · Matindi Trading Centre, Blantyre</div></main></body></html>';
     printable.document.open();printable.document.write(html);printable.document.close();
    });
