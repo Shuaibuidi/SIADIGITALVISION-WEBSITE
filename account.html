@@ -63,7 +63,7 @@ if(businessSsoButton)businessSsoButton.addEventListener('click',async()=>{
  try{
   await authReady;
   const idToken=await currentUser.getIdToken(true);
-  const response=await fetch('https://sia-business-sso.siabusiness-mw.workers.dev',{
+  const response=await fetch('https://sia-business-sso.siabusiness-mw.workers.dev/sso/business-token',{
    method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+idToken},
    body:JSON.stringify({idToken})
   });
