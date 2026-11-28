@@ -43,6 +43,18 @@ body{margin:0;color:#171717;font-family:Arial,Helvetica,sans-serif}
  .email-continue-form .submit{height:68px!important;min-height:68px!important;font-size:20px!important}
 }
 @media(max-width:380px){.shell{margin-top:76px!important}.social-auth-area>.form-title{font-size:25px!important}}
+
+/* Standard email-and-password sign-in only; Google sign-in removed. */
+#authArea{max-width:470px!important;margin:0 auto!important;text-align:left!important}
+#authArea>.form-title{margin:0 0 28px!important;color:#102A43!important;font-size:30px!important;letter-spacing:-.5px!important}
+.normal-login-form{display:block!important;margin:0!important}
+.normal-login-form .field{margin:0 0 18px!important}
+.normal-login-form .field label{display:block!important;margin:0 0 8px!important;color:#24364b!important;font-size:13px!important}
+.normal-login-form .field input{width:100%!important;height:54px!important;padding:0 14px!important;border:1px solid #d7e1ed!important;border-radius:9px!important;font:15px Arial,sans-serif!important}
+.normal-login-form .submit{width:100%!important;height:54px!important;margin:8px 0 0!important;border:0!important;border-radius:9px!important;background:#2563EB!important;color:#fff!important;font-size:15px!important}
+.normal-login-form .linkbtn{display:block!important;margin:10px 0 0!important;padding:10px 0!important}
+#authArea .social-footnote{margin-top:22px!important;text-align:center!important}
+@media(max-width:560px){#authArea>.form-title{font-size:27px!important}.normal-login-form .field input,.normal-login-form .submit{height:52px!important}}
 </style><link rel="stylesheet" href="marketplace.css?v=1"><link rel="stylesheet" href="/brand-system.css?v=20261128">
 <link rel="stylesheet" href="/brand-system.css?v=20261128">
 </head><body>
@@ -50,15 +62,15 @@ body{margin:0;color:#171717;font-family:Arial,Helvetica,sans-serif}
 <main class="shell">
 <section class="main">
 <div id="authArea" class="social-auth-area">
-<h1 class="form-title">Sign in or create account</h1>
+<h1 class="form-title">Sign in</h1>
 <div id="notice" class="message" role="status" aria-live="polite"></div>
-<button class="social-button google-button" id="googleSignInBtn" type="button"><span class="social-icon google-icon" aria-hidden="true">G</span><span>Continue with Google</span></button>
-<div class="signin-divider"><span>OR</span></div>
-<form id="emailContinueForm" class="email-continue-form"><input id="emailContinueInput" type="email" autocomplete="email" placeholder="Enter your email address" aria-label="Enter your email address" required><button class="submit" id="emailContinueBtn" type="submit">Continue</button></form>
-<div id="emailFallback" class="email-fallback hidden">
-<form id="loginForm"><h2 class="form-title">Enter your password</h2><p class="muted">Sign in with your existing email-and-password account.</p><div class="field"><label for="loginEmail">Email address</label><input id="loginEmail" type="email" autocomplete="email" required placeholder="you@example.com"></div><div class="field"><label for="loginPassword">Password</label><input id="loginPassword" type="password" autocomplete="current-password" required placeholder="Your password"></div><button class="submit" type="submit">Sign in securely</button><button class="linkbtn" id="forgotBtn" type="button">Forgot your password?</button></form>
-</div>
-<p class="social-footnote">By continuing, you agree to use your account for S I A TECH PRINT MEDIA customer services.</p>
+<form id="loginForm" class="normal-login-form">
+<div class="field"><label for="loginEmail">Email address</label><input id="loginEmail" type="email" autocomplete="username" required placeholder="Enter your email address"></div>
+<div class="field"><label for="loginPassword">Password</label><input id="loginPassword" type="password" autocomplete="current-password" required placeholder="Enter your password"></div>
+<button class="submit" type="submit">Sign in</button>
+<button class="linkbtn" id="forgotBtn" type="button">Forgot your password?</button>
+</form>
+<p class="social-footnote">Sign in with your S I A TECH PRINT MEDIA account.</p>
 </div>
 <div id="dashboard" class="hidden"><h2 class="form-title">Your account</h2><p class="muted">You are signed in to SIA Digital Vision.</p><div id="emailVerificationNotice" class="message error hidden">Your email address is not verified yet. Tap below to receive a verification link.</div>
 <div id="businessSsoPanel" class="dashboard" style="margin:14px 0;padding:14px;border:1px solid #d9e5f2;border-radius:12px"><h3 style="margin:0 0 6px;color:var(--navy);font-size:17px">Business Owner Access</h3><p class="muted">Open Smart Business Manager using your approved business account.</p><button id="openBusinessManagerBtn" class="submit" type="button">Open Smart Business Manager</button><div id="businessSsoMessage" class="message" aria-live="polite"></div></div><button id="sendVerificationBtn" class="linkbtn hidden" type="button">Send Verification Email</button><div class="dashboard"><div class="dash-row"><span>Customer name</span><b id="dashName">—</b></div><div class="dash-row"><span>Email address</span><b id="dashEmail">—</b></div><div class="dash-row"><span>Account status</span><b style="color:#0b9d68">Signed in</b></div>
@@ -72,90 +84,10 @@ body{margin:0;color:#171717;font-family:Arial,Helvetica,sans-serif}
 <div class="order-panel"><div class="updates-heading"><h3>Notifications <span id="orderUnreadBadge" class="unread-badge" hidden></span></h3><button class="mark-read-btn" id="markUpdatesReadBtn" type="button" hidden>Mark all as read</button></div><p class="muted">See order status changes and messages from our team in one place.</p><div id="orderUpdatesList" class="order-list"><div class="empty-orders">Loading order updates…</div></div></div><div class="order-panel"><h3>Order overview</h3><p class="muted">A quick summary of your current order progress.</p><div class="customer-order-overview"><div class="customer-order-stat"><strong id="overviewPending">0</strong><span>Pending</span></div><div class="customer-order-stat"><strong id="overviewProgress">0</strong><span>In progress</span></div><div class="customer-order-stat"><strong id="overviewReady">0</strong><span>Ready for collection</span></div><div class="customer-order-stat"><strong id="overviewCompleted">0</strong><span>Completed</span></div></div></div><div class="order-panel"><h3>My orders</h3><p class="muted">View your submitted service and product requests and their latest status.</p><div class="customer-order-tools" style="display:grid;grid-template-columns:minmax(0,1fr) minmax(130px,180px) minmax(125px,155px);gap:8px;margin:12px 0"><input id="customerOrderSearch" type="search" placeholder="Search my orders" aria-label="Search my orders" style="min-width:0;padding:10px;border:1px solid #d7e1ed;border-radius:8px"><select id="customerOrderStatus" aria-label="Filter my orders" style="padding:10px;border:1px solid #d7e1ed;border-radius:8px"><option value="all">All statuses</option><option value="pending">Pending</option><option value="approved">Approved</option><option value="in progress">In progress</option><option value="ready for collection">Ready for collection</option><option value="completed">Completed</option><option value="rejected">Rejected</option></select><select id="customerOrderSort" aria-label="Sort my orders" style="padding:10px;border:1px solid #d7e1ed;border-radius:8px"><option value="newest">Newest first</option><option value="oldest">Oldest first</option></select></div><div id="customerOrderCount" class="muted" aria-live="polite">Your orders</div><button class="linkbtn" id="refreshOrdersBtn" type="button">Refresh my orders</button><div id="ordersList" class="order-list"><div class="empty-orders">Loading your orders…</div></div></div><div class="order-panel"><h3>My invoices & payments</h3><p class="muted">View invoices issued for your orders, payments received and any remaining balance.</p><div class="invoice-overview"><div class="invoice-stat"><strong id="invoiceCount">0</strong><span>Total invoices</span></div><div class="invoice-stat"><strong id="invoicePaidCount">0</strong><span>Fully paid</span></div><div class="invoice-stat"><strong id="invoiceDueCount">0</strong><span>With balance due</span></div><div class="invoice-stat invoice-balance-stat"><strong id="invoiceBalanceSummary">—</strong><span>Total outstanding</span></div></div><button class="linkbtn" id="refreshInvoicesBtn" type="button">Refresh my invoices</button><div id="customerInvoices" class="order-list"><div class="empty-orders">Loading invoices…</div></div></div><div class="coming"><b>Payment information:</b> Orders are requests only until our team confirms them. We will issue an invoice with the amount due and record any payments against that invoice. There is no prepaid wallet.</div><button class="submit" id="signOutBtn" type="button">Sign out</button></div>
 <p class="legal">Your password is handled by Firebase Authentication. Never share your password, payment PIN or verification codes with anyone.</p>
 </section></main>
-<script>
-(function () {
-  const button = document.getElementById('googleSignInBtn');
-  const notice = document.getElementById('notice');
-  if (!button) return;
-  let context = null;
-  let initError = null;
-  button.disabled = true;
-  button.textContent = 'Preparing Google sign-in…';
 
-  // Load and initialize Firebase before the customer taps, so the popup opens
-  // directly inside the original click gesture (without an awaited import).
-  Promise.all([
-    import('https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js'),
-    import('https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js')
-  ]).then(([appSdk, authSdk]) => {
-    const firebaseConfig = {
-      apiKey: 'AIzaSyAFP-RfZWPKPcHU9NqtTzX1b8HvVVzkb3Y',
-      authDomain: 'mobile-tech-room.firebaseapp.com',
-      projectId: 'mobile-tech-room',
-      storageBucket: 'mobile-tech-room.firebasestorage.app',
-      messagingSenderId: '620229324084',
-      appId: '1:620229324084:web:7e2ae7a2550228a4dfc961',
-      measurementId: 'G-GPJM1C83TT'
-    };
-    const app = appSdk.getApps().length ? appSdk.getApp() : appSdk.initializeApp(firebaseConfig);
-    const auth = authSdk.getAuth(app);
-    const provider = new authSdk.GoogleAuthProvider();
-    provider.setCustomParameters({ prompt: 'select_account' });
-    context = { authSdk, auth, provider };
-    button.disabled = false;
-    button.innerHTML = '<span class="social-icon google-icon" aria-hidden="true">G</span><span>Continue with Google</span>';
-  }).catch(error => {
-    initError = error;
-    button.disabled = false;
-    button.innerHTML = '<span class="social-icon google-icon" aria-hidden="true">G</span><span>Continue with Google</span>';
-    if (notice) {
-      notice.textContent = 'Google sign-in could not load: ' + (error.message || 'Check your internet connection and reload the page.');
-      notice.className = 'message error';
-    }
-  });
-
-  button.addEventListener('click', async function () {
-    if (!context) {
-      if (notice) {
-        notice.textContent = initError ? ('Google sign-in could not load: ' + (initError.message || 'Please reload the page.')) : 'Google sign-in is still preparing. Please wait a moment and tap again.';
-        notice.className = 'message error';
-      }
-      return;
-    }
-    if (button.dataset.googleBusy === '1') return;
-    button.dataset.googleBusy = '1';
-    button.disabled = true;
-    button.textContent = 'Redirecting to Google…';
-    if (notice) {
-      notice.textContent = 'Connecting to Google. You will return here after choosing your account.';
-      notice.className = 'message ok';
-    }
-    try {
-      // Use the full-page redirect flow, which is more reliable than popups on Android Chrome.
-      await context.authSdk.signInWithRedirect(context.auth, context.provider);
-    } catch (error) {
-      const messages = {
-        'auth/unauthorized-domain': 'This website domain is not authorized for Google sign-in in Firebase.',
-        'auth/operation-not-allowed': 'Google sign-in is not enabled in Firebase Authentication.',
-        'auth/popup-blocked': 'Google sign-in was blocked. Please try again or use email sign-in.',
-        'auth/popup-closed-by-user': 'Google sign-in was closed before it finished. Please try again.',
-        'auth/network-request-failed': 'Network error. Check your internet connection and try again.'
-      };
-      const message = messages[error && error.code] || (error && error.message) || 'Google sign-in could not start. Please try again.';
-      if (notice) {
-        notice.textContent = message;
-        notice.className = 'message error';
-      }
-      button.disabled = false;
-      button.dataset.googleBusy = '0';
-      button.innerHTML = '<span class="social-icon google-icon" aria-hidden="true">G</span><span>Continue with Google</span>';
-    }
-  });
-})();
-</script>
 <script type="module">
 import { initializeApp, getApp, getApps } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, sendEmailVerification, updateProfile, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence, browserSessionPersistence, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, sendEmailVerification, updateProfile, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, setDoc, updateDoc, addDoc, collection, query, where, getDocs, serverTimestamp, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 const firebaseConfig={apiKey:"AIzaSyAFP-RfZWPKPcHU9NqtTzX1b8HvVVzkb3Y",authDomain:"mobile-tech-room.firebaseapp.com",projectId:"mobile-tech-room",storageBucket:"mobile-tech-room.firebasestorage.app",messagingSenderId:"620229324084",appId:"1:620229324084:web:7e2ae7a2550228a4dfc961",measurementId:"G-GPJM1C83TT"};
 const app=getApps().length?getApp():initializeApp(firebaseConfig);const auth=getAuth(app);const db=getFirestore(app);
@@ -206,25 +138,6 @@ $('sendVerificationBtn').addEventListener('click',async()=>{const btn=$('sendVer
 $('forgotBtn').addEventListener('click',async()=>{clearMessage();const email=$('loginEmail').value.trim();if(!email){showMessage('Enter your email address first, then tap Forgot your password.');return}try{await sendPasswordResetEmail(auth,email);showMessage('Password reset email sent. Check your inbox and spam folder.','ok')}catch(e){showMessage(friendlyError(e))}});
 function friendlyError(e){const map={'auth/invalid-email':'Please enter a valid email address.','auth/user-not-found':'No account was found for this email address.','auth/wrong-password':'The password is incorrect.','auth/invalid-credential':'Email or password is incorrect.','auth/email-already-in-use':'An account already exists with this email. Try signing in.','auth/weak-password':'Choose a stronger password with at least 8 characters.','auth/network-request-failed':'Network error. Check your internet connection and try again.','auth/too-many-requests':'Too many attempts. Please wait and try again.','auth/operation-not-allowed':'Email/password sign-in is not enabled for this Firebase project.','auth/account-exists-with-different-credential':'An account already exists with this email using a different sign-in method. Try the original method or contact us for help.','auth/unauthorized-domain':'This website domain is not yet authorized for Firebase sign-in. Please contact the website administrator.','auth/invalid-oauth-client-id':'The social sign-in provider is not fully configured in Firebase.'};return map[e.code]||('Could not complete the request: '+(e.message||'Please try again.'))}
 
-const googleProvider=new GoogleAuthProvider();googleProvider.setCustomParameters({prompt:'select_account'});
-
-$('emailContinueForm').addEventListener('submit',e=>{e.preventDefault();const email=$('emailContinueInput').value.trim();if(!email){$('emailContinueInput').focus();return}$('loginEmail').value=email;$('emailFallback').classList.remove('hidden');$('emailContinueBtn').textContent='Continue with email';$('loginPassword').focus();});
-
-async function startSocialSignIn(provider,label){
- const button=$('googleSignInBtn');
- if(button){button.disabled=true;button.textContent='Opening Google…'}
- clearMessage();showMessage('Opening Google account selection…','ok');
- try{
-  // Open the OAuth popup synchronously in the original click gesture.
-  // Awaiting auth persistence first can cause Chrome to block the popup.
-  const popupPromise=signInWithPopup(auth,provider);
-  const credential=await popupPromise;
-  if(credential&&credential.user){if(await redirectApprovedAdmin(credential.user))return;location.replace('index.html')}
- }catch(error){
-  showMessage(friendlyError(error));
-  if(button){button.disabled=false;button.innerHTML='<span class="social-icon google-icon" aria-hidden="true">G</span><span>Continue with Google</span>'}
- }
-}
 loginForm.addEventListener('submit',async e=>{e.preventDefault();clearMessage();const btn=loginForm.querySelector('button[type=submit]');btn.disabled=true;btn.textContent='Signing in…';try{await authReady;const credential=await signInWithEmailAndPassword(auth,$('loginEmail').value.trim(),$('loginPassword').value);if(await redirectApprovedAdmin(credential.user))return;$('authArea').classList.add('hidden');$('dashboard').classList.remove('hidden');$('dashName').textContent=credential.user.displayName||'Customer';$('dashEmail').textContent=credential.user.email||'—';$('dashUid').textContent=credential.user.uid||'Unavailable';await ensureCustomerProfile(credential.user);updateEmailVerification(credential.user)}catch(err){showMessage(friendlyError(err))}finally{btn.disabled=false;btn.textContent='Sign in securely'}});
 $('profileForm').addEventListener('submit',async e=>{e.preventDefault();const saveBtn=$('saveProfileBtn'),saveNotice=$('profileSaveNotice');saveBtn.disabled=true;saveNotice.className='message';saveNotice.textContent='';try{const user=auth.currentUser;if(!user)throw new Error('Please sign in again.');const fullName=$('profileFullName').value.trim();if(fullName.length<2)throw new Error('Please enter your full name.');await updateDoc(doc(db,'platformCustomers',user.uid),{fullName,phone:$('profilePhone').value.trim(),address:$('profileAddress').value.trim(),updatedAt:serverTimestamp()});if(user.displayName!==fullName)await updateProfile(user,{displayName:fullName});$('dashName').textContent=fullName;saveNotice.textContent='Your profile details have been saved successfully.';saveNotice.className='message ok'}catch(err){saveNotice.textContent=err.code?('Could not save your profile ('+err.code+'). Please try again.'):err.message;saveNotice.className='message error'}finally{saveBtn.disabled=false}});
 
