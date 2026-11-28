@@ -55,7 +55,7 @@ async function redirectApprovedAdmin(user) {
     const snap = await getDoc(doc(db, "users", user.uid));
     const profile = snap.exists() ? snap.data() : {};
     if (profile.role === "admin" && profile.status === "approved") {
-      location.replace("dashboard.html");
+      location.replace("admin-portal.html");
       return true;
     }
   } catch (error) {
