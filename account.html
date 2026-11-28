@@ -393,17 +393,20 @@ body{min-height:100vh;background:#fff;color:#171717}
 }
 $('refreshInvoicesBtn').addEventListener('click',loadCustomerInvoices);
 async function loadOrderCatalogue(){
- const type=$('orderType').value,select=$('orderName');select.innerHTML='<option value="">Loading catalogue items…</option>';
- try{
-  const [snap,profileSnap]=await Promise.all([getDocs(query(collection(db,'catalogueItems'),where('active','==',true))),getDoc(doc(db,'platformCustomers',auth.currentUser.uid))]);
-  const profile=profileSnap.exists()?profileSnap.data():{};const isReseller=profile.accountType==='reseller';
-  const items=snap.docs.map(d=>({id:d.id,...d.data()})).filter(x=>x.active!==false&&x.type===(type==='Product'?'product':'service')).sort((a,b)=>String(a.name||'').localeCompare(String(b.name||'')));
-  select.replaceChildren();const first=document.createElement('option');first.value='';first.textContent=items.length?'Choose an item':'No '+(type==='Product'?'products':'services')+' currently available';select.append(first);
-  items.forEach(item=>{const option=document.createElement('option');option.value=item.id;const price=orderUnitPrice(item,profile);option.textContent=item.name+(price==null?' · Quote': ' · '+(isReseller&&item.resellerPrice!=null?'Reseller ':'')+'MK '+Number(price).toLocaleString('en-US'));option.dataset.stock=String(item.stockQuantity??'');option.dataset.tracked=String(item.stockTracked===true);option.dataset.availability=String(item.availability||'Available');if(item.type==='product'&&item.stockTracked===true&&Number(item.stockQuantity||0)<=0)option.disabled=true;select.append(option)});
-  const requestedItem=orderParams.get("item");
-  if(requestedItem){select.value=requestedItem;if(select.value){const requestedQuantity=Number(orderParams.get("quantity")||1);$("orderQuantity").value=Number.isInteger(requestedQuantity)&&requestedQuantity>0?String(requestedQuantity):"1";updateOrderQuantityLimit();setTimeout(()=>{document.querySelector('[data-section="place-order"]')?.scrollIntoView({behavior:"smooth",block:"start"});$("orderDetails").focus({preventScroll:true})},250)}}
- }catch(err){select.innerHTML='<option value="">Catalogue could not be loaded</option>';$('orderNotice').textContent='Could not load catalogue ('+(err.code||'connection error')+'). Please refresh.';$('orderNotice').className='message error'}
-}
+  const type=$('orderType').value,select=$('orderName');select.innerHTML='<option value="">Loading catalogue items…</option>';
+  try{
+   // Load the public catalogue independently; a missing customer profile must not block product selection.
+   const snap=await getDocs(query(collection(db,'catalogueItems'),where('active','==',true)));
+   let profile={};
+   try{const user=auth.currentUser;if(user){const profileSnap=await getDoc(doc(db,'platformCustomers',user.uid));profile=profileSnap.exists()?profileSnap.data():{}}}catch(profileError){console.warn('Customer pricing profile unavailable; using standard prices:',profileError)}
+   const isReseller=profile.accountType==='reseller';
+   const items=snap.docs.map(d=>({id:d.id,...d.data()})).filter(x=>x.active!==false&&x.type===(type==='Product'?'product':'service')).sort((a,b)=>String(a.name||'').localeCompare(String(b.name||'')));
+   select.replaceChildren();const first=document.createElement('option');first.value='';first.textContent=items.length?'Choose an item':'No '+(type==='Product'?'products':'services')+' currently available';select.append(first);
+   items.forEach(item=>{const option=document.createElement('option');option.value=item.id;const price=orderUnitPrice(item,profile);option.textContent=item.name+(price==null?' · Quote': ' · '+(isReseller&&item.resellerPrice!=null?'Reseller ':'')+'MK '+Number(price).toLocaleString('en-US'));option.dataset.stock=String(item.stockQuantity??'');option.dataset.tracked=String(item.stockTracked===true);option.dataset.availability=String(item.availability||'Available');if(item.type==='product'&&item.stockTracked===true&&Number(item.stockQuantity||0)<=0)option.disabled=true;select.append(option)});
+   const requestedItem=orderParams.get("item");
+   if(requestedItem){select.value=requestedItem;if(select.value){const requestedQuantity=Number(orderParams.get("quantity")||1);$("orderQuantity").value=Number.isInteger(requestedQuantity)&&requestedQuantity>0?String(requestedQuantity):"1";updateOrderQuantityLimit();setTimeout(()=>{document.querySelector('[data-section="place-order"]')?.scrollIntoView({behavior:"smooth",block:"start"});$("orderDetails").focus({preventScroll:true})},250)}}
+  }catch(err){console.error('Catalogue loading failed:',err);select.innerHTML='<option value="">Catalogue could not be loaded</option>';$('orderNotice').textContent='Could not load catalogue ('+(err.code||'connection error')+'). Please refresh.';$('orderNotice').className='message error'}
+ }
 function orderUnitPrice(item,profile){const rp=item.resellerPrice;return profile?.accountType==="reseller"&&rp!==null&&rp!==undefined&&rp!==""?Number(rp):(item.price??item.pricePerPage??null)}
  function updateOrderQuantityLimit(){
  const selected=$("orderName").selectedOptions[0],tracked=selected?.dataset.tracked==="true",stock=Number(selected?.dataset.stock||0),qty=$("orderQuantity");
@@ -476,6 +479,6 @@ $('customerOrderStatus').addEventListener('change',applyCustomerOrderFilters);
 $('customerOrderSort').addEventListener('change',sortCustomerOrders);
 $('signOutBtn').addEventListener('click',async()=>{try{await signOut(auth)}catch(e){showMessage(friendlyError(e))}});
 if(cartMode){setCartOrderMode();const currentCart=readShoppingCart();if(currentCart.length){(async()=>{try{const entries=await Promise.all(currentCart.map(async x=>{const snap=await getDoc(doc(db,"catalogueItems",x.id));return [x.id,snap.exists()&&snap.data().active===true?{id:snap.id,...snap.data()}:null]}));const byId=new Map(entries);const lines=currentCart.map(x=>({...x,name:byId.get(x.id)?.name||"Unavailable item",type:byId.get(x.id)?.type==="product"?"Product":"Service"}));showCartSummary(lines)}catch(e){showCartSummary(currentCart.map(x=>({...x,name:"Catalogue item",type:"Item"})))}})()}else showCartSummary([])}
-onAuthStateChanged(auth,async user=>{if(user){if(await redirectApprovedAdmin(user))return;$('authArea').classList.add('hidden');$('dashboard').classList.remove('hidden');updateEmailVerification(user);$('dashName').textContent=user.displayName||'Customer';$('dashEmail').textContent=user.email||'—';$('dashUid').textContent=user.uid||'Unavailable';const profileReady=await ensureCustomerProfile(user);if(profileReady){await Promise.all([loadCustomerOrders(),loadCustomerInvoices(),loadOrderCatalogue()])}}else{$('authArea').classList.remove('hidden');$('dashboard').classList.add('hidden')}});
+onAuthStateChanged(auth,async user=>{if(user){if(await redirectApprovedAdmin(user))return;$('authArea').classList.add('hidden');$('dashboard').classList.remove('hidden');updateEmailVerification(user);$('dashName').textContent=user.displayName||'Customer';$('dashEmail').textContent=user.email||'—';$('dashUid').textContent=user.uid||'Unavailable';await ensureCustomerProfile(user);await Promise.all([loadCustomerOrders(),loadCustomerInvoices(),loadOrderCatalogue()])}else{$('authArea').classList.remove('hidden');$('dashboard').classList.add('hidden')}});
 
 </script></body></html>
