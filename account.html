@@ -401,7 +401,21 @@ async function loadOrderCatalogue(){
    // Show catalogue choices immediately; customer-profile pricing must never hold up the order form.
    const profile={};select.replaceChildren();const first=document.createElement('option');first.value='';first.textContent=items.length?'Choose an item':'No '+(type==='Product'?'products':'services')+' currently available';select.append(first);
    items.forEach(item=>{const option=document.createElement('option');option.value=item.id;const price=orderUnitPrice(item,profile);option.textContent=item.name+(price==null?' · Quote':' · MK '+Number(price).toLocaleString('en-US'));option.dataset.stock=String(item.stockQuantity??'');option.dataset.tracked=String(item.stockTracked===true);option.dataset.availability=String(item.availability||'Available');if(item.type==='product'&&item.stockTracked===true&&Number(item.stockQuantity||0)<=0)option.disabled=true;select.append(option)});
-   const currentUser=auth.currentUser;if(currentUser){getDoc(doc(db,'platformCustomers',currentUser.uid)).then(profileSnap=>{const customerProfile=profileSnap.exists()?profileSnap.data():{};if(customerProfile.accountType==='reseller'){items.forEach(item=>{const option=[...select.options].find(o=>o.value===item.id);if(option){const price=orderUnitPrice(item,customerProfile);option.textContent=item.name+(price==null?' · Quote':' · Reseller MK '+Number(price).toLocaleString('en-US'))}})}}).catch(profileError=>console.warn('Customer pricing profile unavailable:',profileError))}
+   const currentUser=auth.currentUser;
+   if(currentUser){
+    getDoc(doc(db,'platformCustomers',currentUser.uid)).then(profileSnap=>{
+     const customerProfile=profileSnap.exists()?profileSnap.data():{};
+     if(customerProfile.accountType==='reseller'){
+      items.forEach(item=>{
+       const option=Array.from(select.options).find(o=>o.value===item.id);
+       if(option){
+        const price=orderUnitPrice(item,customerProfile);
+        option.textContent=item.name+(price==null?' · Quote':' · Reseller MK '+Number(price).toLocaleString('en-US'));
+       }
+      });
+     }
+    }).catch(profileError=>console.warn('Customer pricing profile unavailable:',profileError));
+   }
    const requestedItem=orderParams.get("item");
    if(requestedItem){select.value=requestedItem;if(select.value){const requestedQuantity=Number(orderParams.get("quantity")||1);$("orderQuantity").value=Number.isInteger(requestedQuantity)&&requestedQuantity>0?String(requestedQuantity):"1";updateOrderQuantityLimit();setTimeout(()=>{document.querySelector('[data-section="place-order"]')?.scrollIntoView({behavior:"smooth",block:"start"});$("orderDetails").focus({preventScroll:true})},250)}}
   }catch(err){console.error('Catalogue loading failed:',err);select.innerHTML='<option value="">Catalogue could not be loaded</option>';$('orderNotice').textContent='Could not load catalogue ('+(err.code||'connection error')+'). Please refresh.';$('orderNotice').className='message error'}
