@@ -623,6 +623,10 @@ const auth=firebase.auth(),db=firebase.firestore(),BUSINESS_ID="7RqIYO3IDSVCYex1
 window.addEventListener("message",async event=>{
   if(event.source!==window.parent||event.origin!==window.location.origin)return;
   const data=event.data||{};
+  if(data.type==="SIA_BUSINESS_SIGN_OUT"){
+    try{await auth.signOut()}catch(error){if($("msg"))$("msg").textContent="Sign out failed. Please try again."}
+    return;
+  }
   if(data.type!=="SIA_BUSINESS_SSO_TOKEN"||typeof data.customToken!=="string"||data.customToken.length<100)return;
   try{
     await authPersistenceReady;
