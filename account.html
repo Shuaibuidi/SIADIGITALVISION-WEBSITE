@@ -413,6 +413,10 @@ function orderUnitPrice(item,profile){const rp=item.resellerPrice;return profile
  if(tracked&&stock>0&&Number(qty.value)>stock)qty.value=String(stock);
  if(tracked&&stock<=0)qty.value="1";
 }
+
+// The catalogue is public data, so start loading it as soon as this page module runs.
+// Do not wait for Firebase's signed-in customer callback to populate the order selector.
+loadOrderCatalogue().catch(error=>console.error("Initial catalogue load failed:",error));
 $("orderName").addEventListener("change",updateOrderQuantityLimit);
 $("orderQuantity").addEventListener("change",updateOrderQuantityLimit);
 $('orderType').addEventListener('change',loadOrderCatalogue);
