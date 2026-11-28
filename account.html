@@ -175,7 +175,26 @@ if(businessSsoButton)businessSsoButton.addEventListener('click',async()=>{
 $('sendVerificationBtn').addEventListener('click',async()=>{const btn=$('sendVerificationBtn');const box=$('emailVerificationNotice');const user=auth.currentUser;if(!user){box.textContent='Please sign in again before requesting verification.';box.className='message error';return}btn.disabled=true;try{await sendEmailVerification(user);box.textContent='Verification email sent to '+(user.email||'your email')+'. Check your inbox and Spam/Junk folder.';box.className='message ok'}catch(err){box.textContent=friendlyError(err);box.className='message error'}finally{btn.disabled=false}});
 
 
-try{await setDoc(doc(db,'platformCustomers',credential.user.uid),{uid:credential.user.uid,fullName:name,email,createdAt:serverTimestamp()},{merge:true})}catch(profileError){console.warn('Customer profile setup deferred:',profileError)}box.textContent='Account created successfully. Opening your customer dashboard…';box.className='message ok';$('authArea').classList.add('hidden');$('dashboard').classList.remove('hidden');$('dashName').textContent=name;$('dashEmail').textContent=email;$('dashUid').textContent=credential.user.uid;updateEmailVerification(credential.user)}catch(err){box.textContent=friendlyError(err);box.className='message error'}finally{btn.disabled=false;btn.textContent='Create account'}});
+$('registerForm').addEventListener('submit',async e=>{
+ e.preventDefault();
+ const name=$('registerName').value.trim(),email=$('registerEmail').value.trim(),password=$('registerPassword').value,confirmPassword=$('registerConfirmPassword').value;
+ const box=$('registerNotice'),btn=$('registerForm').querySelector('button[type="submit"]');
+ box.textContent='';box.className='message';
+ if(name.length<2){box.textContent='Please enter your full name.';box.className='message error';return}
+ if(password!==confirmPassword){box.textContent='The passwords do not match.';box.className='message error';return}
+ btn.disabled=true;btn.textContent='Creating account…';
+ try{
+  const credential=await createUserWithEmailAndPassword(auth,email,password);
+  await updateProfile(credential.user,{displayName:name});
+  try{await setDoc(doc(db,'platformCustomers',credential.user.uid),{uid:credential.user.uid,fullName:name,email,createdAt:serverTimestamp()},{merge:true})}
+  catch(profileError){console.warn('Customer profile setup deferred:',profileError)}
+  box.textContent='Account created successfully. Opening your customer dashboard…';box.className='message ok';
+  $('authArea').classList.add('hidden');$('dashboard').classList.remove('hidden');
+  $('dashName').textContent=name;$('dashEmail').textContent=email;$('dashUid').textContent=credential.user.uid;
+  updateEmailVerification(credential.user);
+ }catch(err){box.textContent=friendlyError(err);box.className='message error'}
+ finally{btn.disabled=false;btn.textContent='Create account'}
+});
 
 function friendlyError(e){const map={'auth/invalid-email':'Please enter a valid email address.','auth/user-not-found':'No account was found for this email address.','auth/wrong-password':'The password is incorrect.','auth/invalid-credential':'Email or password is incorrect.','auth/email-already-in-use':'An account already exists with this email. Try signing in.','auth/weak-password':'Choose a stronger password with at least 8 characters.','auth/network-request-failed':'Network error. Check your internet connection and try again.','auth/too-many-requests':'Too many attempts. Please wait and try again.','auth/operation-not-allowed':'Email/password sign-in is not enabled for this Firebase project.','auth/account-exists-with-different-credential':'An account already exists with this email using a different sign-in method. Try the original method or contact us for help.','auth/unauthorized-domain':'This website domain is not yet authorized for Firebase sign-in. Please contact the website administrator.','auth/invalid-oauth-client-id':'The social sign-in provider is not fully configured in Firebase.'};return map[e.code]||('Could not complete the request: '+(e.message||'Please try again.'))}
 
