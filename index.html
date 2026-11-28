@@ -195,7 +195,7 @@ footer{background:#0B1F33;color:#d5e2f1;padding:34px 0 16px}.footer-grid{display
  </div>
  <nav class="sia-secondary"><div class="container sia-secondary-in">
   <a class="sia-home-link" href="#home">⌂ &nbsp;Home</a><button type="button" class="all-categories-trigger" id="allCategoriesTrigger" aria-expanded="false" aria-controls="allCategoriesPanel">☰ &nbsp;All Categories⌄</button>
-  <a href="#products">Ready to Browse</a><a href="#departments">Our Departments</a><a href="#services">Printing &amp; Media</a><a href="#products">Products &amp; Accessories</a><a href="https://wa.me/265999290495">Contact</a><span class="sia-nav-spacer"></span><a href="account.html">Customer Portal⌄</a>
+  <a href="#products">Ready to Browse</a><a href="#departments">Our Departments</a><a href="#services">Printing &amp; Media</a><a href="#products">Products &amp; Accessories</a><a href="https://wa.me/265999290495">Contact</a><span class="sia-nav-spacer"></span><a href="account.html">Customer Portal⌄</a><a id="adminDashboardLink" href="dashboard.html" hidden>Admin Dashboard</a>
  </div></nav>
  <div class="all-categories-backdrop" id="allCategoriesBackdrop" hidden></div>
  <section class="all-categories-panel" id="allCategoriesPanel" aria-label="All categories" hidden>
@@ -270,7 +270,7 @@ footer{background:#0B1F33;color:#d5e2f1;padding:34px 0 16px}.footer-grid{display
 <footer><div class="container"><div class="footer-grid"><div><div class="footer-brand">S I A TECH <span>PRINT MEDIA</span></div><p>Professional printing, phone repair, computer support and digital services in Matindi, Blantyre.</p></div><div><h3>Explore</h3><a href="#products">Our services</a><br><a href="#products">Products</a><br><a href="account.html">Customer portal</a></div><div><h3>Customer support</h3><a href="https://wa.me/265999290495">WhatsApp support</a><br><a href="tel:+265888290495">Call 0888 290 495</a><br><a href="https://wa.me/265999290495">Visit our shop</a></div><div><h3>Other platform</h3><a href="https://shuaibuidi.github.io/MOBILE-TECH-ROOM/">Mobile Tech Room</a><br><a href="https://www.facebook.com/">Facebook</a></div></div><div class="copyright"><span>© 2026 S I A TECH PRINT MEDIA. All rights reserved.</span><span>siadigitalvision.com</span><span>Powered by S I A Tech Print Media</span></div></div></footer>
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-import {getFirestore,collection,getDocs,query,where} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+import {getFirestore,collection,getDocs,query,where,doc,getDoc} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 const firebaseConfig={apiKey:"AIzaSyAFP-RfZWPKPcHU9NqtTzX1b8HvVVzkb3Y",authDomain:"mobile-tech-room.firebaseapp.com",projectId:"mobile-tech-room",storageBucket:"mobile-tech-room.firebasestorage.app",messagingSenderId:"620229324084",appId:"1:620229324084:web:7e2ae7a2550228a4dfc961",measurementId:"G-GPJM1C83TT"};
 import {getAuth,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
 const app=initializeApp(firebaseConfig);const db=getFirestore(app);
@@ -389,7 +389,14 @@ allCategoriesTrigger.addEventListener("click",()=>setAllCategoriesOpen(allCatego
 document.querySelectorAll("[data-department]").forEach(card=>card.addEventListener("click",()=>{const category=card.getAttribute("data-department"),filter=$("catalogueCategoryFilter");search.value="";$("catalogueTypeFilter").value="all";if([...filter.options].some(option=>option.value===category)){filter.value=category}else{filter.value="all";search.value=category}renderCatalogue();document.getElementById("products").scrollIntoView({behavior:"smooth"})}));
 
 const marketSignInButton=document.getElementById('marketSignInButton');
-onAuthStateChanged(auth,user=>{if(!marketSignInButton)return;marketSignInButton.textContent=user?'Sign Out':'Sign In';marketSignInButton.href=user?'#sign-out':'account.html';marketSignInButton.setAttribute('aria-label',user?'Sign out of your customer account':'Sign in to your customer account');});
+const adminDashboardLink=document.getElementById('adminDashboardLink');
+onAuthStateChanged(auth,async user=>{
+ if(marketSignInButton){marketSignInButton.textContent=user?'Sign Out':'Sign In';marketSignInButton.href=user?'#sign-out':'account.html';marketSignInButton.setAttribute('aria-label',user?'Sign out of your customer account':'Sign in to your customer account');}
+ if(adminDashboardLink){
+  adminDashboardLink.hidden=true;
+  if(user){try{const profileSnap=await getDoc(doc(db,'users',user.uid));const profile=profileSnap.exists()?profileSnap.data():{};adminDashboardLink.hidden=!(profile.role==='admin'&&profile.status==='approved');}catch(error){console.warn('Could not verify admin navigation access:',error);}}
+ }
+});
 marketSignInButton?.addEventListener('click',async event=>{if(marketSignInButton.textContent!=='Sign Out')return;event.preventDefault();marketSignInButton.style.pointerEvents='none';try{await signOut(auth)}catch(error){alert('Could not sign out. Please try again.')}finally{marketSignInButton.style.pointerEvents='';}});
 updateCartCount();loadCatalogue();
 </script>
