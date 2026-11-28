@@ -219,7 +219,7 @@ async function startSocialSignIn(provider,label){
   // Awaiting auth persistence first can cause Chrome to block the popup.
   const popupPromise=signInWithPopup(auth,provider);
   const credential=await popupPromise;
-  if(credential&&credential.user){location.replace('index.html')}
+  if(credential&&credential.user){if(await redirectApprovedAdmin(credential.user))return;location.replace('index.html')}
  }catch(error){
   showMessage(friendlyError(error));
   if(button){button.disabled=false;button.innerHTML='<span class="social-icon google-icon" aria-hidden="true">G</span><span>Continue with Google</span>'}
